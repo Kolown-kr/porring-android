@@ -1,0 +1,172 @@
+name: Test
+on:
+  pull_request:
+    branches: [ "dev" ]
+jobs:
+  unit_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v45
+      - name: Filter out test files
+        id: test_files
+        run: |
+          echo "Changed files: ${{ steps.changed_files.outputs.all_changed_files }}"
+          TEST_FILES=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" \
+            | tr ' ' '\n' \
+            | grep -E '^.+/src/test/(java|kotlin)/.+\.(kt|java)$' || true)
+          echo "Filtered by grep: $TEST_FILES"
+          TEST_FILES=$(echo "$TEST_FILES" \
+            | sed -E 's/^(.+)\/src\/test\/(java|kotlin)\/(.+)\.(kt|java)$/\1 \3/' \
+            | sed 's/\//./g')
+          echo "Processed by sed: $TEST_FILES"
+          TEST_FILES_SINGLE_LINE=$(echo "$TEST_FILES" | tr '\n' ' ')
+          echo "TEST_FILES=$TEST_FILES_SINGLE_LINE" >> $GITHUB_ENV
+          echo "$TEST_FILES" > test_files.txt
+          if [ -n "$(cat test_files.txt | xargs)" ]; then
+            echo "any_changed=true" >> $GITHUB_ENV
+          else
+            echo "any_changed=false" >> $GITHUB_ENV
+          fi
+      - name: Debug Changed Files
+        run: |
+          if [ -f test_files.txt ]; then
+            echo "changed files:"
+            cat test_files.txt
+          else
+            echo "No changed files found."
+          fi
+          
+          # Check the "any_changed" environment variable
+          echo "files changed: ${{ env.any_changed }}"
+      - name: setup JDK
+        if: env.any_changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+      - name: setup Android SDK
+        if: env.any_changed == 'true'
+        uses: android-actions/setup-android@v3
+      - name: Run unit tests
+        if: env.any_changed == 'true'
+        run: |
+          chmod +x gradlew
+          while IFS=$'\n' read -r LINE; do
+          
+            MODULE_RAW=$(echo "$LINE" | awk '{print $1}')
+            TEST_CLASS_RAW=$(echo "$LINE" | awk '{print $2}')
+            echo "MODULE_RAW: $MODULE_RAW"
+            echo "TEST_CLASS_RAW: $TEST_CLASS_RAW"
+          
+            MODULE_GRADLE=$(echo "$MODULE_RAW" | sed 's|\.|:|g')
+          
+            MODULE_PATH=$(echo "$MODULE_RAW" | sed 's|\.|/|g')
+          
+            CLASS_PATH=$(echo "$TEST_CLASS_RAW" | sed 's|\.|/|g')
+          
+            KT_FILE_JAVA="${MODULE_PATH}/src/test/java/${CLASS_PATH}.kt"
+            KT_FILE_KOTLIN="${MODULE_PATH}/src/test/kotlin/${CLASS_PATH}.kt"
+            echo "KT_FILE_JAVA: $KT_FILE_JAVA"
+            echo "KT_FILE_KOTLIN: $KT_FILE_KOTLIN"
+            if [ -f "$KT_FILE_JAVA" ]; then
+              if ! grep -q '@Test' "$KT_FILE_JAVA"; then
+                echo "No @Test found in $KT_FILE_JAVA. Skipping..."
+                continue
+              fi
+              SELECTED_FILE="$KT_FILE_JAVA"
+            elif [ -f "$KT_FILE_KOTLIN" ]; then
+              if ! grep -q '@Test' "$KT_FILE_KOTLIN"; then
+                echo "No @Test found in $KT_FILE_KOTLIN. Skipping..."
+                continue
+              fi
+              SELECTED_FILE="$KT_FILE_KOTLIN"
+            else
+              echo "No .kt file found in java/kotlin folder. Skipping..."
+              continue
+            fi
+          
+            echo "Running: ./gradlew :$MODULE_GRADLE:testDebugUnitTest --tests \"$TEST_CLASS_RAW\""
+            ./gradlew :"$MODULE_GRADLE":testDebugUnitTest --tests "$TEST_CLASS_RAW" --scan || exit 1
+          done < test_files.txt
+
+
+      - name: Test Result
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: "**/test-results/**/*.xml"
+
+  android_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: changed_files
+        uses: tj-actions/changed-files@v45
+
+      - name: Filter out test files
+        id: android_test_files
+        run: |
+          echo "Changed files: ${{ steps.changed_files.outputs.all_changed_files }}"
+
+          ANDROID_TEST_FILES=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" \
+            | tr ' ' '\n' \
+            | grep -E '^.+/src/androidTest/(java|kotlin)/.+\.(kt|java)$' || true)
+          echo "Filtered by grep: $ANDROID_TEST_FILES"
+
+          ANDROID_TEST_FILES=$(echo "$ANDROID_TEST_FILES" \
+            | sed -E 's/^(.+)\/src\/androidTest\/(java|kotlin)\/(.+)\.(kt|java)$/\1 \3/' \
+            | sed 's/\//./g')
+          echo "Processed by sed: $ANDROID_TEST_FILES"
+
+          ANDROID_TEST_FILES_SINGLE_LINE=$(echo "$ANDROID_TEST_FILES" | tr '\n' ' ')
+          echo "ANDROID_TEST_FILES=$ANDROID_TEST_FILES_SINGLE_LINE" >> $GITHUB_ENV
+
+          echo "$ANDROID_TEST_FILES" > android_test_files.txt
+
+          if [ -n "$(cat android_test_files.txt | xargs)" ]; then
+            echo "any_changed=true" >> $GITHUB_ENV
+          else
+            echo "any_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Setup JDK
+        if: env.any_changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        if: env.any_changed == 'true'
+        run: chmod +x gradlew
+
+      - name: Run Instrumentation Tests on Emulator
+        if: env.any_changed == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 26
+          target: default
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew connectedCheck --stacktrace
+          run: |
+            cat android_test_files.txt | while IFS=$'\n' read -r LINE; do
+              MODULE=$(echo "$LINE" | awk '{print $1}')
+              TEST_CLASS=$(echo "$LINE" | awk '{print $2}')
+            
+              MODULE=$(echo "$MODULE" | sed 's|\.|:|g')
+            
+              echo "MODULE: $MODULE"
+              echo "TEST_CLASS: $TEST_CLASS"
+            
+              echo "Running: ./gradlew :$MODULE:connectedAndroidTest --tests \"$TEST_CLASS\""
+              ./gradlew :$MODULE:connectedAndroidTest --tests "$TEST_CLASS" --scan || exit 1
+            done
