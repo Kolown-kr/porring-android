@@ -48,9 +48,11 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: '17'
+
       - name: setup Android SDK
         if: env.any_changed == 'true'
         uses: android-actions/setup-android@v3
+
       - name: Run unit tests
         if: env.any_changed == 'true'
         run: |
@@ -96,7 +98,7 @@ jobs:
 
       - name: Test Result
         uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+        if: env.any_changed == 'true'
         with:
           files: "**/test-results/**/*.xml"
 
@@ -170,3 +172,10 @@ jobs:
               echo "Running: ./gradlew :$MODULE:connectedAndroidTest --tests \"$TEST_CLASS\""
               ./gradlew :$MODULE:connectedAndroidTest --tests "$TEST_CLASS" --scan || exit 1
             done
+
+      - name: Publish Instrumentation Test Results
+        if: env.any_changed == 'true'
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: "**/outputs/androidTest-results/connected/*.xml"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
