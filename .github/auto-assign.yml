@@ -1,0 +1,10 @@
+addReviewers: true
+
+addAssignees: author
+
+reviewers:
+  - Guri999
+  - Bongpal-dev
+  - inwoo13
+
+numberOfReviewers: 1
