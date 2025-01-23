@@ -15,7 +15,7 @@ internal class ApiResponseCallAdapterFactory
         annotation: Array<out Annotation>,
         retrofit: Retrofit
     ): CallAdapter<*, *>? {
-        when(getRawType(returnType)) {
+        return when(getRawType(returnType)) {
             Call::class.java -> {
                 if (returnType !is ParameterizedType) {
                     return null
@@ -28,10 +28,10 @@ internal class ApiResponseCallAdapterFactory
 
                 val resultType = getParameterUpperBound(0, callType as ParameterizedType)
 
-                return ApiResponseCallAdapter<Any>(resultType)
+                ApiResponseCallAdapter<Any>(resultType)
             }
 
-            else -> return null
+            else -> null
         }
     }
 }
