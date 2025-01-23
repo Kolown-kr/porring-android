@@ -44,8 +44,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(projects.core.model)
 
@@ -72,6 +70,10 @@ dependencies {
     implementation(platform(libs.retrofit.bom))
     implementation(platform(libs.okhttp.bom))
     implementation(libs.bundles.retrofitBundle)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.androidx.arch.core.testing)
+
+    testImplementation(libs.kotlinx.coroutines.test)
 
     implementation(libs.kotlinx.serialization.json)
 }

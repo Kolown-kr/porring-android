@@ -1,0 +1,19 @@
+{
+  "id": 1,
+  "name": "닝닝",
+  "age": 23,
+  "list": [
+    {
+      "id": 3,
+      "name": "tim"
+    },
+    {
+      "id": 4,
+      "name": "win"
+    },
+    {
+      "id": 3,
+      "name": "tongky"
+    }
+  ]
+}
