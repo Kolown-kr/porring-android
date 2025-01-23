@@ -1,6 +1,7 @@
 package com.kolown.network.di
 
 import com.kolown.network.BuildConfig
+import com.kolown.network.adapter.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,6 +48,7 @@ internal object NetworkModule {
             .client(okHttpClient)
             .baseUrl(BASE_URL)
             .addConverterFactory(json.asConverterFactory(TYPE_JSON.toMediaType()))
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory())
             .build()
 
     private const val BASE_URL = "https://Todo" //TODO Sever URL 교체할 것
