@@ -1,7 +1,13 @@
 name: Test
+
 on:
   pull_request:
     branches: [ "dev" ]
+
+permissions:
+  contents: write
+  checks: write
+
 jobs:
   unit_test:
     runs-on: ubuntu-latest
