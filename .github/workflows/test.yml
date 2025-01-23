@@ -25,6 +25,12 @@ jobs:
       - name: gradlew permission
         run: chmod +x gradlew
 
+      - name: Create local.properties
+        if: env.any_changed == 'true'
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "google_cient_id=dumy" >> local.properties
+
       - name: Run unit tests
         run: ./gradlew testDebugUnitTest --stacktrace
 
