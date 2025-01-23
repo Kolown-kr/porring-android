@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -31,6 +32,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -63,4 +67,11 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+
+    //retrofit
+    implementation(platform(libs.retrofit.bom))
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.bundles.retrofitBundle)
+
+    implementation(libs.kotlinx.serialization.json)
 }
