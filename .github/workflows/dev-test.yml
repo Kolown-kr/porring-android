@@ -42,6 +42,13 @@ jobs:
           
           # Check the "any_changed" environment variable
           echo "files changed: ${{ env.any_changed }}"
+
+      - name: Create local.properties
+        if: env.any_changed == 'true'
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "google_cient_id=dumy" >> local.properties
+
       - name: setup JDK
         if: env.any_changed == 'true'
         uses: actions/setup-java@v4
