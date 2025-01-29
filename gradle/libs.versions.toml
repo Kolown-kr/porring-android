@@ -22,7 +22,7 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 jetbrainsKotlinJvm = "2.0.0"
 kotlin = "2.0.0"
-kotlinxCoroutinesCore = "1.9.0"
+coroutine = "1.9.0"
 kotlinxCoroutinesGuava = "1.9.0"
 kspVersion = "2.0.10-1.0.24"
 lottieCompose = "6.6.0"
@@ -83,7 +83,9 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitVersion" }
 
 ## coroutine
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutine" }
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutine" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutine" }
 kotlinx-coroutines-guava = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-guava", version.ref = "kotlinxCoroutinesGuava" }
 
 ## datastore
