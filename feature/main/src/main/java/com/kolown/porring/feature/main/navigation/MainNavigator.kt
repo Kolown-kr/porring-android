@@ -19,8 +19,8 @@ import com.kolown.model.UploadModel
 import com.kolown.porring.feature.my.navigation.navigateMy
 import com.kolown.porring.feature.my.navigation.navigateMyDetail
 import com.kolown.navigation.Route
-import com.kolown.search.navigation.navigateSearch
-import com.kolown.search.navigation.navigateSearchDetail
+import com.kolown.porring.feature.search.navigation.navigateSearch
+import com.kolown.porring.feature.search.navigation.navigateSearchDetail
 import com.kolown.setting.navigation.navigateSetting
 import com.kolown.their.navigation.navigateTheir
 import com.kolown.their.navigation.navigateTheirDetail

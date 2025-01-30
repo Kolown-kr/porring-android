@@ -1,4 +1,4 @@
-package com.kolown.search.component
+package com.kolown.porring.feature.search.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.designsystem.ui.theme.Surface2
-import com.kolown.search.R
+import com.kolown.porring.feature.search.R
 
 @Composable
 fun TagSearchBar(
