@@ -1,4 +1,4 @@
-package com.kolown.login.util
+package com.kolown.porring.feature.login.util
 
 import android.app.Activity
 import android.content.Context
@@ -6,7 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.kolown.login.BuildConfig
+import com.kolown.porring.feature.login.BuildConfig
 
 internal suspend fun getCredential(
     platform: LoginPlatform,

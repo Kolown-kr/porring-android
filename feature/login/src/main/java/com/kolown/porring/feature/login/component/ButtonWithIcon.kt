@@ -1,4 +1,4 @@
-package com.kolown.login.component
+package com.kolown.porring.feature.login.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Spacer

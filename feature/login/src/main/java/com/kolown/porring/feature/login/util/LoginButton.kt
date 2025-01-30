@@ -1,4 +1,4 @@
-package com.kolown.login.util
+package com.kolown.porring.feature.login.util
 
 import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.vector.ImageVector
