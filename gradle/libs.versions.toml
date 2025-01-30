@@ -50,7 +50,6 @@ minSdk = "24"
 compileSdk = "34"
 runtime = "1.7.7"
 uiGraphicsAndroid = "1.7.2"
-exifinterface = "1.3.6"
 exifinterfaceVersion = "1.3.7"
 firebaseAuthKtx = "23.1.0"
 
@@ -133,16 +132,10 @@ google-play-services-auth = { module = "com.google.android.gms:play-services-aut
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
 google-android-googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
-androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterfaceVersion" }
 
 ## lottie
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
-
-## exoplayer(삭제 요망)
-exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoplayerCore" }
-exoplayer-dash = { module = "com.google.android.exoplayer:exoplayer-dash", version.ref = "exoplayerCore" }
-exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", version.ref = "exoplayerCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
