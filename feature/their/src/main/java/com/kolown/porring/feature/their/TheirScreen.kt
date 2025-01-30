@@ -1,4 +1,4 @@
-package com.kolown.their
+package com.kolown.porring.feature.their
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -55,7 +55,7 @@ import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
-import com.kolown.their.component.PageItemFooter
+import com.kolown.porring.feature.their.component.PageItemFooter
 import kotlinx.coroutines.delay
 
 @Composable
