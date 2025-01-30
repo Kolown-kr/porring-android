@@ -1,13 +1,11 @@
-package com.kolown.detail.navigation
+package com.kolown.porring.feature.detail.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.detail.DetailRoute
+import com.kolown.porring.feature.detail.DetailRoute
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.navigation.MainMenuRoute
