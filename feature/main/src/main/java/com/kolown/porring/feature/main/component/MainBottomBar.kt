@@ -1,4 +1,4 @@
-package com.kolown.main.component
+package com.kolown.porring.feature.main.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.kolown.common.component.LocalSnackBarBridge
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.main.navigation.MainMenu
+import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.model.SnackBarEvent
 import com.kolown.navigation.MainMenuRoute
 import kotlinx.collections.immutable.PersistentList
@@ -36,7 +36,7 @@ import kotlinx.collections.immutable.toPersistentList
 @Composable
 internal fun MainBottomBar(
     isLoggedIn: Boolean = false,
-    
+
     modifier: Modifier = Modifier,
     visible: Boolean,
     menus: PersistentList<MainMenu>,

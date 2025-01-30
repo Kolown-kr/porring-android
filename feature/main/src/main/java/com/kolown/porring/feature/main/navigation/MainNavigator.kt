@@ -1,4 +1,4 @@
-package com.kolown.main.navigation
+package com.kolown.porring.feature.main.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

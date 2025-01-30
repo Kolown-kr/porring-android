@@ -1,8 +1,6 @@
-package com.kolown.main
+package com.kolown.porring.feature.main
 
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,9 +15,9 @@ import androidx.compose.runtime.setValue
 import com.kolown.common.component.LocalSnackBarBridge
 import com.kolown.common.component.SnackBarBridge
 import com.kolown.designsystem.ui.theme.PorringTheme
-import com.kolown.main.component.NotAvailableVersionScreen
-import com.kolown.main.navigation.MainNavigator
-import com.kolown.main.navigation.rememberMainNavigator
+import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
+import com.kolown.porring.feature.main.navigation.MainNavigator
+import com.kolown.porring.feature.main.navigation.rememberMainNavigator
 import com.kolown.navigation.MainMenuRoute
 import com.kolown.navigation.Route
 import dagger.hilt.android.AndroidEntryPoint

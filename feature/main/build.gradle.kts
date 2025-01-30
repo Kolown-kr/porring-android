@@ -1,91 +1,15 @@
+import com.kolown.porring.setNamespace
+
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.ksp)
+    id("porring.android.feature")
 }
 
 android {
-    namespace = "com.kolown.main"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    setNamespace("feature.main")
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    //hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
-
-    //camera(with optional)
-    implementation(libs.androidx.camera.core)
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.video)
-    implementation(libs.androidx.camera.view)
-
-    //proto datastore
-    implementation(libs.androidx.datastore)
-
-    //coil
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-
-    //camera x r2.19.1
-    implementation(libs.exoplayer.core)
-    implementation(libs.exoplayer.dash)
-
-    //view system?
-    implementation(libs.exoplayer.ui)
-
     implementation(libs.kotlinx.immutable)
-
-    implementation(libs.bundles.android.compose)
-
-    implementation(projects.core.common)
-    implementation(projects.core.data)
-    implementation(projects.core.designsystem)
-    implementation(projects.core.navigation)
 
     implementation(projects.feature.camera)
     implementation(projects.feature.detail)
@@ -98,6 +22,4 @@ dependencies {
     implementation(projects.feature.setting)
     implementation(projects.feature.their)
     implementation(projects.feature.upload)
-
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
