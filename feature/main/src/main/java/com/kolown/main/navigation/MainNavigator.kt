@@ -13,7 +13,7 @@ import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
 import com.kolown.porring.feature.follower.navigation.navigateFollower
 import com.kolown.porring.feature.home.navigation.navigateHome
-import com.kolown.join.navigation.navigateToJoin
+import com.kolown.porring.feature.join.navigation.navigateToJoin
 import com.kolown.login.navigation.navigateLogin
 import com.kolown.model.UploadModel
 import com.kolown.my.navigation.navigateMy

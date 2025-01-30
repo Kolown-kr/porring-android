@@ -11,7 +11,7 @@ import androidx.navigation.compose.NavHost
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
-import com.kolown.join.navigation.joinNavGraph
+import com.kolown.porring.feature.join.navigation.joinNavGraph
 import com.kolown.login.navigation.loginNavGraph
 import com.kolown.main.navigation.MainMenu
 import com.kolown.main.navigation.MainNavigator

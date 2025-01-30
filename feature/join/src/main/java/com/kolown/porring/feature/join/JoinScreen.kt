@@ -1,4 +1,4 @@
-package com.kolown.join
+package com.kolown.porring.feature.join
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -83,7 +83,9 @@ internal fun JoinRoute(
                 val exception = (joinState as UiState.Failure).error
 
                 when (exception) {
-                    is FirebaseAuthUserCollisionException -> snackBarBridge.postSnackBarString(context.getString(R.string.string_already_exist))
+                    is FirebaseAuthUserCollisionException -> snackBarBridge.postSnackBarString(context.getString(
+                        R.string.string_already_exist
+                    ))
                     else -> Log.e(
                         "JoinScreen",
                         "fatal: ${(joinState as UiState.Failure).error}"

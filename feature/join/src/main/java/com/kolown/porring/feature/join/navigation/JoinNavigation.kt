@@ -1,11 +1,11 @@
-package com.kolown.join.navigation
+package com.kolown.porring.feature.join.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.join.JoinRoute
+import com.kolown.porring.feature.join.JoinRoute
 import com.kolown.navigation.Route
 
 fun NavController.navigateToJoin(navOptions: NavOptions) {
