@@ -1,12 +1,10 @@
 import com.kolown.porring.configureCoroutineAndroid
-import com.kolown.porring.configureHiltAndroid
 
 plugins {
     id("porring.android.library")
     id("porring.android.compose")
 }
 
-configureHiltAndroid()
 configureCoroutineAndroid()
 
 dependencies {
