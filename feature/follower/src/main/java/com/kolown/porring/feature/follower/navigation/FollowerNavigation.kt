@@ -1,11 +1,11 @@
-package com.kolown.follower.navigation
+package com.kolown.porring.feature.follower.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.follower.FollowerRoute
+import com.kolown.porring.feature.follower.FollowerRoute
 import com.kolown.navigation.MainMenuRoute
 
 fun NavController.navigateFollower(navOptions: NavOptions) {

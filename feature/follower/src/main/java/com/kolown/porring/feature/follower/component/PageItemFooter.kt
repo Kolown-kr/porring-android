@@ -1,4 +1,4 @@
-package com.kolown.follower.component
+package com.kolown.porring.feature.follower.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import com.kolown.follower.R
+import com.kolown.porring.feature.follower.R
 
 @Composable
 fun PageItemFooter(
