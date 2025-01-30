@@ -21,7 +21,7 @@ import com.kolown.porring.feature.my.navigation.navigateMyDetail
 import com.kolown.navigation.Route
 import com.kolown.porring.feature.search.navigation.navigateSearch
 import com.kolown.porring.feature.search.navigation.navigateSearchDetail
-import com.kolown.setting.navigation.navigateSetting
+import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.their.navigation.navigateTheir
 import com.kolown.their.navigation.navigateTheirDetail
 import com.kolown.upload.navigation.navigateUpload

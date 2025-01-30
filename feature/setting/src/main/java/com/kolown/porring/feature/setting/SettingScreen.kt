@@ -1,4 +1,4 @@
-package com.kolown.setting
+package com.kolown.porring.feature.setting
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -20,9 +20,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kolown.designsystem.R.drawable
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.component.PorringTopAppBar
-import com.kolown.setting.component.MenuDivider
-import com.kolown.setting.component.TextLabel
-import com.kolown.setting.component.TextMenu
+import com.kolown.porring.feature.setting.component.MenuDivider
+import com.kolown.porring.feature.setting.component.TextLabel
+import com.kolown.porring.feature.setting.component.TextMenu
 
 @Composable
 internal fun SettingRoute(
