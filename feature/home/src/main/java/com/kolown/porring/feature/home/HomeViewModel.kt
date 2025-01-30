@@ -1,4 +1,4 @@
-package com.kolown.home
+package com.kolown.porring.feature.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

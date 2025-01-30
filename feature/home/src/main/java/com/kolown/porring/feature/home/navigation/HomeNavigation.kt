@@ -1,11 +1,11 @@
-package com.kolown.home.navigation
+package com.kolown.porring.feature.home.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.home.HomeRoute
+import com.kolown.porring.feature.home.HomeRoute
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.navigation.MainMenuRoute

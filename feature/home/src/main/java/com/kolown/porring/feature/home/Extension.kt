@@ -1,4 +1,4 @@
-package com.kolown.home
+package com.kolown.porring.feature.home
 
 import com.kolown.model.Reactions
 

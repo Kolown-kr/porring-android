@@ -1,4 +1,4 @@
-package com.kolown.home.component
+package com.kolown.porring.feature.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.home.toImage
+import com.kolown.porring.feature.home.toImage
 import com.kolown.model.Reactions
 
 @Composable

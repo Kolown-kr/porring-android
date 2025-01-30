@@ -1,4 +1,4 @@
-package com.kolown.home
+package com.kolown.porring.feature.home
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.Image
@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.home.component.RandomImageList
+import com.kolown.porring.feature.home.component.RandomImageList
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UiState

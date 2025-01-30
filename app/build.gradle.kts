@@ -1,7 +1,5 @@
 plugins {
-    alias(libs.plugins.ksp)
     alias(libs.plugins.google)
-    alias(libs.plugins.kotlin.compose)
     id("porring.android.application")
 }
 
@@ -14,10 +12,6 @@ android {
         versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
     }
 }
 
