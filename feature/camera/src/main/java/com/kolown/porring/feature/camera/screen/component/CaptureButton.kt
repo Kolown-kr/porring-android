@@ -1,4 +1,4 @@
-package com.kolown.camera.screen.component
+package com.kolown.porring.feature.camera.screen.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.kolown.camera.R
+import com.kolown.porring.feature.camera.R
 
 @Composable
 fun CaptureButton( modifier: Modifier = Modifier.size(62.dp),onClick: () -> Unit,) {

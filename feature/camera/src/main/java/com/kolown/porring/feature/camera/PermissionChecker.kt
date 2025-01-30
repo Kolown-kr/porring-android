@@ -1,4 +1,4 @@
-package com.kolown.camera
+package com.kolown.porring.feature.camera
 
 import android.Manifest
 import android.content.Context

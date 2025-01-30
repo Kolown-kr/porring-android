@@ -1,4 +1,4 @@
-package com.kolown.camera.screen
+package com.kolown.porring.feature.camera.screen
 
 import android.media.MediaActionSound
 import androidx.camera.core.CameraSelector
@@ -44,12 +44,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.kolown.camera.R
-import com.kolown.camera.getImagePickerLauncher
-import com.kolown.camera.getSuspendedResult
-import com.kolown.camera.screen.component.CaptureButton
-import com.kolown.camera.screen.component.PreviewViewCompose
-import com.kolown.camera.takePhoto
+import com.kolown.porring.feature.camera.R
+import com.kolown.porring.feature.camera.getImagePickerLauncher
+import com.kolown.porring.feature.camera.getSuspendedResult
+import com.kolown.porring.feature.camera.screen.component.CaptureButton
+import com.kolown.porring.feature.camera.screen.component.PreviewViewCompose
+import com.kolown.porring.feature.camera.takePhoto
 import com.kolown.designsystem.ui.theme.BackgroundDark
 import kotlinx.coroutines.launch
 

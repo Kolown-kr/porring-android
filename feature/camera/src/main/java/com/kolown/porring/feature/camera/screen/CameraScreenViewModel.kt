@@ -1,4 +1,4 @@
-package com.kolown.camera.screen
+package com.kolown.porring.feature.camera.screen
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

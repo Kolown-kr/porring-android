@@ -1,7 +1,7 @@
-package com.kolown.camera.filter.common
+package com.kolown.porring.feature.camera.filter.common
 
 import android.opengl.GLES20
-import com.kolown.camera.filter.util.GLUtil
+import com.kolown.porring.feature.camera.filter.util.GLUtil
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.opengles.GL10

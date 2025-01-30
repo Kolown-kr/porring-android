@@ -1,4 +1,4 @@
-package com.kolown.camera.screen
+package com.kolown.porring.feature.camera.screen
 
 import android.Manifest
 import android.util.Log
@@ -22,8 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.kolown.camera.PermissionChecker
-import com.kolown.camera.R
+import com.kolown.porring.feature.camera.PermissionChecker
+import com.kolown.porring.feature.camera.R
 import com.kolown.designsystem.R.drawable
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.component.PorringTopAppBar

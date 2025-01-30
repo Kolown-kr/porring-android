@@ -1,4 +1,4 @@
-package com.kolown.camera
+package com.kolown.porring.feature.camera
 
 import android.content.Context
 import android.graphics.Bitmap
