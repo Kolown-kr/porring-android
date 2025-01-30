@@ -1,4 +1,4 @@
-package com.kolown.my.navigation
+package com.kolown.porring.feature.my.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.remember
@@ -8,8 +8,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.my.DetailMyRoute
-import com.kolown.my.MyRoute
+import com.kolown.porring.feature.my.DetailMyRoute
+import com.kolown.porring.feature.my.MyRoute
 import com.kolown.navigation.MainMenuRoute
 import com.kolown.navigation.Route
 
