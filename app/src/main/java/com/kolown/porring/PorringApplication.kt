@@ -1,10 +1,7 @@
 package com.kolown.porring
 
 import android.app.Application
-import android.content.Intent
 import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
-import kotlin.system.exitProcess
 
 @HiltAndroidApp
 class PorringApplication : Application(){
