@@ -23,7 +23,7 @@ import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.search.navigation.searchNavGraph
 import com.kolown.porring.feature.setting.navigation.settingNavGraph
 import com.kolown.porring.feature.their.navigation.theirNavGraph
-import com.kolown.upload.navigation.uploadNavGraph
+import com.kolown.porring.feature.upload.navigation.uploadNavGraph
 
 //@RequiresApi(Build.VERSION_CODES.O)
 @Composable

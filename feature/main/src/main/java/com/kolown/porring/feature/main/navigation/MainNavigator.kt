@@ -24,7 +24,7 @@ import com.kolown.porring.feature.search.navigation.navigateSearchDetail
 import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.their.navigation.navigateTheirDetail
-import com.kolown.upload.navigation.navigateUpload
+import com.kolown.porring.feature.upload.navigation.navigateUpload
 
 internal class MainNavigator(
     val navController: NavHostController,

@@ -1,4 +1,4 @@
-package com.kolown.upload.navigation
+package com.kolown.porring.feature.upload.navigation
 
 import android.net.Uri
 import android.os.Bundle
@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.kolown.model.UploadModel
 import com.kolown.navigation.Route
-import com.kolown.upload.UploadRoute
+import com.kolown.porring.feature.upload.UploadRoute
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.reflect.typeOf

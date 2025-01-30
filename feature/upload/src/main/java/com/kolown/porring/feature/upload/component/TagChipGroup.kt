@@ -1,4 +1,4 @@
-package com.kolown.upload.component
+package com.kolown.porring.feature.upload.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.component.PorringInputChip
 import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.upload.R
+import com.kolown.porring.feature.upload.R
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

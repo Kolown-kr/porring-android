@@ -1,4 +1,4 @@
-package com.kolown.upload
+package com.kolown.porring.feature.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -10,7 +10,7 @@ import androidx.navigation.toRoute
 import com.kolown.data.repository.ImageCacheRepository
 import com.kolown.model.UploadModel
 import com.kolown.navigation.Route
-import com.kolown.upload.navigation.UploadType
+import com.kolown.porring.feature.upload.navigation.UploadType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
