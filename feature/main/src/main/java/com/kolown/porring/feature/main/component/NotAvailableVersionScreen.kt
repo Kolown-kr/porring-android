@@ -1,4 +1,4 @@
-package com.kolown.main.component
+package com.kolown.porring.feature.main.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

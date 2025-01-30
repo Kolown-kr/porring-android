@@ -1,4 +1,4 @@
-package com.kolown.main.component
+package com.kolown.porring.feature.main.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,8 +13,8 @@ import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
 import com.kolown.porring.feature.join.navigation.joinNavGraph
 import com.kolown.porring.feature.login.navigation.loginNavGraph
-import com.kolown.main.navigation.MainMenu
-import com.kolown.main.navigation.MainNavigator
+import com.kolown.porring.feature.main.navigation.MainMenu
+import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UploadModel

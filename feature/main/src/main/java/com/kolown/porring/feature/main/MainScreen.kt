@@ -1,4 +1,4 @@
-package com.kolown.main
+package com.kolown.porring.feature.main
 
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -25,17 +25,16 @@ import androidx.lifecycle.lifecycleScope
 import com.kolown.common.component.showSnackBarWithData
 import com.kolown.designsystem.ui.theme.PrimaryDark
 import com.kolown.designsystem.ui.theme.SnackBarContainer
-import com.kolown.main.component.MainBottomBar
-import com.kolown.main.component.MainNavHost
-import com.kolown.main.navigation.MainMenu
-import com.kolown.main.navigation.MainNavigator
-import com.kolown.main.navigation.rememberMainNavigator
+import com.kolown.porring.feature.main.component.MainBottomBar
+import com.kolown.porring.feature.main.component.MainNavHost
+import com.kolown.porring.feature.main.navigation.MainMenu
+import com.kolown.porring.feature.main.navigation.MainNavigator
+import com.kolown.porring.feature.main.navigation.rememberMainNavigator
 import com.kolown.model.InitUiState
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.SnackBarEvent
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @Composable
