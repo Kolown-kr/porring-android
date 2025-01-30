@@ -9,13 +9,7 @@ android {
 }
 
 dependencies {
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
     implementation(libs.exifinterface)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
 
     //camera(with optional)
     implementation(libs.androidx.camera.core)
@@ -25,7 +19,4 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extension)
     implementation(libs.kotlinx.coroutines.guava)
-
-    // Jetpack Compose nav
-//    implementation(libs.androidx.navigation.compose)
 }
