@@ -1,4 +1,4 @@
-package com.kolown.my
+package com.kolown.porring.feature.my
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

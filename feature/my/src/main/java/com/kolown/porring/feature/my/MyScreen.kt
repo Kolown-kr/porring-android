@@ -1,4 +1,4 @@
-package com.kolown.my
+package com.kolown.porring.feature.my
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -53,13 +53,13 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.kolown.common.component.GalleryItem
 import com.kolown.common.component.RestrictedLoginContent
-import com.kolown.designsystem.R
 import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
-import com.kolown.my.component.PageItemFooter
+import com.kolown.porring.feature.my.component.PageItemFooter
 import kotlinx.coroutines.delay
+import com.kolown.porring.feature.my.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,7 +149,7 @@ private fun MyScreen(
                 PorringIconButton(
                     icon = Icons.Default.Settings,
                     onClick = navigateToSetting,
-                    contentDescription = stringResource(com.kolown.my.R.string.string_setting)
+                    contentDescription = stringResource(R.string.string_setting)
                 )
             }
         )
@@ -240,12 +240,12 @@ fun StateLazyGrid(
                     ) {
                         AsyncImage(
                             modifier = Modifier.size(100.dp),
-                            model = R.drawable.ic_question_mark,
+                            model = com.kolown.designsystem.R.drawable.ic_question_mark,
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.height(40.dp))
                         Text(
-                            text = stringResource(com.kolown.my.R.string.string_no_post),
+                            text = stringResource(R.string.string_no_post),
                             color = Primary
                         )
                     }
@@ -308,7 +308,7 @@ private fun ErrorScreen() {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = stringResource(com.kolown.my.R.string.string_error), color = Color.Red
+                text = stringResource(R.string.string_error), color = Color.Red
             )
         }
     }
