@@ -1,11 +1,6 @@
-package com.kolown.detail
+package com.kolown.porring.feature.detail
 
 import android.util.Log
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData

@@ -10,7 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.kolown.porring.feature.camera.navigation.navigateCamera
-import com.kolown.detail.navigation.navigateToDetail
+import com.kolown.porring.feature.detail.navigation.navigateToDetail
 import com.kolown.follower.navigation.navigateFollower
 import com.kolown.porring.feature.home.navigation.navigateHome
 import com.kolown.join.navigation.navigateToJoin
