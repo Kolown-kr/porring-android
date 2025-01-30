@@ -1,6 +1,5 @@
-package com.kolown.their
+package com.kolown.porring.feature.their
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn

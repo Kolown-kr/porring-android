@@ -1,4 +1,4 @@
-package com.kolown.their.navigation
+package com.kolown.porring.feature.their.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.remember
@@ -11,8 +11,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.kolown.navigation.MainMenuRoute
 import com.kolown.navigation.Route
-import com.kolown.their.DetailTheirRoute
-import com.kolown.their.TheirRoute
+import com.kolown.porring.feature.their.DetailTheirRoute
+import com.kolown.porring.feature.their.TheirRoute
 
 fun NavController.navigateTheir(authorId: String, navOptions: NavOptions? = null) {
     navigate(MainMenuRoute.Their(authorId), navOptions)

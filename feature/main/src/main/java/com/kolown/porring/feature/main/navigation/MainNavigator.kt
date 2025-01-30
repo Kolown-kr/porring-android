@@ -22,8 +22,8 @@ import com.kolown.navigation.Route
 import com.kolown.porring.feature.search.navigation.navigateSearch
 import com.kolown.porring.feature.search.navigation.navigateSearchDetail
 import com.kolown.porring.feature.setting.navigation.navigateSetting
-import com.kolown.their.navigation.navigateTheir
-import com.kolown.their.navigation.navigateTheirDetail
+import com.kolown.porring.feature.their.navigation.navigateTheir
+import com.kolown.porring.feature.their.navigation.navigateTheirDetail
 import com.kolown.upload.navigation.navigateUpload
 
 internal class MainNavigator(
