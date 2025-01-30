@@ -25,12 +25,21 @@ internal fun Project.configureKotlinAndroid() {
         }
 
         buildTypes {
-            getByName("release") {
+            getByName("debug") {
                 isMinifyEnabled = false
                 proguardFiles(
                     getDefaultProguardFile("proguard-android-optimize.txt"),
                     "proguard-rules.pro"
                 )
+                buildConfigField("boolean", "IS_DEBUG", "true")
+            }
+            getByName("release") {
+                isMinifyEnabled = true
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+                buildConfigField("boolean", "IS_DEBUG", "false")
             }
         }
     }

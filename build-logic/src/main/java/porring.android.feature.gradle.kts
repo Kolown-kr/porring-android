@@ -3,7 +3,7 @@ import com.kolown.porring.configureHiltAndroid
 
 plugins {
     id("porring.android.library")
-    id("porring.android.hilt")
+    id("porring.android.compose")
 }
 
 configureHiltAndroid()
