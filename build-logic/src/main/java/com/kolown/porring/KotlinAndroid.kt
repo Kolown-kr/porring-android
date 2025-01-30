@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 internal fun Project.configureKotlinAndroid() {
     pluginManager.apply("org.jetbrains.kotlin.android")
+    pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
     androidExtension.apply {
         compileSdk = 34
@@ -41,6 +42,10 @@ internal fun Project.configureKotlinAndroid() {
                 )
                 buildConfigField("boolean", "IS_DEBUG", "false")
             }
+        }
+
+        buildFeatures {
+            buildConfig = true
         }
     }
 

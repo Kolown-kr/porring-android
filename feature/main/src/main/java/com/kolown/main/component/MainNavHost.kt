@@ -1,9 +1,5 @@
 package com.kolown.main.component
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,7 +11,6 @@ import androidx.navigation.compose.NavHost
 import com.kolown.camera.navigation.cameraNavGraph
 import com.kolown.detail.navigation.detailNavGraph
 import com.kolown.follower.navigation.followerNavGraph
-import com.kolown.home.navigation.homeNavGraph
 import com.kolown.join.navigation.joinNavGraph
 import com.kolown.login.navigation.loginNavGraph
 import com.kolown.main.navigation.MainMenu
@@ -24,11 +19,11 @@ import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UploadModel
 import com.kolown.my.navigation.myNavGraph
+import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.search.navigation.searchNavGraph
 import com.kolown.setting.navigation.settingNavGraph
 import com.kolown.their.navigation.theirNavGraph
 import com.kolown.upload.navigation.uploadNavGraph
-import kotlinx.coroutines.flow.Flow
 
 //@RequiresApi(Build.VERSION_CODES.O)
 @Composable

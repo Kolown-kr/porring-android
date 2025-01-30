@@ -1,4 +1,4 @@
-package com.kolown.home.component
+package com.kolown.porring.feature.home.component
 
 import IconFollow
 import IconGallery
@@ -22,10 +22,8 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,19 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
-import coil3.request.ImageRequest
 import com.kolown.common.component.CoilImage
 import com.kolown.common.component.FollowDialog
 import com.kolown.common.component.LocalSnackBarBridge
 import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.home.R
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.SnackBarEvent

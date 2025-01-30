@@ -1,4 +1,4 @@
-package com.kolown.home.component
+package com.kolown.porring.feature.home.component
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -13,7 +13,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.kolown.home.R
+import com.kolown.porring.feature.home.R
 import com.kolown.model.Reactions
 
 @Composable
