@@ -1,4 +1,4 @@
-package com.kolown.login
+package com.kolown.porring.feature.login
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -65,14 +65,14 @@ import com.kolown.designsystem.component.PorringTextField
 import com.kolown.designsystem.component.PorringTopAppBar
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.login.R.drawable
-import com.kolown.login.R.string
-import com.kolown.login.component.LoginButtonGroup
-import com.kolown.login.component.LogoItem
-import com.kolown.login.util.LoginButton.PainterIconButton
-import com.kolown.login.util.LoginButton.VectorIconButton
-import com.kolown.login.util.LoginPlatform
-import com.kolown.login.util.getCredential
+import com.kolown.porring.feature.login.R.drawable
+import com.kolown.porring.feature.login.R.string
+import com.kolown.porring.feature.login.component.LoginButtonGroup
+import com.kolown.porring.feature.login.component.LogoItem
+import com.kolown.porring.feature.login.util.LoginButton.PainterIconButton
+import com.kolown.porring.feature.login.util.LoginButton.VectorIconButton
+import com.kolown.porring.feature.login.util.LoginPlatform
+import com.kolown.porring.feature.login.util.getCredential
 import com.kolown.model.UiState
 import kotlinx.coroutines.launch
 
@@ -110,9 +110,7 @@ internal fun LoginRoute(
             }
 
             is UiState.Failure -> {
-                val error = (loginState as UiState.Failure).error
-
-                when (error) {
+                when (val error = (loginState as UiState.Failure).error) {
                     is FirebaseAuthInvalidCredentialsException -> {
                         when (error.errorCode) {
                             "ERROR_INVALID_EMAIL" -> snackBarBridge.postSnackBarString(context.getString(string.string_need_email_form))

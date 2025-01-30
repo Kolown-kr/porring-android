@@ -1,4 +1,4 @@
-package com.kolown.login.component
+package com.kolown.porring.feature.login.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kolown.login.util.LoginButton
+import com.kolown.porring.feature.login.util.LoginButton
 
 @Composable
 internal fun LoginButtonGroup(
