@@ -12,6 +12,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -23,7 +24,6 @@ dependencyResolutionManagement {
 rootProject.name = "Porring"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
-include(":app-test-camera")
 
 include(":core:model")
 include(":core:data")
@@ -32,6 +32,7 @@ include(":core:navigation")
 include(":core:designsystem")
 include(":core:datastore")
 include(":core:network")
+include(":core:ui")
 
 include(":feature:home")
 include(":feature:follower")
@@ -45,4 +46,3 @@ include(":feature:setting")
 include(":feature:their")
 include(":feature:join")
 include(":feature:main")
-include(":core:ui")
