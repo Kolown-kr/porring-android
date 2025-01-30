@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
-import com.kolown.camera.navigation.cameraNavGraph
+import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.detail.navigation.detailNavGraph
 import com.kolown.follower.navigation.followerNavGraph
 import com.kolown.join.navigation.joinNavGraph

@@ -1,11 +1,11 @@
-package com.kolown.camera.filter
+package com.kolown.porring.feature.camera.filter
 
 import android.content.Context
-import com.kolown.camera.R
-import com.kolown.camera.filter.common.Filter
-import com.kolown.camera.filter.util.GLUtil
+import com.kolown.porring.feature.camera.R
+import com.kolown.porring.feature.camera.filter.common.Filter
+import com.kolown.porring.feature.camera.filter.util.GLUtil
 
-class OriginalFilter(context:Context):Filter(context){
+class OriginalFilter(context:Context): Filter(context){
     private val innerProgram: Int = GLUtil.buildProgram(context, R.raw.vertext, R.raw.original)
 
 

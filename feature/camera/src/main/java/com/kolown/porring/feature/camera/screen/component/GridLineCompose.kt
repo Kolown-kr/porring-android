@@ -1,4 +1,4 @@
-package com.kolown.camera.screen.component
+package com.kolown.porring.feature.camera.screen.component
 
 import android.util.Log
 import androidx.compose.foundation.Canvas

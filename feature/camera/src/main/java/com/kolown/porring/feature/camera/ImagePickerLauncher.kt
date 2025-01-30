@@ -1,6 +1,5 @@
-package com.kolown.camera
+package com.kolown.porring.feature.camera
 
-import android.media.Image
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -9,7 +8,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 
 
 @Composable
