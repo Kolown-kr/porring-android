@@ -1,4 +1,4 @@
-package com.kolown.follower
+package com.kolown.porring.feature.follower
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
