@@ -1,4 +1,4 @@
-package com.kolown.search.component
+package com.kolown.porring.feature.search.component
 
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth

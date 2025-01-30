@@ -1,4 +1,4 @@
-package com.kolown.search.navigation
+package com.kolown.porring.feature.search.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.remember
@@ -10,8 +10,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.kolown.navigation.MainMenuRoute
 import com.kolown.navigation.Route
-import com.kolown.search.DetailSearchRoute
-import com.kolown.search.SearchRoute
+import com.kolown.porring.feature.search.DetailSearchRoute
+import com.kolown.porring.feature.search.SearchRoute
 
 fun NavController.navigateSearch(navOptions: NavOptions) {
     navigate(MainMenuRoute.Search, navOptions)
