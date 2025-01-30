@@ -1,4 +1,4 @@
-package com.kolown.setting.component
+package com.kolown.porring.feature.setting.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

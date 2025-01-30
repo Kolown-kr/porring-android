@@ -21,7 +21,7 @@ import com.kolown.model.UploadModel
 import com.kolown.porring.feature.my.navigation.myNavGraph
 import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.search.navigation.searchNavGraph
-import com.kolown.setting.navigation.settingNavGraph
+import com.kolown.porring.feature.setting.navigation.settingNavGraph
 import com.kolown.their.navigation.theirNavGraph
 import com.kolown.upload.navigation.uploadNavGraph
 

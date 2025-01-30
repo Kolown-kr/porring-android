@@ -1,4 +1,4 @@
-package com.kolown.setting.component
+package com.kolown.porring.feature.setting.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
