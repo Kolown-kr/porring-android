@@ -1,4 +1,4 @@
-package com.kolown.network.di
+package com.kolown.porring.core.network.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

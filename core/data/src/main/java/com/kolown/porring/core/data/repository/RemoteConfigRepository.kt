@@ -1,6 +1,6 @@
 package com.kolown.porring.core.data.repository
 
-import com.kolown.network.RemoteConfigDataSource
+import com.kolown.porring.core.network.RemoteConfigDataSource
 import javax.inject.Inject
 
 interface RemoteConfigRepository {

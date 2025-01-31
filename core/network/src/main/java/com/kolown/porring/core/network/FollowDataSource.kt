@@ -1,4 +1,4 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import android.util.Log
 import com.google.firebase.firestore.CollectionReference
@@ -6,8 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.kolown.model.FollowerModel
-import com.kolown.network.model.FollowerDto
-import com.kolown.network.model.toFollowerModel
+import com.kolown.porring.core.network.model.FollowerDto
+import com.kolown.porring.core.network.model.toFollowerModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow

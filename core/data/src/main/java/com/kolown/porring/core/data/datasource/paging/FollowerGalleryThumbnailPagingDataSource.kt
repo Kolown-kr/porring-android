@@ -3,6 +3,8 @@ package com.kolown.porring.core.data.datasource.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kolown.model.FollowerThumbnail
+import com.kolown.porring.core.network.FollowDataSource
+import com.kolown.porring.core.network.PostDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -10,8 +12,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class FollowerGalleryThumbnailPagingDataSource @Inject constructor(
-    private val followerDataSource: com.kolown.network.FollowDataSource,
-    private val postDataSource: com.kolown.network.PostDataSource,
+    private val followerDataSource: FollowDataSource,
+    private val postDataSource: PostDataSource,
     private val currentUserId: String
 ) : PagingSource<String, FollowerThumbnail>() {
 

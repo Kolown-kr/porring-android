@@ -4,6 +4,10 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kolown.model.PostContentModel
 import com.kolown.model.PostModel
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.PostDataSource
+import com.kolown.porring.core.network.ReactionDataSource
+import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -16,10 +20,10 @@ data class UserPagingKey(
 )
 
 class UserPagingDataSource @Inject constructor(
-    private val postDataSource: com.kolown.network.PostDataSource,
-    private val tagDataSource: com.kolown.network.TagDataSource,
-    private val reactionDataSource: com.kolown.network.ReactionDataSource,
-    @Named("google") private val googleAuthDataSource: com.kolown.network.AuthDataSource,
+    private val postDataSource: PostDataSource,
+    private val tagDataSource: TagDataSource,
+    private val reactionDataSource: ReactionDataSource,
+    @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val userId: String
 ) : PagingSource<UserPagingKey, PostContentModel>() {
     override fun getRefreshKey(state: PagingState<UserPagingKey, PostContentModel>): UserPagingKey? {

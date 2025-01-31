@@ -3,6 +3,11 @@ package com.kolown.porring.core.data.datasource.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kolown.model.PostContentModel
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.FollowDataSource
+import com.kolown.porring.core.network.PostDataSource
+import com.kolown.porring.core.network.ReactionDataSource
+import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -11,11 +16,11 @@ import javax.inject.Named
 
 
 class SearchPagingSource(
-    private val postDataSource: com.kolown.network.PostDataSource,
-    private val tagDataSource: com.kolown.network.TagDataSource,
-    private val reactionDataSource: com.kolown.network.ReactionDataSource,
-    private val followerDataSource: com.kolown.network.FollowDataSource,
-    @Named("google") private val googleAuthDataSource: com.kolown.network.AuthDataSource,
+    private val postDataSource: PostDataSource,
+    private val tagDataSource: TagDataSource,
+    private val reactionDataSource: ReactionDataSource,
+    private val followerDataSource: FollowDataSource,
+    @Named("google") private val googleAuthDataSource: AuthDataSource,
     val tagId: String
 ) : PagingSource<String, PostContentModel>() {
 

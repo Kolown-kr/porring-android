@@ -1,4 +1,4 @@
-package com.kolown.network.model
+package com.kolown.porring.core.network.model
 
 import com.kolown.model.TagModel
 

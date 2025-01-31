@@ -1,4 +1,4 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import android.icu.util.Calendar
 import android.os.Build

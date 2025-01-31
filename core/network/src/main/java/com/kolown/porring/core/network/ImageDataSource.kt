@@ -1,4 +1,4 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage

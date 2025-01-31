@@ -1,11 +1,11 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.model.Tag
 import com.kolown.model.TagModel
-import com.kolown.network.model.TagDto
-import com.kolown.network.model.toTagModel
+import com.kolown.porring.core.network.model.TagDto
+import com.kolown.porring.core.network.model.toTagModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

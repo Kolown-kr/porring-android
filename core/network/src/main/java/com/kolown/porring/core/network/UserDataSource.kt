@@ -1,4 +1,4 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.model.User
