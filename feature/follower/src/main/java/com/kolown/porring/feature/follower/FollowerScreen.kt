@@ -60,7 +60,7 @@ import com.kolown.porring.core.common.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.feature.follower.component.PageItemFooter
-import com.kolown.model.FollowerThumbnail
+import com.kolown.porring.core.model.FollowerThumbnail
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

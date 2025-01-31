@@ -28,8 +28,8 @@ import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.feature.main.navigation.MainMenu
-import com.kolown.model.SnackBarEvent
-import com.kolown.navigation.MainMenuRoute
+import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.navigation.MainMenuRoute
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
 

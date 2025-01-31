@@ -1,6 +1,6 @@
 package com.kolown.porring.core.network.model
 
-import com.kolown.model.TagModel
+import com.kolown.porring.core.model.TagModel
 
 data class TagDto(
     val tagId: String = "",

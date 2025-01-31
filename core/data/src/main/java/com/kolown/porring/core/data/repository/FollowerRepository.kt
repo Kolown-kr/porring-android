@@ -7,7 +7,7 @@ import com.kolown.porring.core.data.datasource.paging.FollowerGalleryThumbnailPa
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
-import com.kolown.model.FollowerThumbnail
+import com.kolown.porring.core.model.FollowerThumbnail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject

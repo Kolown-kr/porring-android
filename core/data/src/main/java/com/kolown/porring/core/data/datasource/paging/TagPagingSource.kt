@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.network.TagDataSource
 
 class TagPagingSource(

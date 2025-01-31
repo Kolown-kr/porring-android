@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.UserRepository
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

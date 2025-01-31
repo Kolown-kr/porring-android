@@ -1,7 +1,7 @@
 package com.kolown.porring.core.data.datasource.fake
 
 import com.kolown.porring.core.data.mock.MockDataProvider
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Tag
 import kotlin.random.Random
 
 interface TagDataSource {

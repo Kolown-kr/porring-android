@@ -3,7 +3,7 @@ package com.kolown.porring.feature.join
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

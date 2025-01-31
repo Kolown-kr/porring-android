@@ -1,6 +1,6 @@
 package com.kolown.porring.feature.home
 
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.Reactions
 
 fun Reactions.toImage() =
     when (this) {

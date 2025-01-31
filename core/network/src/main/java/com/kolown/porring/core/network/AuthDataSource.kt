@@ -4,7 +4,7 @@ import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.kolown.model.User
+import com.kolown.porring.core.model.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Named

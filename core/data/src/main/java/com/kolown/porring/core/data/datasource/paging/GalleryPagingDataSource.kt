@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.datasource.paging
 
 import com.kolown.porring.core.data.datasource.fake.GalleryDataSource
 import com.kolown.porring.core.data.di.Fake
-import com.kolown.model.GalleryThumbnail
+import com.kolown.porring.core.model.GalleryThumbnail
 import javax.inject.Inject
 
 class GalleryPagingDataSource @Inject constructor(

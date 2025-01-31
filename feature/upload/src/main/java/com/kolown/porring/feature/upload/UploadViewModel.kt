@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kolown.porring.core.data.repository.ImageCacheRepository
-import com.kolown.model.UploadModel
-import com.kolown.navigation.Route
+import com.kolown.porring.core.model.UploadModel
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.upload.navigation.UploadType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

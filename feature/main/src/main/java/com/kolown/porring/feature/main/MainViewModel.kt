@@ -9,11 +9,11 @@ import com.kolown.porring.core.common.component.NetworkStateManager
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
-import com.kolown.model.InitUiState
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.SnackBarEvent
-import com.kolown.model.UploadModel
+import com.kolown.porring.core.model.InitUiState
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.model.UploadModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.BufferOverflow

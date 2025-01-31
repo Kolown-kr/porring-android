@@ -41,9 +41,9 @@ import com.kolown.porring.core.common.component.CoilImage
 import com.kolown.porring.core.common.component.FollowDialog
 import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.SnackBarEvent
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.SnackBarEvent
 
 @Composable
 internal fun RandomImageList(

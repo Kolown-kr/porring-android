@@ -50,8 +50,8 @@ import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.model.UiState
-import com.kolown.navigation.Route
+import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.navigation.Route
 
 @Composable
 internal fun JoinRoute(

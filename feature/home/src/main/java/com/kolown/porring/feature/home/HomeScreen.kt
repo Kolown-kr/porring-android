@@ -40,9 +40,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.feature.home.component.RandomImageList
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UiState
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

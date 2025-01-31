@@ -1,12 +1,12 @@
 package com.kolown.porring.core.data.mock
 
 import android.util.Log
-import com.kolown.model.Gallery
-import com.kolown.model.GalleryThumbnail
-import com.kolown.model.Post
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Gallery
+import com.kolown.porring.core.model.GalleryThumbnail
+import com.kolown.porring.core.model.Post
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.Tag
 
 object MockDataProvider {
     private val imageUrlList = listOf(

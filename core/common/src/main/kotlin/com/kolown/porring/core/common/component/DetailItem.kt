@@ -66,9 +66,9 @@ import com.kolown.porring.core.common.R
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.SnackBarEvent
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.SnackBarEvent
 
 
 @Composable

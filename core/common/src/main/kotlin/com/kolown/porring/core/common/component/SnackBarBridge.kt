@@ -1,6 +1,6 @@
 package com.kolown.porring.core.common.component
 
-import com.kolown.model.SnackBarEvent
+import com.kolown.porring.core.model.SnackBarEvent
 
 class SnackBarBridge(
     private val onSnackBarDataAdded: (SnackBarEvent) -> Unit

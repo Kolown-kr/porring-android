@@ -1,8 +1,8 @@
 package com.kolown.porring.core.data.datasource.fake
 
 import com.kolown.porring.core.data.mock.MockDataProvider
-import com.kolown.model.Gallery
-import com.kolown.model.GalleryThumbnail
+import com.kolown.porring.core.model.Gallery
+import com.kolown.porring.core.model.GalleryThumbnail
 import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlin.random.Random

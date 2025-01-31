@@ -1,6 +1,6 @@
 package com.kolown.porring.core.network.model
 
-import com.kolown.model.FollowerModel
+import com.kolown.porring.core.model.FollowerModel
 
 
 data class FollowerDto(

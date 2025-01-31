@@ -1,7 +1,7 @@
 package com.kolown.porring.core.network.model
 
-import com.kolown.model.ReactionModel
-import com.kolown.model.toReactions
+import com.kolown.porring.core.model.ReactionModel
+import com.kolown.porring.core.model.toReactions
 
 data class ReactionDto(
     val reactionId: String = "",

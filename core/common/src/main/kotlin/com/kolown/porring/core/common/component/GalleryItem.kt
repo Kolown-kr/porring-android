@@ -33,7 +33,7 @@ import com.kolown.porring.core.common.R
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
-import com.kolown.model.PostContentModel
+import com.kolown.porring.core.model.PostContentModel
 
 @Composable
 fun GalleryItem(

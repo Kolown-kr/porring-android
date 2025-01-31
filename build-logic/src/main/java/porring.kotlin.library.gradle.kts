@@ -1,3 +1,4 @@
+import com.kolown.porring.configureJava
 import com.kolown.porring.configureKotlin
 import org.gradle.kotlin.dsl.kotlin
 
@@ -6,3 +7,4 @@ plugins {
 }
 
 configureKotlin()
+configureJava()
