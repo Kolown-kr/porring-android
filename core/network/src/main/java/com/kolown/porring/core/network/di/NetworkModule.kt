@@ -1,7 +1,7 @@
-package com.kolown.network.di
+package com.kolown.porring.core.network.di
 
-import com.kolown.network.BuildConfig
-import com.kolown.network.adapter.ApiResponseCallAdapterFactory
+import com.kolown.porring.core.network.BuildConfig
+import com.kolown.porring.core.network.adapter.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

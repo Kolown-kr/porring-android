@@ -1,7 +1,7 @@
 package com.kolown.network
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.kolown.network.adapter.ApiResponseCallAdapterFactory
+import com.kolown.porring.core.network.adapter.ApiResponseCallAdapterFactory
 import com.kolown.rule.CoroutineTestRule
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

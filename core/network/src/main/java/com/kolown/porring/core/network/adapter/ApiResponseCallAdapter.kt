@@ -1,6 +1,6 @@
-package com.kolown.network.adapter
+package com.kolown.porring.core.network.adapter
 
-import com.kolown.network.model.ApiResponse
+import com.kolown.porring.core.network.model.ApiResponse
 import retrofit2.Call
 import retrofit2.CallAdapter
 import java.lang.reflect.Type

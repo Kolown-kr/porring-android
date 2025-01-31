@@ -1,7 +1,7 @@
 package com.kolown.network
 
 import com.kolown.fake.FakeService
-import com.kolown.network.model.ApiResponse
+import com.kolown.porring.core.network.model.ApiResponse
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
