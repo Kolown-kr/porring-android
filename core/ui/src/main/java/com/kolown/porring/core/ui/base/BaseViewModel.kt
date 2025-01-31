@@ -1,10 +1,11 @@
-package kr.co.ui.base
+package com.kolown.porring.core.ui.base
 
 import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.ui.BuildConfig
+
+import com.kolown.porring.core.ui.BuildConfig
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
