@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.repository
 
 import com.kolown.network.AuthDataSource
 import com.kolown.network.RemoteUserDataSource
-import com.kolown.datastore.LocalUserDataSource
+import com.kolown.porring.core.datastore.LocalUserDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Named

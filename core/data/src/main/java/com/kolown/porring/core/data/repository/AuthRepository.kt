@@ -5,7 +5,7 @@ import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.kolown.network.AuthDataSource
-import com.kolown.datastore.LocalUserDataSource
+import com.kolown.porring.core.datastore.LocalUserDataSource
 import javax.inject.Inject
 import javax.inject.Named
 
