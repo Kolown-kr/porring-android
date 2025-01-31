@@ -1,12 +1,12 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.kolown.model.ReactionModel
 import com.kolown.model.Reactions
-import com.kolown.network.model.ReactionDto
-import com.kolown.network.model.toReactionModel
+import com.kolown.porring.core.network.model.ReactionDto
+import com.kolown.porring.core.network.model.toReactionModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

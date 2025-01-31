@@ -1,4 +1,4 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential

@@ -1,7 +1,6 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.tasks.await

@@ -3,10 +3,11 @@ package com.kolown.porring.core.data.datasource.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kolown.model.Tag
+import com.kolown.porring.core.network.TagDataSource
 
 class TagPagingSource(
     private val searchText: String,
-    private val tagDataSource: com.kolown.network.TagDataSource
+    private val tagDataSource: TagDataSource
 ) : PagingSource<String, Tag>() {
 
     override suspend fun load(params: LoadParams<String>): LoadResult<String, Tag> {

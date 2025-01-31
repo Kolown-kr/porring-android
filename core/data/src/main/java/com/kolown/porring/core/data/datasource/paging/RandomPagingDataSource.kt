@@ -2,11 +2,11 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.network.AuthDataSource
-import com.kolown.network.FollowDataSource
-import com.kolown.network.PostDataSource
-import com.kolown.network.ReactionDataSource
-import com.kolown.network.TagDataSource
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.FollowDataSource
+import com.kolown.porring.core.network.PostDataSource
+import com.kolown.porring.core.network.ReactionDataSource
+import com.kolown.porring.core.network.TagDataSource
 import com.kolown.model.PostContentModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

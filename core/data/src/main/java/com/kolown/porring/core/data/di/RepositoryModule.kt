@@ -12,7 +12,7 @@ import com.kolown.porring.core.data.repository.TagRepository
 import com.kolown.porring.core.data.repository.TagRepositoryImpl
 import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.data.repository.UserRepositoryImpl
-import com.kolown.network.RemoteConfigDataSource
+import com.kolown.porring.core.network.RemoteConfigDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

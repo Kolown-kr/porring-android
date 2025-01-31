@@ -1,13 +1,12 @@
-package com.kolown.network
+package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.kolown.model.PostModel
-import com.kolown.network.model.PostDto
-import com.kolown.network.model.toPostModel
+import com.kolown.porring.core.network.model.PostDto
+import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 interface PostDataSource {

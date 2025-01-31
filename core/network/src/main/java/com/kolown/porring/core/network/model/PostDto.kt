@@ -1,7 +1,7 @@
-package com.kolown.network.model
+package com.kolown.porring.core.network.model
 
 import com.kolown.model.PostModel
-import com.kolown.network.Util.randomValue
+import com.kolown.porring.core.network.Util.randomValue
 
 data class PostDto(
     val postId: String = "",
