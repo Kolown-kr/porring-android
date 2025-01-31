@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
-import com.kolown.data.repository.FollowRepository
-import com.kolown.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.FollowRepository
+import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UiState

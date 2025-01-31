@@ -6,9 +6,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.common.component.NetworkStateManager
-import com.kolown.data.repository.AuthRepository
-import com.kolown.data.repository.PostRepository
-import com.kolown.data.repository.RemoteConfigRepository
+import com.kolown.porring.core.data.repository.AuthRepository
+import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.RemoteConfigRepository
 import com.kolown.model.InitUiState
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions

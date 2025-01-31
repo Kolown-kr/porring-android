@@ -3,8 +3,8 @@ package com.kolown.porring.feature.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.data.repository.FollowRepository
-import com.kolown.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.FollowRepository
+import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UiState
