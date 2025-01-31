@@ -30,9 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.kolown.porring.core.common.R
-import com.kolown.designsystem.ui.theme.Error
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.Surface2
+import com.kolown.porring.core.designsystem.ui.theme.Error
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.model.PostContentModel
 
 @Composable

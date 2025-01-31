@@ -1,4 +1,4 @@
-package com.kolown.designsystem.ui.theme
+package com.kolown.porring.core.designsystem.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

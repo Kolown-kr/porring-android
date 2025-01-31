@@ -17,9 +17,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import com.kolown.designsystem.R.drawable
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.R.drawable
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.feature.setting.component.MenuDivider
 import com.kolown.porring.feature.setting.component.TextLabel
 import com.kolown.porring.feature.setting.component.TextMenu

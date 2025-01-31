@@ -24,9 +24,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.kolown.porring.feature.camera.PermissionChecker
 import com.kolown.porring.feature.camera.R
-import com.kolown.designsystem.R.drawable
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.R.drawable
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 
 
 @Composable

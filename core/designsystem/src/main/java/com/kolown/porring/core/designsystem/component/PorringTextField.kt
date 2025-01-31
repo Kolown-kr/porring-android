@@ -1,4 +1,4 @@
-package com.kolown.designsystem.component
+package com.kolown.porring.core.designsystem.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
@@ -37,13 +37,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.kolown.designsystem.ui.theme.Error
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.PrimaryDark
-import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.designsystem.ui.theme.PrimaryUnActiveDark
-import com.kolown.designsystem.ui.theme.Surface
-import com.kolown.designsystem.ui.theme.SurfaceError
+import com.kolown.porring.core.designsystem.ui.theme.Error
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActiveDark
+import com.kolown.porring.core.designsystem.ui.theme.Surface
+import com.kolown.porring.core.designsystem.ui.theme.SurfaceError
 
 @Composable
 fun PorringTextField(

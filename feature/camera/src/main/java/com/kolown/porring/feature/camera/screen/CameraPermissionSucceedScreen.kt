@@ -50,7 +50,7 @@ import com.kolown.porring.feature.camera.getSuspendedResult
 import com.kolown.porring.feature.camera.screen.component.CaptureButton
 import com.kolown.porring.feature.camera.screen.component.PreviewViewCompose
 import com.kolown.porring.feature.camera.takePhoto
-import com.kolown.designsystem.ui.theme.BackgroundDark
+import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import kotlinx.coroutines.launch
 
 @Composable

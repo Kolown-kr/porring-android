@@ -31,8 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.designsystem.ui.theme.Gray
-import com.kolown.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Gray
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
 import com.kolown.model.Tag
 import com.kolown.porring.feature.search.component.PostHeader

@@ -51,9 +51,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.GalleryItem
-import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
 import com.kolown.porring.feature.their.component.PageItemFooter
 import kotlinx.coroutines.delay

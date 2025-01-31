@@ -1,4 +1,4 @@
-package com.kolown.designsystem.component
+package com.kolown.porring.core.designsystem.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.kolown.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 
 @Composable
 fun PorringIconButton(

@@ -25,9 +25,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.designsystem.ui.theme.Surface2
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.common.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

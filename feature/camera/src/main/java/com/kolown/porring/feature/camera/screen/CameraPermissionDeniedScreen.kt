@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.kolown.designsystem.ui.theme.BackgroundDark
-import com.kolown.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 
 @Composable
 fun CameraPermissionDeniedScreen(

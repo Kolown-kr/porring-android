@@ -22,7 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.DetailItem
-import com.kolown.designsystem.ui.theme.PrimaryContainerDark
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.common.component.DetailTopAppBar
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions

@@ -31,10 +31,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.DetailItem
 import com.kolown.porring.core.common.component.LoadingDetailContent
-import com.kolown.designsystem.R.*
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.component.PorringTopAppBar
-import com.kolown.designsystem.ui.theme.BackgroundDark
+import com.kolown.porring.core.designsystem.R.*
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.UiState
