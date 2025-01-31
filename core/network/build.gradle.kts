@@ -2,10 +2,14 @@ import com.kolown.porring.setNamespace
 
 plugins {
     id("porring.android.library")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     setNamespace("core.network")
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
