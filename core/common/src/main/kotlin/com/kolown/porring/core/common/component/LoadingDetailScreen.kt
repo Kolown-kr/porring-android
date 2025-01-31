@@ -1,4 +1,4 @@
-package com.kolown.common.component
+package com.kolown.porring.core.common.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -58,7 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.kolown.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.designsystem.R
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.component.PorringTextField

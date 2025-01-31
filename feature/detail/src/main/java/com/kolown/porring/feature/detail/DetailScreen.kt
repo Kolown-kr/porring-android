@@ -29,8 +29,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.common.component.DetailItem
-import com.kolown.common.component.LoadingDetailContent
+import com.kolown.porring.core.common.component.DetailItem
+import com.kolown.porring.core.common.component.LoadingDetailContent
 import com.kolown.designsystem.R.*
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.component.PorringTopAppBar
