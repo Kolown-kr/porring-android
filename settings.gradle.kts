@@ -27,7 +27,6 @@ include(":app-test-camera")
 
 include(":core:model")
 include(":core:data")
-include(":core:domain")
 include(":core:common")
 include(":core:navigation")
 include(":core:designsystem")

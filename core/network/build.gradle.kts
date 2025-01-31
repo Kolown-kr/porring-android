@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -32,6 +33,9 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        buildConfig = true
+    }
 }
 
 dependencies {
@@ -40,8 +44,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(projects.core.model)
 
@@ -63,4 +65,15 @@ dependencies {
     //hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+
+    //retrofit
+    implementation(platform(libs.retrofit.bom))
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.bundles.retrofitBundle)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.androidx.arch.core.testing)
+
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    implementation(libs.kotlinx.serialization.json)
 }
