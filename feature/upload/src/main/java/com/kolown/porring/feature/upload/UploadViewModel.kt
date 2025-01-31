@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kolown.data.repository.ImageCacheRepository
+import com.kolown.porring.core.data.repository.ImageCacheRepository
 import com.kolown.model.UploadModel
 import com.kolown.navigation.Route
 import com.kolown.porring.feature.upload.navigation.UploadType

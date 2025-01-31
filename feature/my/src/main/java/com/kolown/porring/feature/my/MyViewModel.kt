@@ -3,8 +3,8 @@ package com.kolown.porring.feature.my
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.kolown.data.repository.PostRepository
-import com.kolown.data.repository.UserRepository
+import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

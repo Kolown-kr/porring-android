@@ -3,7 +3,7 @@ package com.kolown.porring.feature.follower
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.kolown.data.repository.FollowRepository
+import com.kolown.porring.core.data.repository.FollowRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest

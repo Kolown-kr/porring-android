@@ -2,7 +2,7 @@ package com.kolown.porring.feature.join
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.data.repository.AuthRepository
+import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay

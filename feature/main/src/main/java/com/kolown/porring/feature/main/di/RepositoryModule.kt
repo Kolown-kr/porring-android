@@ -1,11 +1,11 @@
 package com.kolown.porring.feature.main.di
 
 import android.content.Context
-import com.kolown.data.repository.FakeImageRepository
-import com.kolown.data.repository.FakeImageRepositoryImpl
-import com.kolown.data.repository.ImageCacheRepository
-import com.kolown.data.repository.ImageCacheRepositoryImpl
-import com.kolown.data.repository.ImageRepository
+import com.kolown.porring.core.data.repository.FakeImageRepository
+import com.kolown.porring.core.data.repository.FakeImageRepositoryImpl
+import com.kolown.porring.core.data.repository.ImageCacheRepository
+import com.kolown.porring.core.data.repository.ImageCacheRepositoryImpl
+import com.kolown.porring.core.data.repository.ImageRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

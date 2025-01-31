@@ -16,6 +16,5 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.runtime)
     implementation(projects.feature.main)
 }
