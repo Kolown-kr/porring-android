@@ -73,7 +73,7 @@ import com.kolown.porring.feature.login.util.LoginButton.PainterIconButton
 import com.kolown.porring.feature.login.util.LoginButton.VectorIconButton
 import com.kolown.porring.feature.login.util.LoginPlatform
 import com.kolown.porring.feature.login.util.getCredential
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.UiState
 import kotlinx.coroutines.launch
 
 @Composable

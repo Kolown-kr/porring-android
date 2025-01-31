@@ -21,7 +21,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.DetailItem
 import com.kolown.porring.core.common.component.DetailTopAppBar
-import com.kolown.model.PostContentModel
+import com.kolown.porring.core.model.PostContentModel
 
 @Composable
 internal fun DetailMyRoute(

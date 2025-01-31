@@ -3,7 +3,7 @@ package com.kolown.porring.core.network
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.kolown.model.PostModel
+import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.tasks.await

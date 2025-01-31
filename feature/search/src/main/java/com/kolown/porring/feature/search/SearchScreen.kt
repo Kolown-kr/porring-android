@@ -33,8 +33,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.model.PostContentModel
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Tag
 import com.kolown.porring.feature.search.component.PostHeader
 import com.kolown.porring.feature.search.component.PostItem
 import com.kolown.porring.feature.search.component.SearchResult

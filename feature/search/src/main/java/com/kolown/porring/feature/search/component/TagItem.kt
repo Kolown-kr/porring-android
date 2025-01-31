@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Tag
 import com.kolown.porring.feature.search.R
 
 @Composable

@@ -30,10 +30,10 @@ import com.kolown.porring.feature.main.component.MainNavHost
 import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
-import com.kolown.model.InitUiState
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.SnackBarEvent
+import com.kolown.porring.core.model.InitUiState
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.SnackBarEvent
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.launch
 

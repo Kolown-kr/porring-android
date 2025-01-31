@@ -6,8 +6,8 @@ import androidx.paging.PagingData
 import com.kolown.porring.core.data.datasource.fake.GalleryDataSource
 import com.kolown.porring.core.data.datasource.paging.GalleryPagingDataSource
 import com.kolown.porring.core.data.di.Fake
-import com.kolown.model.Gallery
-import com.kolown.model.GalleryThumbnail
+import com.kolown.porring.core.model.Gallery
+import com.kolown.porring.core.model.GalleryThumbnail
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import kotlin.random.Random

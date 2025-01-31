@@ -18,8 +18,8 @@ import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
-import com.kolown.navigation.MainMenuRoute
-import com.kolown.navigation.Route
+import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -6,7 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.kolown.porring.feature.join.JoinRoute
-import com.kolown.navigation.Route
+import com.kolown.porring.core.navigation.Route
 
 fun NavController.navigateToJoin(navOptions: NavOptions) {
     navigate(Route.Join, navOptions = navOptions)

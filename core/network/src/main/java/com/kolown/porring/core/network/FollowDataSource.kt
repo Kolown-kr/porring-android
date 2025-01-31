@@ -5,7 +5,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import com.kolown.model.FollowerModel
+import com.kolown.porring.core.model.FollowerModel
 import com.kolown.porring.core.network.model.FollowerDto
 import com.kolown.porring.core.network.model.toFollowerModel
 import kotlinx.coroutines.flow.Flow

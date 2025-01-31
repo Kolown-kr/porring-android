@@ -1,4 +1,4 @@
-package com.kolown.model
+package com.kolown.porring.core.model
 
 data class FollowerThumbnail(
     val id : String,

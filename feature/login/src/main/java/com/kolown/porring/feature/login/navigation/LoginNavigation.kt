@@ -6,7 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.kolown.porring.feature.login.LoginRoute
-import com.kolown.navigation.Route
+import com.kolown.porring.core.navigation.Route
 
 fun NavController.navigateLogin(navOptions: NavOptions) {
     navigate(Route.Login, navOptions = navOptions)

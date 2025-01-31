@@ -1,8 +1,8 @@
 package com.kolown.porring.core.data.datasource.fake
 
 import com.kolown.porring.core.data.mock.MockDataProvider
-import com.kolown.model.Post
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Post
+import com.kolown.porring.core.model.Tag
 
 interface PostDataSource {
     suspend fun getPostListByTag(tag: Tag): Result<List<Post>>

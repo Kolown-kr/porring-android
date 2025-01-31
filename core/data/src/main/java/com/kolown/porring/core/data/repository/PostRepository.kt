@@ -14,8 +14,8 @@ import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

@@ -1,4 +1,4 @@
-package com.kolown.model
+package com.kolown.porring.core.model
 
 data class ImageItem(
     val id: Long = -1,

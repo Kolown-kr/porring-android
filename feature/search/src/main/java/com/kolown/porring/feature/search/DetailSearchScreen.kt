@@ -24,8 +24,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.DetailItem
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.common.component.DetailTopAppBar
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

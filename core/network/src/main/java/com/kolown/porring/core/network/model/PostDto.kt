@@ -1,6 +1,6 @@
 package com.kolown.porring.core.network.model
 
-import com.kolown.model.PostModel
+import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.Util.randomValue
 
 data class PostDto(

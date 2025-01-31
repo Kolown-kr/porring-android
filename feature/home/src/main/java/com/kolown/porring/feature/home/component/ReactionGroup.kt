@@ -18,7 +18,7 @@ import androidx.compose.ui.zIndex
 import coil3.compose.AsyncImage
 import com.kolown.porring.feature.home.R
 import com.kolown.porring.feature.home.toImage
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.Reactions
 
 @Composable
 internal fun ReactionGroup(

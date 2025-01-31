@@ -5,7 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.navigation.Route
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.setting.SettingRoute
 
 fun NavController.navigateSetting(navOptions: NavOptions) {

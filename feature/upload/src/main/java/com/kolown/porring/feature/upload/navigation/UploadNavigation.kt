@@ -9,8 +9,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.kolown.model.UploadModel
-import com.kolown.navigation.Route
+import com.kolown.porring.core.model.UploadModel
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.upload.UploadRoute
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

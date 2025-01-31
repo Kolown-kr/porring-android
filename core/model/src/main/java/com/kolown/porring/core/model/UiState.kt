@@ -1,4 +1,4 @@
-package com.kolown.model
+package com.kolown.porring.core.model
 
 sealed class UiState<out T> {
     data object Idle : UiState<Nothing>()

@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

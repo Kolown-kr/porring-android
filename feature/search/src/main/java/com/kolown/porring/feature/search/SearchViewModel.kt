@@ -10,9 +10,9 @@ import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.TagRepository
 import com.kolown.porring.core.data.repository.UserRepository
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.Tag
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview

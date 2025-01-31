@@ -35,9 +35,9 @@ import com.kolown.porring.core.designsystem.R.*
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.UiState
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

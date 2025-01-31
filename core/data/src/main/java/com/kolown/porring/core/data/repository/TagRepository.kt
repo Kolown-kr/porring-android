@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.kolown.porring.core.data.datasource.paging.TagPagingSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.model.Tag
+import com.kolown.porring.core.model.Tag
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

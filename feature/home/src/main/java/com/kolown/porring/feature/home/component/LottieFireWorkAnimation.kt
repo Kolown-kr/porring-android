@@ -14,7 +14,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.kolown.porring.feature.home.R
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.Reactions
 
 @Composable
 internal fun LottieFireWorkAnimation(

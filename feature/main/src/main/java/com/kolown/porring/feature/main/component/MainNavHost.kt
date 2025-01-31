@@ -15,9 +15,9 @@ import com.kolown.porring.feature.join.navigation.joinNavGraph
 import com.kolown.porring.feature.login.navigation.loginNavGraph
 import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.feature.main.navigation.MainNavigator
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
-import com.kolown.model.UploadModel
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.feature.my.navigation.myNavGraph
 import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.search.navigation.searchNavGraph

@@ -1,6 +1,6 @@
-package com.kolown.navigation
+package com.kolown.porring.core.navigation
 
-import com.kolown.model.UploadModel
+import com.kolown.porring.core.model.UploadModel
 import kotlinx.serialization.Serializable
 
 sealed interface Route {

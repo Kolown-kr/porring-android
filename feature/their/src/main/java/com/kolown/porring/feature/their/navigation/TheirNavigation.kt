@@ -9,8 +9,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.kolown.navigation.MainMenuRoute
-import com.kolown.navigation.Route
+import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.their.DetailTheirRoute
 import com.kolown.porring.feature.their.TheirRoute
 
@@ -42,7 +42,7 @@ fun NavGraphBuilder.theirNavGraph(
         )
     }
 
-    composable<Route.DetailTheir> {backStackEntry ->
+    composable<Route.DetailTheir> { backStackEntry ->
         val parentEntry = remember(backStackEntry) {
             getBackStackEntry()
         }

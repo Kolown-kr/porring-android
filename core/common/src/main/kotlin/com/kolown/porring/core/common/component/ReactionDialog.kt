@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.common.R
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.model.PostContentModel
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
 
 @Composable
 fun ReactionDialog(

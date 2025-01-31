@@ -7,7 +7,7 @@ import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.model.PostContentModel
+import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.common.component.CoilImage
-import com.kolown.model.PostContentModel
+import com.kolown.porring.core.model.PostContentModel
 
 @Composable
 fun PostItem(

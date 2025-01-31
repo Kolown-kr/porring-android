@@ -1,7 +1,7 @@
 package com.kolown.porring.core.data.repository
 
-import com.kolown.model.ImageItem
-import com.kolown.model.Reactions
+import com.kolown.porring.core.model.ImageItem
+import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

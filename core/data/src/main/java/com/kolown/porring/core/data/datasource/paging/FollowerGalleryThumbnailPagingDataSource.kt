@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.model.FollowerThumbnail
+import com.kolown.porring.core.model.FollowerThumbnail
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
 import kotlinx.coroutines.async
