@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.common.component.NetworkStateManager
+import com.kolown.porring.core.common.component.NetworkStateManager
 import com.kolown.data.repository.AuthRepository
 import com.kolown.data.repository.PostRepository
 import com.kolown.data.repository.RemoteConfigRepository

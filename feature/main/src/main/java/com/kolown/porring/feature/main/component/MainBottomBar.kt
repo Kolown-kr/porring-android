@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.feature.main.navigation.MainMenu

@@ -1,8 +1,7 @@
-package com.kolown.common.component
+package com.kolown.porring.core.common.component
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
 
 object NetworkStateManager {

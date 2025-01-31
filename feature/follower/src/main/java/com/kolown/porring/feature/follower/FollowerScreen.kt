@@ -55,8 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.common.component.CoilImage
-import com.kolown.common.component.RestrictedLoginContent
+import com.kolown.porring.core.common.component.CoilImage
+import com.kolown.porring.core.common.component.RestrictedLoginContent
 import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.porring.feature.follower.component.PageItemFooter

@@ -1,4 +1,4 @@
-package com.kolown.common.component
+package com.kolown.porring.core.common.component
 
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable

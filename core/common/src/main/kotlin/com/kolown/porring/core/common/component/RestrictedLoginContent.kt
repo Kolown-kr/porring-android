@@ -1,4 +1,4 @@
-package com.kolown.common.component
+package com.kolown.porring.core.common.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.common.R
+import com.kolown.porring.core.common.R
 import com.kolown.designsystem.ui.theme.Primary
 
 @Composable

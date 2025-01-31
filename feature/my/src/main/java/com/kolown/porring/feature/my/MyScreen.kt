@@ -51,15 +51,14 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
-import com.kolown.common.component.GalleryItem
-import com.kolown.common.component.RestrictedLoginContent
+import com.kolown.porring.core.common.component.GalleryItem
+import com.kolown.porring.core.common.component.RestrictedLoginContent
 import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.designsystem.component.PorringIconButton
 import com.kolown.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
 import com.kolown.porring.feature.my.component.PageItemFooter
 import kotlinx.coroutines.delay
-import com.kolown.porring.feature.my.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
