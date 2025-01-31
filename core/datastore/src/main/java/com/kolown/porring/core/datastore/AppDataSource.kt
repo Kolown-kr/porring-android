@@ -1,4 +1,4 @@
-package com.kolown.datastore
+package com.kolown.porring.core.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore

@@ -1,6 +1,6 @@
 package com.kolown.porring.core.data.repository
 
-import com.kolown.datastore.AppDataSource
+import com.kolown.porring.core.datastore.AppDataSource
 import kotlinx.coroutines.flow.Flow
 
 interface AppDataRepository {
