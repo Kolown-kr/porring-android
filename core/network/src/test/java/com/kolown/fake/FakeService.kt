@@ -1,6 +1,6 @@
 package com.kolown.fake
 
-import com.kolown.network.model.ApiResponse
+import com.kolown.porring.core.network.model.ApiResponse
 import org.junit.Ignore
 import retrofit2.http.GET
 import retrofit2.http.Path
