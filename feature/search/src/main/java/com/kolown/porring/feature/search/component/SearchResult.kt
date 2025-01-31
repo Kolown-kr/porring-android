@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
-import com.kolown.designsystem.ui.theme.Gray
+import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.model.Tag
 import com.kolown.porring.feature.search.R
 

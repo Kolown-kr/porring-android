@@ -63,9 +63,9 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.kolown.porring.core.common.R
-import com.kolown.designsystem.ui.theme.Gray
-import com.kolown.designsystem.ui.theme.PrimaryContainerDark
-import com.kolown.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.designsystem.ui.theme.Gray
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.model.PostContentModel
 import com.kolown.model.Reactions
 import com.kolown.model.SnackBarEvent

@@ -57,8 +57,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.CoilImage
 import com.kolown.porring.core.common.component.RestrictedLoginContent
-import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.feature.follower.component.PageItemFooter
 import com.kolown.model.FollowerThumbnail
 import kotlinx.coroutines.delay

@@ -52,14 +52,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.kolown.designsystem.R.drawable
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.component.PorringTextField
-import com.kolown.designsystem.component.PorringTopAppBar
-import com.kolown.designsystem.ui.theme.Error
-import com.kolown.designsystem.ui.theme.Gray
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.designsystem.R.drawable
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.PorringTextField
+import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.Error
+import com.kolown.porring.core.designsystem.ui.theme.Gray
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.feature.upload.component.CategoryGroup
 import kotlinx.coroutines.launch
 

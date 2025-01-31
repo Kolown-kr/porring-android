@@ -53,9 +53,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.common.component.GalleryItem
 import com.kolown.porring.core.common.component.RestrictedLoginContent
-import com.kolown.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.designsystem.component.PorringIconButton
-import com.kolown.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
+import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.model.PostContentModel
 import com.kolown.porring.feature.my.component.PageItemFooter
 import kotlinx.coroutines.delay
@@ -239,7 +239,7 @@ fun StateLazyGrid(
                     ) {
                         AsyncImage(
                             modifier = Modifier.size(100.dp),
-                            model = com.kolown.designsystem.R.drawable.ic_question_mark,
+                            model = com.kolown.porring.core.designsystem.R.drawable.ic_question_mark,
                             contentDescription = null
                         )
                         Spacer(modifier = Modifier.height(40.dp))

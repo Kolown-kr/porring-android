@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.Surface
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Surface
 
 @Composable
 internal fun ButtonWithIcon(

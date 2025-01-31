@@ -1,4 +1,4 @@
-package com.kolown.designsystem.component
+package com.kolown.porring.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,9 +25,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.designsystem.ui.theme.Surface2
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.designsystem.ui.theme.Surface2
 
 @Composable
 fun PorringInputChip(

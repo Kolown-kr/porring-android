@@ -22,8 +22,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
-import com.kolown.designsystem.ui.theme.Primary
-import com.kolown.designsystem.ui.theme.Surface2
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.feature.search.R
 
 @Composable

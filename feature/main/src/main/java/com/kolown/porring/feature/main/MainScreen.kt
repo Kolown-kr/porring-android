@@ -23,8 +23,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.kolown.porring.core.common.component.showSnackBarWithData
-import com.kolown.designsystem.ui.theme.PrimaryDark
-import com.kolown.designsystem.ui.theme.SnackBarContainer
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.designsystem.ui.theme.SnackBarContainer
 import com.kolown.porring.feature.main.component.MainBottomBar
 import com.kolown.porring.feature.main.component.MainNavHost
 import com.kolown.porring.feature.main.navigation.MainMenu
