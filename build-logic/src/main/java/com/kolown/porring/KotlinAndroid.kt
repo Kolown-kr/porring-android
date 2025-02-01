@@ -1,5 +1,6 @@
 package com.kolown.porring
 
+import gradle.kotlin.dsl.accessors._2fb5859a04200edaf14b854c40b2e363.coreLibraryDesugaring
 import gradle.kotlin.dsl.accessors._2fb5859a04200edaf14b854c40b2e363.java
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -51,10 +52,8 @@ internal fun Project.configureKotlinAndroid() {
 
     configureKotlin()
 
-    val libs = extensions.libs
-
     dependencies {
-        add("coreLibraryDesugaring", libs.findLibrary("desugar.jdk.libs").get())
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }
 

@@ -10,25 +10,29 @@ internal fun Project.configureComposeAndroid() {
         apply("org.jetbrains.kotlin.plugin.compose")
     }
 
-    val libs = extensions.libs
     androidExtension.apply {
         dependencies {
-            val bom = libs.findLibrary("androidx-compose-bom").get()
-            add("implementation", platform(bom))
-            add("androidTestImplementation", platform(bom))
+            val bom = libs.androidx.compose.bom
 
-            add("implementation", libs.findLibrary("androidx.compose.material3").get())
-            add("implementation", libs.findLibrary("androidx.compose.ui").get())
-            add("implementation", libs.findLibrary("androidx.compose.ui.tooling.preview").get())
-            add("implementation", libs.findLibrary("androidx.activity.compose").get())
+            implementations(
+                platform(bom),
+                libs.androidx.compose.material3,
+                libs.androidx.compose.ui,
+                libs.androidx.compose.ui.tooling.preview,
+                libs.androidx.activity.compose,
+                libs.androidx.navigation.compose,
+                libs.androidx.hilt.navigation.compose
+            )
 
-            add("implementation", libs.findLibrary("androidx.navigation.compose").get())
-            add("implementation", libs.findLibrary("androidx.hilt.navigation.compose").get())
+            androidTestImplementations(
+                platform(bom),
+                libs.androidx.compose.ui.test.junit4
+            )
 
-            add("androidTestImplementation", libs.findLibrary("androidx.compose.ui.test.junit4").get())
-
-            add("debugImplementation", libs.findLibrary("androidx.compose.ui.tooling").get())
-            add("debugImplementation", libs.findLibrary("androidx.compose.ui.test.manifest").get())
+            debugImplementations(
+                libs.androidx.compose.ui.tooling,
+                libs.androidx.compose.ui.test.manifest
+            )
         }
     }
 
