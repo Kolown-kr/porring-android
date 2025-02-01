@@ -8,10 +8,9 @@ plugins {
 configureCoroutineAndroid()
 
 dependencies {
-    add("implementation", project(":core:common"))
-    add("implementation", project(":core:data"))
-//    add("implementation", project(":core:domain"))
-    add("implementation", project(":core:designsystem"))
-    add("implementation", project(":core:navigation"))
-    add("implementation", project(":core:ui"))
+    implementation(project(":core:common"))
+    implementation(project(":core:data"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:navigation"))
+    implementation(project(":core:ui"))
 }
