@@ -1,6 +1,5 @@
 package com.kolown.porring
 
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
@@ -10,18 +9,9 @@ internal fun Project.configureHiltAndroid() {
         apply("com.google.devtools.ksp")
     }
 
-    val libs = extensions.libs
     dependencies {
-        add("implementation", libs.findLibrary("hilt.android").get())
-        add("ksp", libs.findLibrary("hilt.android.compiler").get())
-        add("kspAndroidTest", libs.findLibrary("hilt.android.compiler").get())
-    }
-}
-
-internal class HiltAndroidPlugin : Plugin<Project> {
-    override fun apply(target: Project) {
-        with(target) {
-            configureHiltAndroid()
-        }
+        implementations(libs.hilt.android)
+        ksp(libs.hilt.android.compiler)
+        kspAndroidTest(libs.hilt.android.compiler)
     }
 }
