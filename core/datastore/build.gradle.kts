@@ -1,7 +1,7 @@
 import com.kolown.porring.setNamespace
 
 plugins {
-    id("porring.android.library")
+    alias(libs.plugins.porring.android.library)
 }
 
 setNamespace("core.datastore")

@@ -1,7 +1,11 @@
+import com.kolown.porring.setNamespace
+
 plugins {
     alias(libs.plugins.kotlin.serialization)
-    id("porring.kotlin.library")
+    alias(libs.plugins.porring.android.library)
 }
+
+setNamespace("core.navigation")
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)

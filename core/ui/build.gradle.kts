@@ -1,8 +1,8 @@
 import com.kolown.porring.setNamespace
 
 plugins {
-    id("porring.android.library")
-    id("porring.android.compose")
+    alias(libs.plugins.porring.android.library)
+    alias(libs.plugins.porring.android.compose)
 }
 
 setNamespace("core.ui")

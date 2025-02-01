@@ -1,7 +1,11 @@
+import com.kolown.porring.setNamespace
+
 plugins {
+    alias(libs.plugins.porring.android.library)
     alias(libs.plugins.kotlin.serialization)
-    id("porring.kotlin.library")
 }
+
+setNamespace("core.model")
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
