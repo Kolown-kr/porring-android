@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.konan.properties.Properties
 import java.io.FileInputStream
 
 plugins {
-    id("porring.android.feature")
+    alias(libs.plugins.porring.android.feature)
 }
 
 setNamespace("feature.login")
