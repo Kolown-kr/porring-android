@@ -30,4 +30,15 @@ dependencies {
     implementation(libs.google.android.googleid)
 
     implementation(projects.core.model)
+
+    //retrofit
+    implementation(platform(libs.retrofit.bom))
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.bundles.retrofitBundle)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.androidx.arch.core.testing)
+
+    testImplementation(libs.coroutines.test)
+
+    implementation(libs.kotlinx.serialization.json)
 }
