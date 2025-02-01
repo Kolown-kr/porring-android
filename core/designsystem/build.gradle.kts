@@ -5,6 +5,4 @@ plugins {
     id("porring.android.compose")
 }
 
-android {
-    setNamespace("core.designsystem")
-}
+setNamespace("core.designsystem")

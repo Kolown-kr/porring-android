@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.follower")
-}
+setNamespace("feature.follower")
 
 dependencies {
     // coil

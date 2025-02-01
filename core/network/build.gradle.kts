@@ -5,8 +5,9 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+setNamespace("core.network")
+
 android {
-    setNamespace("core.network")
     buildFeatures {
         buildConfig = true
     }

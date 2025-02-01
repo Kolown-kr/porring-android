@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.camera")
-}
+setNamespace("feature.camera")
 
 dependencies {
     implementation(libs.exifinterface)
