@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.google)
-    id("porring.android.application")
+    alias(libs.plugins.porring.android.application)
 }
 
 android {
