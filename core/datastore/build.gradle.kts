@@ -4,9 +4,7 @@ plugins {
     id("porring.android.library")
 }
 
-android {
-    setNamespace("core.datastore")
-}
+setNamespace("core.datastore")
 
 dependencies {
     //datastore

@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.join")
-}
+setNamespace("feature.join")
 
 dependencies {
     implementation(libs.google.firebase.auth)

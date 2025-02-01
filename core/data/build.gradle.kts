@@ -4,9 +4,7 @@ plugins {
     id("porring.android.library")
 }
 
-android {
-    setNamespace("core.data")
-}
+setNamespace("core.data")
 
 dependencies {
     implementation(libs.exifinterface)

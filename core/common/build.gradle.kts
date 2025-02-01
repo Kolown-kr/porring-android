@@ -5,9 +5,7 @@ plugins {
     id("porring.android.compose")
 }
 
-android {
-    setNamespace("core.common")
-}
+setNamespace("core.common")
 
 dependencies {
     //coil

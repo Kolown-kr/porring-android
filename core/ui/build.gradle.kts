@@ -5,9 +5,7 @@ plugins {
     id("porring.android.compose")
 }
 
-android {
-    setNamespace("core.ui")
-}
+setNamespace("core.ui")
 
 dependencies {
     implementation(projects.core.designsystem)

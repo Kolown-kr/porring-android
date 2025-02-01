@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.my")
-}
+setNamespace("feature.my")
 
 dependencies {
     //paging

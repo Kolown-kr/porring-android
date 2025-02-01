@@ -4,6 +4,4 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.setting")
-}
+setNamespace("feature.setting")

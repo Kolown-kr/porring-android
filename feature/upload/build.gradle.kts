@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.upload")
-}
+setNamespace("feature.upload")
 
 dependencies {
     // coil

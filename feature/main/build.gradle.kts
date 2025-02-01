@@ -4,9 +4,7 @@ plugins {
     id("porring.android.feature")
 }
 
-android {
-    setNamespace("feature.main")
-}
+setNamespace("feature.main")
 
 dependencies {
     implementation(libs.kotlinx.immutable)

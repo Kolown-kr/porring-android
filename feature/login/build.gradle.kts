@@ -6,13 +6,13 @@ plugins {
     id("porring.android.feature")
 }
 
+setNamespace("feature.login")
+
 var properties = Properties()
 properties.load(FileInputStream("local.properties"))
 
 
 android {
-    setNamespace("feature.login")
-
     buildTypes {
         debug {
             buildConfigField(
