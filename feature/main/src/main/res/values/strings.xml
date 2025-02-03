@@ -6,4 +6,9 @@
     <string name="string_move">이동</string>
     <string name="string_uploading">업로드 중입니다.</string>
     <string name="string_upload_success">업로드 성공! MyGallery로 이동하시려면 이동을 눌러주세요!</string>
+    <string name="camera_permission_guide">카메라 권한 허용 안내</string>
+    <string name="camera_rationale_script">카메라 기능을 사용하기 위해서는 카메라 권한이 허용되어야 합니다. 카메라 기능을 사용하시려면 카메라 권한을 허용해 주세요.</string>
+    <string name="close">닫기</string>
+    <string name="go_to_setting">설정으로 이동</string>
+    <string name="camera_permission_guide_script"><![CDATA[카메라 기능을 사용하기 위해서는 카메라 권한 허용이 필요합니다. 설정화면에서 카메라 권한을 허용해 주세요.\n※ 애플리케이션 정보 > 권한 > 카메라 > 앱 사용 중에만 허용]]></string>
 </resources>

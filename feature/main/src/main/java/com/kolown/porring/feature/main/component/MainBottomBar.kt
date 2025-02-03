@@ -1,5 +1,12 @@
 package com.kolown.porring.feature.main.component
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -17,13 +24,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
@@ -36,14 +49,13 @@ import kotlinx.collections.immutable.toPersistentList
 @Composable
 internal fun MainBottomBar(
     isLoggedIn: Boolean = false,
-
     modifier: Modifier = Modifier,
     visible: Boolean,
     menus: PersistentList<MainMenu>,
     currentMenu: MainMenu?,
     onMenuSelected: (MainMenu) -> Unit,
 ) {
-
+    val activity = LocalView.current.context as Activity
     val snackBarBridge = LocalSnackBarBridge.current
 
     AnimatedVisibility(
@@ -58,17 +70,66 @@ internal fun MainBottomBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             menus.forEach { menu ->
+                var showRationale by remember { mutableStateOf(false) }
+                var showSetting by remember { mutableStateOf(false) }
+                val cameraPermissionLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        onMenuSelected(menu)
+                    } else {
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                                activity,
+                                android.Manifest.permission.CAMERA
+                            )
+                        ) {
+                            showRationale = true
+                        } else {
+                            showSetting = true
+                        }
+                    }
+                }
+
                 MainBottomBarItem(
                     menu = menu,
                     selected = menu == currentMenu,
                     onClick = {
-                        if (menu.route == MainMenuRoute.Camera && isLoggedIn.not()) {
-                            snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
+                        if (menu.route == MainMenuRoute.Camera) {
+                            if (isLoggedIn) {
+                                cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                            } else {
+                                snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
+                            }
                         } else {
                             onMenuSelected(menu)
                         }
                     }
                 )
+
+                if (showRationale) {
+                    PermissionRationaleDialog(
+                        permission = Manifest.permission.CAMERA,
+                        onDismissRequest = { showRationale = false },
+                        permissionLauncher = cameraPermissionLauncher
+                    )
+                }
+
+                if (showSetting) {
+                    val context = LocalContext.current
+
+                    ShowSettingDialog(
+                        onDismissRequest = { showSetting = false },
+                        onConfirm = {
+                            val intent =
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data =
+                                        Uri.fromParts("package", context.packageName, null)
+                                }
+
+                            context.startActivity(intent)
+                        }
+                    )
+                }
             }
         }
     }
