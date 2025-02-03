@@ -189,7 +189,6 @@ private fun MainScreenContent(
         bottomBar = {
             MainBottomBar(
                 isLoggedIn = isLoggedIn,
-
                 modifier = Modifier
                     .navigationBarsPadding()
                     .padding(top = 12.dp, bottom = 16.dp),
