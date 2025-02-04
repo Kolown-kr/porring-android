@@ -64,76 +64,70 @@ internal fun MainBottomBar(
                 .height(52.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            menus.forEach { menu ->
-                var showRationale by remember { mutableStateOf(false) }
-                var showSetting by remember { mutableStateOf(false) }
-                val cameraPermissionLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestPermission()
-                ) { isGranted ->
-                    if (isGranted) {
-                        onMenuSelected(menu)
-                    } else {
-                        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                                activity,
-                                Manifest.permission.CAMERA
-                            )
-                        ) {
-                            showRationale = true
-                        } else {
-                            showSetting = true
-                        }
-                    }
-                }
+            var showRationale by remember { mutableStateOf(false) }
+            var showSetting by remember { mutableStateOf(false) }
+            val cameraPermissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission()
+            ) { isGranted ->
+                val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                    activity,
+                    Manifest.permission.CAMERA
+                )
 
+                when {
+                    isGranted && isLoggedIn -> onMenuSelected(MainMenu.CAMERA)
+                    isGranted && isLoggedIn.not() -> snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
+                    shouldShowRationale -> showRationale = true
+                    else -> showSetting = true
+                }
+            }
+
+            menus.forEach { menu ->
                 MainBottomBarItem(
                     menu = menu,
                     selected = menu == currentMenu,
                     onClick = {
                         if (menu.route == MainMenuRoute.Camera) {
-                            if (isLoggedIn) {
-                                cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
-                            } else {
-                                snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
-                            }
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         } else {
                             onMenuSelected(menu)
                         }
                     }
                 )
+            }
 
-                if (showRationale) {
-                    PorringAlertDialog(
-                        title = stringResource(R.string.camera_permission_guide),
-                        description = stringResource(R.string.camera_rationale_script),
-                        iconResId = R.drawable.ic_camera_24dp,
-                        dismissText = stringResource(R.string.close),
-                        confirmText = stringResource(R.string.confirm),
-                        onDismissRequest = { showRationale = false },
-                        onConfirm = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
-                    )
-                }
+            if (showRationale) {
+                PorringAlertDialog(
+                    title = stringResource(R.string.camera_permission_guide),
+                    description = stringResource(R.string.camera_rationale_script),
+                    iconResId = R.drawable.ic_camera_24dp,
+                    dismissText = stringResource(R.string.close),
+                    confirmText = stringResource(R.string.confirm),
+                    onDismissRequest = { showRationale = false },
+                    onConfirm = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                )
+            }
 
-                if (showSetting) {
-                    val context = LocalContext.current
+            if (showSetting) {
+                val context = LocalContext.current
 
-                    PorringAlertDialog(
-                        title = stringResource(R.string.camera_permission_guide),
-                        description = stringResource(R.string.camera_permission_guide_script),
-                        iconResId = R.drawable.ic_camera_24dp,
-                        dismissText = stringResource(R.string.close),
-                        confirmText = stringResource(R.string.go_to_setting),
-                        onDismissRequest = { showSetting = false },
-                        onConfirm = {
-                            val intent =
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data =
-                                        Uri.fromParts("package", context.packageName, null)
-                                }
+                PorringAlertDialog(
+                    title = stringResource(R.string.camera_permission_guide),
+                    description = stringResource(R.string.camera_permission_guide_script),
+                    iconResId = R.drawable.ic_camera_24dp,
+                    dismissText = stringResource(R.string.close),
+                    confirmText = stringResource(R.string.go_to_setting),
+                    onDismissRequest = { showSetting = false },
+                    onConfirm = {
+                        val intent =
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data =
+                                    Uri.fromParts("package", context.packageName, null)
+                            }
 
-                            context.startActivity(intent)
-                        }
-                    )
-                }
+                        context.startActivity(intent)
+                    }
+                )
             }
         }
     }
