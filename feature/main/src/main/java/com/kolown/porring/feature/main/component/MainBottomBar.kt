@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,10 @@ import androidx.core.app.ActivityCompat
 import com.kolown.porring.core.common.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.feature.main.R
+import com.kolown.porring.feature.main.navigation.MainMenu
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
 
@@ -80,7 +82,7 @@ internal fun MainBottomBar(
                     } else {
                         if (ActivityCompat.shouldShowRequestPermissionRationale(
                                 activity,
-                                android.Manifest.permission.CAMERA
+                                Manifest.permission.CAMERA
                             )
                         ) {
                             showRationale = true
@@ -107,17 +109,26 @@ internal fun MainBottomBar(
                 )
 
                 if (showRationale) {
-                    PermissionRationaleDialog(
-                        permission = Manifest.permission.CAMERA,
+                    PorringAlertDialog(
+                        title = stringResource(R.string.camera_permission_guide),
+                        description = stringResource(R.string.camera_rationale_script),
+                        iconResId = R.drawable.ic_camera_24dp,
+                        dismissText = stringResource(R.string.close),
+                        confirmText = stringResource(R.string.confirm),
                         onDismissRequest = { showRationale = false },
-                        permissionLauncher = cameraPermissionLauncher
+                        onConfirm = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
                     )
                 }
 
                 if (showSetting) {
                     val context = LocalContext.current
 
-                    ShowSettingDialog(
+                    PorringAlertDialog(
+                        title = stringResource(R.string.camera_permission_guide),
+                        description = stringResource(R.string.camera_permission_guide_script),
+                        iconResId = R.drawable.ic_camera_24dp,
+                        dismissText = stringResource(R.string.close),
+                        confirmText = stringResource(R.string.go_to_setting),
                         onDismissRequest = { showSetting = false },
                         onConfirm = {
                             val intent =
