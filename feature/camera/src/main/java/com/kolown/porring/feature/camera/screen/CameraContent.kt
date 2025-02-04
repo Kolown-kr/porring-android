@@ -54,7 +54,7 @@ import com.kolown.porring.feature.camera.takePhoto
 import kotlinx.coroutines.launch
 
 @Composable
-fun CameraContent(
+internal fun CameraContent(
     isFlashOn: Boolean = false,
     viewModel: CameraScreenViewModel = hiltViewModel(),
     navigateToUpload: (String) -> Unit = {},

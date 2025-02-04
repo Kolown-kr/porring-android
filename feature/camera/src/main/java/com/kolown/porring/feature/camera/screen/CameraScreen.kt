@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
@@ -25,7 +24,6 @@ internal fun CameraRoute(
     navigateToUpload: (String) -> Unit = {},
     padding: PaddingValues = PaddingValues(),
     popBackStack: () -> Unit = {},
-    viewModel: CameraScreenViewModel = hiltViewModel(),
 ) {
     CameraScreen(
         navigateToUpload = navigateToUpload,
