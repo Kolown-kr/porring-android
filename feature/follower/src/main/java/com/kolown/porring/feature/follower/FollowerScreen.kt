@@ -141,7 +141,9 @@ internal fun FollowerRoute(
                                 pagerState = pagerState,
                                 navigateToTheir = navigateToTheir
                             )
-                        } else NoFollowerScreen()
+                        } else {
+                            NoFollowerScreen()
+                        }
                     }
                 }
 
@@ -179,9 +181,7 @@ private fun FollowerScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
-        contentPadding = PaddingValues(horizontal = 16.dp),
         state = pagerState,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         items(items.itemCount) { index ->
             items[index]?.let {
@@ -196,67 +196,6 @@ private fun FollowerScreen(
             item(key = "") {
                 PageItemFooter(loadState = items.loadState.append) {
                     items.retry()
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun FollowContent(
-    followerName: String,
-    followAlbums: List<String>,
-    navigateToTheir: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable {
-                navigateToTheir()
-            },
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = followerName,
-                color = Primary,
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 8.dp
-            )
-        ) {
-            items(followAlbums) { imageUrl ->
-                Card(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = interactionSource,
-                            onClick = {
-                                navigateToTheir()
-                            }
-                        ),
-                    colors = CardDefaults.cardColors(containerColor = Color.LightGray)
-                ) {
-                    CoilImage(
-                        imageUrl = imageUrl,
-                        onClickEnabled = false
-                    )
-
                 }
             }
         }
