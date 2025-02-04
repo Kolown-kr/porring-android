@@ -7,9 +7,6 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,11 +57,7 @@ internal fun MainBottomBar(
     val activity = LocalView.current.context as Activity
     val snackBarBridge = LocalSnackBarBridge.current
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = EnterTransition.None,
-        exit = ExitTransition.None
-    ) {
+    if (visible) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
