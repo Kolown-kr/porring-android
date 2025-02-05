@@ -188,7 +188,10 @@ private fun FollowerScreen(
                 FollowContent(
                     followerName = it.followerName,
                     followAlbums = it.posts,
-                    navigateToTheir = { navigateToTheir(it.id) }
+                    navigateToTheir = { navigateToTheir(it.id) },
+                    editFollowName = { name ->
+                        // TODO: Follow Name Edit Api connect
+                    }
                 )
             }
         }
