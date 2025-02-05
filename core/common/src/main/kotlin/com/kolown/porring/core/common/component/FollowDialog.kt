@@ -45,11 +45,23 @@ import com.kolown.porring.core.designsystem.ui.theme.Surface2
 @Composable
 fun FollowDialog(
     modifier: Modifier = Modifier,
+    isAddFollow: Boolean = true,
     onClickCancel: () -> Unit = {},
     onClickConfirm: (String) -> Unit = {}
 ) {
     val textValue = remember { mutableStateOf("") }
     val isFollowerNameEmpty = remember { mutableStateOf(false) }
+    val followTitle = if (isAddFollow) {
+        stringResource(R.string.string_follow_title)
+    } else {
+        stringResource(R.string.string_edit_name)
+    }
+    val confirmText = if (isAddFollow) {
+        stringResource(R.string.string_confirm_follow)
+    } else {
+        stringResource(R.string.string_confirm_edit)
+    }
+
     Dialog(
         onDismissRequest = { onClickCancel() },
         properties = DialogProperties(
@@ -73,9 +85,9 @@ fun FollowDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "팔로우 추가하기", style = MaterialTheme.typography.headlineSmall)
+                Text(text = followTitle, style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(15.dp))
-                Text(text = "원하는 이름을 입력해 주세요.", style = MaterialTheme.typography.bodyMedium)
+                Text(text = stringResource(R.string.string_insert_name), style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(15.dp))
                 OutlinedTextField(
                     value = textValue.value,
@@ -106,12 +118,14 @@ fun FollowDialog(
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    if (isFollowerNameEmpty.value) Text(
-                        text = "이름을 입력해주세요.",
-                        fontSize = 10.sp,
-                        modifier = Modifier.align(Alignment.CenterStart),
-                        color = Error
-                    )
+                    if (isFollowerNameEmpty.value) {
+                        Text(
+                            text = stringResource(R.string.string_insert_name_error),
+                            fontSize = 10.sp,
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            color = Error
+                        )
+                    }
                     Text(
                         text = "(${textValue.value.length}/10)",
                         modifier = Modifier.align(Alignment.CenterEnd),
@@ -135,7 +149,7 @@ fun FollowDialog(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White)
                     ) {
-                        Text(text = stringResource(R.string.string_add_follow), color = Primary)
+                        Text(text = confirmText, color = Primary)
                     }
                 }
             }
