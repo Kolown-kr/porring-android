@@ -161,11 +161,7 @@ private fun ImageCard(
                 navigateToTheir = { navigateToTheir(imageItem.authorId) },
                 onFollowClick = {
                     if (isLoggedIn) {
-                        if (imageItem.isFollower) {
-                            onUnfollowClick(imageItem.authorId)
-                        } else {
-                            isFollowDialogVisible = true
-                        }
+                        isFollowDialogVisible = true
                     } else {
                         snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
                     }
@@ -202,12 +198,23 @@ private fun ImageCard(
             )
         }
         if (isFollowDialogVisible) {
-            FollowDialog(
-                onClickCancel = { isFollowDialogVisible = false },
-                onClickConfirm = { name ->
-                    onFollowClick(imageItem.authorId, name)
-                }
-            )
+            if(imageItem.isFollower) {
+                PorringAlertDialog(
+                    title = "팔로우 취소",
+                    description = "팔로우를 취소하시겠습니까?",
+                    dismissText = "취소",
+                    confirmText = "확인",
+                    onDismissRequest = { isFollowDialogVisible = false },
+                    onConfirm = { onUnfollowClick(imageItem.authorId) }
+                )
+            } else {
+                FollowDialog(
+                    onClickCancel = { isFollowDialogVisible = false },
+                    onClickConfirm = { name ->
+                        onFollowClick(imageItem.authorId, name)
+                    }
+                )
+            }
         }
     }
 }
