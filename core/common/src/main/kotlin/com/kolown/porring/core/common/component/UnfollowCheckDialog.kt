@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.home.component
+package com.kolown.porring.core.common.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -34,7 +34,7 @@ import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 
 @Composable
-internal fun PorringAlertDialog(
+fun UnfollowCheckDialog(
     title: String = "",
     description: String = "",
     @DrawableRes iconResId: Int? = null,
@@ -132,7 +132,7 @@ private fun PreviewPermissionEduDialog() {
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            PorringAlertDialog()
+            UnfollowCheckDialog()
         }
     }
 }

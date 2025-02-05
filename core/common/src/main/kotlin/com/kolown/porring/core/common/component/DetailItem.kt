@@ -247,12 +247,7 @@ private fun ReelsContent(
                                 DetailButton(
                                     onClick = {
                                         if (isLoggedIn) {
-                                            if (isFollowed.value) {
-                                                onUnfollowClick(imageItem.authorId)
-                                                updateFollow(imageItem.authorId)
-                                            } else {
-                                                isFollowDialogVisible.value = true
-                                            }
+                                            isFollowDialogVisible.value = true
                                         } else {
                                             snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
                                         }
@@ -286,13 +281,30 @@ private fun ReelsContent(
         }
     }
 
-    if (isFollowDialogVisible.value)
-        FollowDialog(onClickCancel = {
-            isFollowDialogVisible.value = false
-        }, onClickConfirm = { name ->
-            onFollowClick(imageItem.authorId, name)
-            updateFollow(imageItem.authorId)
-        })
+    if (isFollowDialogVisible.value) {
+        if (isFollowed.value) {
+            // TODO Exchange to AlertDialog
+            UnfollowCheckDialog(
+                title = stringResource(R.string.string_unfollow),
+                description = stringResource(R.string.string_unfollow_description),
+                dismissText = stringResource(R.string.string_cancel),
+                confirmText = stringResource(R.string.string_confirm),
+                onDismissRequest = { isFollowDialogVisible.value = false },
+                onConfirm = {
+                    onUnfollowClick(imageItem.authorId)
+                    updateFollow(imageItem.authorId)
+                }
+            )
+        } else {
+            FollowDialog(
+                onClickCancel = { isFollowDialogVisible.value = false },
+                onClickConfirm = { name ->
+                    onFollowClick(imageItem.authorId, name)
+                    updateFollow(imageItem.authorId)
+                }
+            )
+        }
+    }
 }
 
 
