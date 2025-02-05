@@ -35,15 +35,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.common.component.CoilImage
 import com.kolown.porring.core.common.component.FollowDialog
 import com.kolown.porring.core.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.common.component.UnfollowCheckDialog
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.feature.home.R
 
 @Composable
 internal fun RandomImageList(
@@ -103,15 +106,14 @@ private fun ImageCard(
 ) {
     val likedImageVector =
         if (imageItem.myReaction == null) Icons.Outlined.FavoriteBorder else Icons.Outlined.Favorite
-    var isFollowDialogVisible by remember { mutableStateOf(false) }
-    var isFirstRenderer by remember { mutableStateOf(true) }
+    val isFollowDialogVisible = remember { mutableStateOf(false) }
+    val isFirstRenderer = remember { mutableStateOf(true) }
     val sizeAnimation = remember { Animatable(1f) }
 
     val snackBarBridge = LocalSnackBarBridge.current
 
-
     LaunchedEffect(imageItem.myReaction) {
-        if (!isFirstRenderer) {
+        if (!isFirstRenderer.value) {
             sizeAnimation.animateTo(
                 targetValue = 1.4f,
                 animationSpec = tween(durationMillis = 100)
@@ -129,7 +131,7 @@ private fun ImageCard(
                 animationSpec = tween(durationMillis = 100)
             )
         } else {
-            isFirstRenderer = false
+            isFirstRenderer.value = false
         }
     }
 
@@ -161,7 +163,7 @@ private fun ImageCard(
                 navigateToTheir = { navigateToTheir(imageItem.authorId) },
                 onFollowClick = {
                     if (isLoggedIn) {
-                        isFollowDialogVisible = true
+                        isFollowDialogVisible.value = true
                     } else {
                         snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
                     }
@@ -197,19 +199,20 @@ private fun ImageCard(
                 tint = Primary
             )
         }
-        if (isFollowDialogVisible) {
+        if (isFollowDialogVisible.value) {
             if(imageItem.isFollower) {
-                PorringAlertDialog(
-                    title = "팔로우 취소",
-                    description = "팔로우를 취소하시겠습니까?",
-                    dismissText = "취소",
-                    confirmText = "확인",
-                    onDismissRequest = { isFollowDialogVisible = false },
+                // TODO Exchange to AlertDialog
+                UnfollowCheckDialog(
+                    title = stringResource(R.string.string_unfollow),
+                    description = stringResource(R.string.string_unfollow_description),
+                    dismissText = stringResource(R.string.string_cancel),
+                    confirmText = stringResource(R.string.string_confirm),
+                    onDismissRequest = { isFollowDialogVisible.value = false },
                     onConfirm = { onUnfollowClick(imageItem.authorId) }
                 )
             } else {
                 FollowDialog(
-                    onClickCancel = { isFollowDialogVisible = false },
+                    onClickCancel = { isFollowDialogVisible.value = false },
                     onClickConfirm = { name ->
                         onFollowClick(imageItem.authorId, name)
                     }

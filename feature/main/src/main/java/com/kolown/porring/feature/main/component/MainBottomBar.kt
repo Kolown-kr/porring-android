@@ -98,11 +98,11 @@ internal fun MainBottomBar(
 
             if (showRationale) {
                 PorringAlertDialog(
-                    title = stringResource(R.string.camera_permission_guide),
-                    description = stringResource(R.string.camera_rationale_script),
+                    title = stringResource(R.string.string_camera_permission_guide),
+                    description = stringResource(R.string.string_camera_rationale_script),
                     iconResId = R.drawable.ic_camera_24dp,
-                    dismissText = stringResource(R.string.close),
-                    confirmText = stringResource(R.string.confirm),
+                    dismissText = stringResource(R.string.string_close),
+                    confirmText = stringResource(R.string.string_confirm),
                     onDismissRequest = { showRationale = false },
                     onConfirm = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
                 )
@@ -112,11 +112,11 @@ internal fun MainBottomBar(
                 val context = LocalContext.current
 
                 PorringAlertDialog(
-                    title = stringResource(R.string.camera_permission_guide),
-                    description = stringResource(R.string.camera_permission_guide_script),
+                    title = stringResource(R.string.string_camera_permission_guide),
+                    description = stringResource(R.string.string_camera_permission_guide_script),
                     iconResId = R.drawable.ic_camera_24dp,
-                    dismissText = stringResource(R.string.close),
-                    confirmText = stringResource(R.string.go_to_setting),
+                    dismissText = stringResource(R.string.string_close),
+                    confirmText = stringResource(R.string.string_go_to_setting),
                     onDismissRequest = { showSetting = false },
                     onConfirm = {
                         val intent =
