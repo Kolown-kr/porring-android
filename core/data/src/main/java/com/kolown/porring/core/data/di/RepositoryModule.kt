@@ -5,8 +5,8 @@ import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.AuthRepositoryImpl
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.FollowRepositoryImpl
-import com.kolown.porring.core.data.repository.ImageCacheRepository
-import com.kolown.porring.core.data.repository.ImageCacheRepositoryImpl
+import com.kolown.porring.core.data.repository.ImageGenerateRepository
+import com.kolown.porring.core.data.repository.ImageGenerateRepositoryImpl
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostRepositoryImpl
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
@@ -36,8 +36,8 @@ class ProvideRepositoryModule{
 
     @Provides
     @Singleton
-    fun provideImageCacheRepository(@ApplicationContext applicationContext: Context): ImageCacheRepository {
-        return ImageCacheRepositoryImpl(applicationContext)
+    fun provideImageCacheRepository(@ApplicationContext applicationContext: Context): ImageGenerateRepository {
+        return ImageGenerateRepositoryImpl(applicationContext)
     }
 }
 

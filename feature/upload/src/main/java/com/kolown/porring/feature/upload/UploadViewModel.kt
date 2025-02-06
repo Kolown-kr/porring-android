@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.kolown.porring.core.data.repository.ImageCacheRepository
+import com.kolown.porring.core.data.repository.ImageGenerateRepository
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.upload.navigation.UploadType
@@ -23,7 +23,7 @@ import kotlin.reflect.typeOf
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
-    private val repository: ImageCacheRepository,
+    private val repository: ImageGenerateRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _description = MutableStateFlow("")

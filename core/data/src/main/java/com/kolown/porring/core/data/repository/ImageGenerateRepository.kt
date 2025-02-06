@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import kotlin.math.min
 
-interface ImageCacheRepository {
+interface ImageGenerateRepository {
     suspend fun saveBitmapToCache(
         bitmap: Bitmap,
         format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
@@ -25,9 +25,9 @@ interface ImageCacheRepository {
     suspend fun decodeSampledBitmapFromUri(uri: Uri): Bitmap?
 }
 
-class ImageCacheRepositoryImpl (
+class ImageGenerateRepositoryImpl (
     private val applicationContext: Context
-) : ImageCacheRepository {
+) : ImageGenerateRepository {
     override suspend fun saveBitmapToCache(
         bitmap: Bitmap,
         format: Bitmap.CompressFormat,

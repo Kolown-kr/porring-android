@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.porring.core.data.repository.ImageCacheRepository
+import com.kolown.porring.core.data.repository.ImageGenerateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CameraScreenViewModel @Inject constructor(
-    private val imageCacheRepository: ImageCacheRepository,
+    private val imageGenerateRepository: ImageGenerateRepository,
 ) : ViewModel() {
 
     private val _uri = MutableStateFlow<Uri?>(null)
@@ -23,8 +23,8 @@ class CameraScreenViewModel @Inject constructor(
 
     fun setUri(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val bitmap = imageCacheRepository.decodeSampledBitmapFromUri(uri)
-            _uri.value = imageCacheRepository.saveBitmapToCache(bitmap!!)
+            val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(uri)
+            _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap!!)
         }
 //        TODO 이미지 편집 화면 나오면 그냥 uri 넘겨도 됨.(어차피 이미지 편집 화면에서 크롭할 예정)
 //        _uri.value = uri
@@ -32,7 +32,7 @@ class CameraScreenViewModel @Inject constructor(
 
     fun saveBitmapToCache(bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uri.value = imageCacheRepository.saveBitmapToCache(bitmap)
+            _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap)
         }
     }
 }
