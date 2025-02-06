@@ -1,9 +1,12 @@
 package com.kolown.porring.core.data.di
 
+import android.content.Context
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.AuthRepositoryImpl
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.FollowRepositoryImpl
+import com.kolown.porring.core.data.repository.ImageCacheRepository
+import com.kolown.porring.core.data.repository.ImageCacheRepositoryImpl
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostRepositoryImpl
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
@@ -17,6 +20,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -28,6 +32,12 @@ class ProvideRepositoryModule{
     @Singleton
     fun providesRemoteConfigRepository(): RemoteConfigRepository {
         return RemoteConfigRepositoryImpl(RemoteConfigDataSource())
+    }
+
+    @Provides
+    @Singleton
+    fun provideImageCacheRepository(@ApplicationContext applicationContext: Context): ImageCacheRepository {
+        return ImageCacheRepositoryImpl(applicationContext)
     }
 }
 
