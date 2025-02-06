@@ -22,7 +22,12 @@ class CameraScreenViewModel @Inject constructor(
     val uri: StateFlow<Uri?> = _uri.asStateFlow()
 
     fun setUri(uri: Uri) {
-        _uri.value = uri
+        viewModelScope.launch(Dispatchers.IO) {
+            val bitmap = imageCacheRepository.decodeSampledBitmapFromUri(uri)
+            _uri.value = imageCacheRepository.saveBitmapToCache(bitmap!!)
+        }
+//        TODO 이미지 편집 화면 나오면 그냥 uri 넘겨도 됨.(어차피 이미지 편집 화면에서 크롭할 예정)
+//        _uri.value = uri
     }
 
     fun saveBitmapToCache(bitmap: Bitmap) {

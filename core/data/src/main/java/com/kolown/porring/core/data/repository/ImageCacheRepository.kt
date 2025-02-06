@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import kotlin.math.min
 
 interface ImageCacheRepository {
     suspend fun saveBitmapToCache(
@@ -105,10 +106,14 @@ class ImageCacheRepositoryImpl (
         }
 
         rotatedBitmap?.let {
-            val file =
-                File(applicationContext.cacheDir, "rotated_photo_${System.currentTimeMillis()}.jpg")
+            val croppedBitmap = cropToAspectRatio(it)
+
+            val file = File(
+                applicationContext.cacheDir,
+                "rotated_photo_${System.currentTimeMillis()}.jpg"
+            )
             FileOutputStream(file).use { out ->
-                it.compress(Bitmap.CompressFormat.JPEG, 100, out)
+                croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
 
             outputUri = Uri.fromFile(file)
@@ -147,6 +152,30 @@ class ImageCacheRepositoryImpl (
         }
 
         return inSampleSize
+    }
+
+    private fun cropToAspectRatio(bitmap: Bitmap): Bitmap {
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+
+        val targetRatio = 4f / 5f
+
+        var targetWidth = originalWidth
+        var targetHeight = originalHeight
+
+        if (originalWidth > originalHeight) {
+            targetWidth = (originalHeight / targetRatio).toInt()
+        } else {
+            targetHeight = (originalWidth / targetRatio).toInt()
+        }
+
+        val cropWidth = min(originalWidth, targetWidth)
+        val cropHeight = min(originalHeight, targetHeight)
+
+        val xOffset = (originalWidth - cropWidth) / 2
+        val yOffset = (originalHeight - cropHeight) / 2
+
+        return Bitmap.createBitmap(bitmap, xOffset, yOffset, cropWidth, cropHeight)
     }
 }
 
