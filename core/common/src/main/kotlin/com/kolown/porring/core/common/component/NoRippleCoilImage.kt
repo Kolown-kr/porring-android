@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,8 +43,10 @@ fun NoRippleCoilImage(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
     onDoubleClick: () -> Unit = {},
+    updateImageRatio: (Float) -> Unit = {},
     delay: Long = 0L,
     imageUrl: String,
+    imageRatio: Float = 4f / 5f,
     isTextExist: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -82,7 +87,8 @@ fun NoRippleCoilImage(
         ) {
             AsyncImage(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .aspectRatio(imageRatio)
+                    .fillMaxWidth()
                     .combinedClickable(
                         indication = null,
                         interactionSource = interactionSource,
@@ -99,6 +105,15 @@ fun NoRippleCoilImage(
                 },
                 onSuccess = {
                     coroutineScope.launch {
+                        val height = it.result.image.height
+                        val width = it.result.image.width
+
+                        if (height > width) {
+                            updateImageRatio(4f / 5f)
+                        } else {
+                            updateImageRatio(5f / 4f)
+                        }
+
                         delay(delay)
                         isLoading = false
                         isError = false

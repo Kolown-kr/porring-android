@@ -89,6 +89,7 @@ fun DetailItem(
     checkPostIsMine: (String) -> Boolean = { _ -> false },
     updateFollow: (String) -> Unit = {}
 ) {
+    val imageRatio = remember { mutableFloatStateOf(4f / 5f) }
 
     if (imageItem != null) {
         if (isReelsMode) {
@@ -98,6 +99,7 @@ fun DetailItem(
                 updateMainPostReaction = updateMainPostReaction,
                 onSelectReaction = onSelectReaction,
                 imageItem = imageItem,
+                imageRatio = imageRatio.floatValue,
                 onDoubleTab = {
                     onChangeReelsMode(false)
                 },
@@ -108,11 +110,13 @@ fun DetailItem(
                 onUnfollowClick = onUnfollowClick,
                 followerState = followerState,
                 checkPostIsMine = checkPostIsMine,
-                updateFollow = updateFollow
+                updateFollow = updateFollow,
+                updateImageRatio = { imageRatio.floatValue = it }
             )
         } else {
             ConcentrateContent(
                 imageUrl = imageItem.imageUrl,
+                imageRatio = imageRatio.floatValue,
                 backHandle = {
                     onChangeReelsMode(true)
                 }
@@ -130,6 +134,7 @@ private fun ReelsContent(
     updateMainPostReaction: (PostContentModel, Reactions) -> Unit,
     onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
     imageItem: PostContentModel,
+    imageRatio: Float,
     navigateToTheir: (String) -> Unit,
     updatePage: () -> Unit,
     isPopBackStack: Boolean = false,
@@ -138,7 +143,8 @@ private fun ReelsContent(
     onFollowClick: (String, String) -> Unit = { _, _ -> },
     onUnfollowClick: (String) -> Unit = {},
     followerState: State<Pair<String, Boolean>?>,
-    updateFollow: (String) -> Unit = {}
+    updateFollow: (String) -> Unit = {},
+    updateImageRatio: (Float) -> Unit = {}
 ) {
     val isReactionVisible = remember { mutableStateOf(false) }
     val isFollowDialogVisible = remember { mutableStateOf(false) }
@@ -167,9 +173,9 @@ private fun ReelsContent(
 
         NoRippleCoilImage(
             modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(4f / 5f),
+                .fillMaxWidth(),
             imageUrl = imageItem.imageUrl,
+            imageRatio = imageRatio,
             onClick = {
                 if (isReactionVisible.value) {
                     isReactionVisible.value = false
@@ -180,6 +186,7 @@ private fun ReelsContent(
                     onDoubleTab()
                 }
             },
+            updateImageRatio = updateImageRatio,
             delay = 3000
         )
 
@@ -311,6 +318,7 @@ private fun ReelsContent(
 @Composable
 private fun ConcentrateContent(
     imageUrl: String,
+    imageRatio: Float,
     backHandle: () -> Unit,
 ) {
     val view = LocalView.current
@@ -348,7 +356,7 @@ private fun ConcentrateContent(
                 .build(),
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(4f / 5f)
+                .aspectRatio(imageRatio)
                 .align(Alignment.Center)
                 .graphicsLayer {
                     scaleX = scale
