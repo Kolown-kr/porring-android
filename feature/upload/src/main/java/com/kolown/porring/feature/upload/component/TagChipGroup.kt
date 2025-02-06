@@ -57,10 +57,11 @@ internal fun CategoryGroup(
                 },
                 hint = stringResource(R.string.string_input_tag),
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
+                    imeAction = if (categoryItems.size < 6) ImeAction.Next else ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { focusManager.clearFocus() }
+                    onDone = { focusManager.clearFocus() },
+                    onNext = { addCategory() }
                 ),
                 trailingIcon = {
                     IconButton(
