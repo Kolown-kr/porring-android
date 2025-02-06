@@ -1,5 +1,6 @@
 package com.kolown.porring.core.common.component
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -7,13 +8,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.toBitmap
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
@@ -48,6 +53,7 @@ fun CoilImage(
     var isError by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val loadingModifier = modifier.shimmerEffect()
+    val imageRatio = remember { mutableFloatStateOf(4f / 5f) }
 
 
     if (isError) {
@@ -77,13 +83,13 @@ fun CoilImage(
             }
         }
     } else {
-
         Box(
             modifier = if (isLoading) loadingModifier else modifier,
         ) {
             AsyncImage(
                 modifier = if (onClickEnabled) Modifier
-                    .fillMaxSize()
+                    .aspectRatio(imageRatio.floatValue)
+                    .fillMaxWidth()
                     .combinedClickable(
                         onClick = onClick,
                         onLongClick = onLongClick,
@@ -98,6 +104,15 @@ fun CoilImage(
                 },
                 onSuccess = {
                     coroutineScope.launch {
+                        val height = it.result.image.height
+                        val width = it.result.image.width
+
+                        if(height > width) {
+                            imageRatio.floatValue = 4f / 5f
+                        } else {
+                            imageRatio.floatValue = 5f/ 4f
+                        }
+
                         delay(delay)
                         isLoading = false
                         isError = false

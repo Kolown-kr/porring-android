@@ -138,8 +138,7 @@ private fun ImageCard(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .padding(top = 40.dp)
-                .fillMaxWidth()
-                .aspectRatio(4f / 5f),
+                .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             RandomImage(
