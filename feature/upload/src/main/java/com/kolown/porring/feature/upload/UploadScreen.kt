@@ -191,7 +191,6 @@ private fun UploadContent(
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp)
     ) {
-        val ratio = 4f / 5f // todo 이후에 가로 이미지를 지원할 때는 분기처리 필요
 
         Box(
             modifier = Modifier
@@ -209,7 +208,6 @@ private fun UploadContent(
                 AsyncImage(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(ratio)
                         .clip(shape = RoundedCornerShape(10.dp)),
                     model = imgUri,
                     contentScale = ContentScale.Crop,

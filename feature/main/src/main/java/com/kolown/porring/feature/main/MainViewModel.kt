@@ -110,8 +110,6 @@ class MainViewModel @Inject constructor(
                 return@launch
             }
 
-
-
             _uploadUiState.value = InitUiState.Loading
             postRepository.uploadPost(
                 fileUri = webPUri.toUri(),
