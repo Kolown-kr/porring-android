@@ -3,6 +3,7 @@ package com.kolown.porring.feature.upload
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -201,7 +202,8 @@ private fun UploadContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollState)
+                    .focusable(true),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AsyncImage(
