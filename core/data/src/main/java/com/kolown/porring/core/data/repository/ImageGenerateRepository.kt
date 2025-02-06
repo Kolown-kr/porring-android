@@ -6,9 +6,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -21,11 +23,10 @@ interface ImageGenerateRepository {
         quality: Int = 100
     ): Uri?
 
-    suspend fun clearCacheFiles()
     suspend fun decodeSampledBitmapFromUri(uri: Uri): Bitmap?
 }
 
-class ImageGenerateRepositoryImpl (
+class ImageGenerateRepositoryImpl(
     private val applicationContext: Context
 ) : ImageGenerateRepository {
     override suspend fun saveBitmapToCache(
@@ -49,77 +50,43 @@ class ImageGenerateRepositoryImpl (
         }
     }
 
-    override suspend fun clearCacheFiles() {
-        val cacheDir = applicationContext.cacheDir
-        if (cacheDir.isDirectory) {
-            cacheDir.listFiles()?.forEach { file ->
-                file.delete()
-            }
-        }
-    }
-
     override suspend fun decodeSampledBitmapFromUri(
         uri: Uri,
     ): Bitmap? {
-
-        val rotatedUri = rotateImageAndReturnUri(uri) ?: return null
-
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
 
-        applicationContext.contentResolver.openInputStream(rotatedUri)?.use { inputStream ->
+        applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
         options.inSampleSize = calculateInSampleSize(options)
-
         options.inJustDecodeBounds = false
 
-        return applicationContext.contentResolver.openInputStream(rotatedUri)?.use { inputStream ->
+        return applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
+        }?.let { originalBitmap ->
+            rotateAndCropBitmap(originalBitmap, uri)
         }
     }
 
-    private fun rotateImageAndReturnUri(uri: Uri): Uri? {
-        var exif: ExifInterface? = null
-        var outputUri: Uri? = null
-        var rotatedBitmap: Bitmap? = null
-
-        val inputStream = applicationContext.contentResolver.openInputStream(uri)
-
-        inputStream?.use { stream ->
-            try {
-                exif = ExifInterface(stream)
-            } catch (e: IOException) {
-                Log.e("회전 에러", e.message.toString())
+    private fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap {
+        val exif = try {
+            applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
+                ExifInterface(inputStream)
             }
+        } catch (e: IOException) {
+            Log.e("회전 에러", e.message.toString())
+            null
         }
 
-        applicationContext.contentResolver.openInputStream(uri)?.use { stream ->
-            val originalBitmap = BitmapFactory.decodeStream(stream)
-            val orientation = exif?.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_NORMAL
-            ) ?: ExifInterface.ORIENTATION_NORMAL
+        val orientation = exif?.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL
+        ) ?: ExifInterface.ORIENTATION_NORMAL
 
-            rotatedBitmap = rotateBitmap(orientation, originalBitmap)
-        }
-
-        rotatedBitmap?.let {
-            val croppedBitmap = cropToAspectRatio(it)
-
-            val file = File(
-                applicationContext.cacheDir,
-                "rotated_photo_${System.currentTimeMillis()}.jpg"
-            )
-            FileOutputStream(file).use { out ->
-                croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            }
-
-            outputUri = Uri.fromFile(file)
-        }
-
-        return outputUri
+        val rotatedBitmap = rotateBitmap(orientation, originalBitmap)
+        return cropToAspectRatio(rotatedBitmap)
     }
 
     private fun rotateBitmap(orientation: Int, source: Bitmap): Bitmap {
@@ -178,4 +145,3 @@ class ImageGenerateRepositoryImpl (
         return Bitmap.createBitmap(bitmap, xOffset, yOffset, cropWidth, cropHeight)
     }
 }
-

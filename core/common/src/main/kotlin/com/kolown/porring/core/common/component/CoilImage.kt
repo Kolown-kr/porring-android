@@ -108,7 +108,6 @@ fun CoilImage(
                     isError = true
                 }
             )
-
         }
     }
 }
