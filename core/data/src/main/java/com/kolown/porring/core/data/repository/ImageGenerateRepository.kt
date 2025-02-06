@@ -24,6 +24,7 @@ interface ImageGenerateRepository {
     ): Uri?
 
     suspend fun decodeSampledBitmapFromUri(uri: Uri): Bitmap?
+    suspend fun getImageRatio(uri: String): Float
 }
 
 class ImageGenerateRepositoryImpl(
@@ -68,6 +69,17 @@ class ImageGenerateRepositoryImpl(
         }?.let { originalBitmap ->
             rotateAndCropBitmap(originalBitmap, uri)
         }
+    }
+
+    override suspend fun getImageRatio(uri: String): Float {
+        return applicationContext.contentResolver.openInputStream(uri.toUri())?.use { inputStream ->
+            val bitmap = BitmapFactory.decodeStream(inputStream) ?: return@use null
+            if (bitmap.width > bitmap.height) {
+                5f / 4f
+            } else {
+                4f / 5f
+            }
+        } ?: (4f / 5f)
     }
 
     private fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap {
