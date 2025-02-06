@@ -43,15 +43,11 @@ fun GalleryItem(
     onClickImage: () -> Unit = {},
     longClickEnabled: Boolean = true
 ) {
-    val heightNum = postContentModel.postId.filter { it.isDigit() }
-        .takeIf { it.isNotEmpty() }?.toIntOrNull() ?: 0
-    val height = if (heightNum % 2 == 0) (width.value * 1.4).dp else width + 20.dp
     val isDialogVisible = remember { mutableStateOf(false) }
 
     CoilImage(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height)
             .clip(RoundedCornerShape(10.dp))
             .background(Surface2),
         onClick = {
