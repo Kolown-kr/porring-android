@@ -19,6 +19,7 @@ import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.feature.my.navigation.navigateMy
 import com.kolown.porring.feature.my.navigation.navigateMyDetail
 import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.navigation.SearchRoute
 import com.kolown.porring.feature.search.navigation.navigateSearch
 import com.kolown.porring.feature.search.navigation.navigateSearchDetail
 import com.kolown.porring.feature.setting.navigation.navigateSetting

@@ -2,10 +2,10 @@ package com.kolown.porring.core.navigation
 
 import kotlinx.serialization.Serializable
 
-sealed interface SearchRoute: Route {
+sealed interface SearchRoute {
 
     @Serializable
-    data object Search : SearchRoute
+    data object Search : MainMenuRoute
 
     @Serializable
     data object DetailSearch : SearchRoute

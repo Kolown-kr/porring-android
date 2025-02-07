@@ -9,5 +9,5 @@ sealed interface SearchUiIntent : UiIntent {
     data class OnQueryChanged(val query: String) : SearchUiIntent
     data class OnFocusChanged(val hasFocus: Boolean) : SearchUiIntent
     data class OnTagClicked(val tag: Tag) : SearchUiIntent
-    data class OnImageClicked(val imageId: Long) : SearchUiIntent
+    data object OnImageClicked : SearchUiIntent
 }
