@@ -42,7 +42,7 @@ internal class SearchViewModel @Inject constructor(
             is SearchUiIntent.OnQueryChanged -> onQueryChanged(intent.query)
             is SearchUiIntent.OnFocusChanged -> onFocusChanged(intent.hasFocus)
             is SearchUiIntent.OnTagClicked -> onTagClicked(intent.tag)
-            is SearchUiIntent.OnImageClicked -> {}
+            is SearchUiIntent.OnImageClicked -> launch { postSideEffect(SearchUiSideEffect.NavigateToDetail) }
         }
     }
 

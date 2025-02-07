@@ -51,18 +51,20 @@ import com.kolown.porring.feature.search.model.SearchUiState
 internal fun SearchRoute(
     padding: PaddingValues,
     viewModel: SearchViewModel = hiltViewModel(),
-    imageViewModel: SearchImageViewModel = hiltViewModel()
+    imageViewModel: SearchImageViewModel = hiltViewModel(),
+    navigateToDetail: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val tags = viewModel.tagsFlow.collectAsLazyPagingItems()
     val images = imageViewModel.imagesFlow.collectAsLazyPagingItems()
 
     LaunchSideEffect(viewModel) { effect ->
-        when(effect) {
+        when (effect) {
             is SearchUiSideEffect.FetchPostsByTag -> {
                 imageViewModel.selectTag(effect.tag.id)
             }
-            is SearchUiSideEffect.NavigateToDetail -> {}
+
+            is SearchUiSideEffect.NavigateToDetail -> navigateToDetail()
         }
     }
 
@@ -74,7 +76,8 @@ internal fun SearchRoute(
         onBackClick = { viewModel.handleIntent(SearchUiIntent.OnBackClicked) },
         onSearchQueryChanged = { viewModel.handleIntent(SearchUiIntent.OnQueryChanged(it)) },
         onFocusChanged = { viewModel.handleIntent(SearchUiIntent.OnFocusChanged(it)) },
-        onTagClicked = { viewModel.handleIntent(SearchUiIntent.OnTagClicked(it)) }
+        onTagClicked = { viewModel.handleIntent(SearchUiIntent.OnTagClicked(it)) },
+        onImageClicked = { viewModel.handleIntent(SearchUiIntent.OnImageClicked) }
     )
 }
 
@@ -87,7 +90,8 @@ private fun SearchScreen(
     onBackClick: () -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onFocusChanged: (Boolean) -> Unit = {},
-    onTagClicked: (Tag) -> Unit = {}
+    onTagClicked: (Tag) -> Unit = {},
+    onImageClicked: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -148,6 +152,7 @@ private fun SearchScreen(
                 images?.let {
                     SearchImages(
                         images = it,
+                        onImageClicked = onImageClicked
                     )
                 }
             }
@@ -192,7 +197,10 @@ private fun SearchTags(
 }
 
 @Composable
-private fun SearchImages(images: LazyPagingItems<PostContentModel>) {
+private fun SearchImages(
+    images: LazyPagingItems<PostContentModel>,
+    onImageClicked: () -> Unit = {},
+) {
     LazyVerticalGrid(
         modifier = Modifier.padding(horizontal = 16.dp),
         columns = GridCells.Fixed(3),
@@ -206,7 +214,7 @@ private fun SearchImages(images: LazyPagingItems<PostContentModel>) {
             if (image != null) {
                 PostItem(
                     post = image,
-                    onClick = {}
+                    onClick = onImageClicked
                 )
             } else {
                 Box(

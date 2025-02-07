@@ -20,7 +20,7 @@ fun NavController.navigateSearch(navOptions: NavOptions) {
 }
 
 fun NavController.navigateSearchDetail(navOptions: NavOptions) {
-    navigate(Route.DetailSearch, navOptions = navOptions)
+    navigate(SearchRoute.DetailSearch, navOptions = navOptions)
 }
 
 
@@ -36,7 +36,6 @@ fun NavGraphBuilder.searchNavGraph(
     navigation<MainMenuRoute.Search>(
         startDestination = SearchRoute.Search,
     ) {
-
         composable<SearchRoute.Search> { backStackEntry ->
             val parentEntry = remember(backStackEntry) {
                 getBackStackEntry()
@@ -44,6 +43,7 @@ fun NavGraphBuilder.searchNavGraph(
             SearchRoute(
                 padding = padding,
                 imageViewModel = hiltViewModel(parentEntry),
+                navigateToDetail = navigateToSearchDetail
             )
         }
 
