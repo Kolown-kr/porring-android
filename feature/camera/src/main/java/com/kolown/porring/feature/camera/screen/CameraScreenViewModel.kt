@@ -2,6 +2,7 @@ package com.kolown.porring.feature.camera.screen
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.ImageGenerateRepository
@@ -23,7 +24,7 @@ class CameraScreenViewModel @Inject constructor(
 
     fun setUri(uri: Uri) {
         viewModelScope.launch {
-            val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(uri)
+            val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(uri, true)
             _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap!!)
         }
 //        TODO 이미지 편집 화면 나오면 그냥 uri 넘겨도 됨.(어차피 이미지 편집 화면에서 크롭할 예정)
@@ -31,8 +32,9 @@ class CameraScreenViewModel @Inject constructor(
     }
 
     fun saveBitmapToCache(bitmap: Bitmap) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap)
+        viewModelScope.launch {
+            val resizedBitmap = imageGenerateRepository.resizeBitmap(bitmap)
+            _uri.value = imageGenerateRepository.saveBitmapToCache(resizedBitmap)
         }
     }
 }

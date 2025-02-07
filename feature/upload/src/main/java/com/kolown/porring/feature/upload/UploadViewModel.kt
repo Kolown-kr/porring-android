@@ -2,6 +2,7 @@ package com.kolown.porring.feature.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -79,7 +80,7 @@ class UploadViewModel @Inject constructor(
             var bitmap: Bitmap? = null
 
             while (retries < maxRetries) {
-                bitmap = repository.decodeSampledBitmapFromUri(Uri.parse(uri))
+                bitmap = repository.decodeSampledBitmapFromUri(Uri.parse(uri), false)
                 if (bitmap != null) break
                 retries++
             }
