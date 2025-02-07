@@ -9,3 +9,7 @@ plugins {
 configureKotlinAndroid()
 configureHiltAndroid()
 configureJUnitAndroid()
+
+dependencies {
+    testImplementation(project(":core:testing"))
+}
