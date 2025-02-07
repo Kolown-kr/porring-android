@@ -7,6 +7,12 @@ plugins {
 
 setNamespace("core.ui")
 
+android {
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
 dependencies {
     implementation(projects.core.designsystem)
 }

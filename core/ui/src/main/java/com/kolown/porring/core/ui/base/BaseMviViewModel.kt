@@ -3,7 +3,7 @@ package com.kolown.porring.core.ui.base
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kolown.ui.BuildConfig
+import com.kolown.porring.core.ui.BuildConfig
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

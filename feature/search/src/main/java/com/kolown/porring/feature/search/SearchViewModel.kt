@@ -1,177 +1,107 @@
 package com.kolown.porring.feature.search
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
-import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.TagRepository
-import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.Tag
+import com.kolown.porring.core.ui.base.BaseMviViewModel
+import com.kolown.porring.feature.search.model.SearchUiIntent
+import com.kolown.porring.feature.search.model.SearchUiSideEffect
+import com.kolown.porring.feature.search.model.SearchUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class SearchViewModel @Inject constructor(
+internal class SearchViewModel @Inject constructor(
     private val tagRepository: TagRepository,
     private val postRepository: PostRepository,
-    private val followRepository: FollowRepository,
-    private val userRepository: UserRepository,
-) : ViewModel() {
-    private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
+) : BaseMviViewModel<SearchUiState, SearchUiIntent, SearchUiSideEffect>(SearchUiState.Blank) {
 
-    private val _tag = MutableStateFlow<Tag?>(null)
-    val tag = _tag.asStateFlow()
+    private val queryFlow = MutableSharedFlow<String>()
 
-    private var _firstPage = 0
-    val firstPage get() = _firstPage
-
-    private val reactionStateFlow = MutableStateFlow<Map<String, ReactionState>>(emptyMap())
-
-    private val _followSharedFlow = MutableSharedFlow<Pair<String, Boolean>>(0)
-    val followState = _followSharedFlow.asSharedFlow()
-
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val searchResult = _searchQuery
-        .debounce(SEARCH_DEBOUNCE_TIME_MILLIS)
+    val tagsFlow: Flow<PagingData<Tag>> = queryFlow
+        .debounce(300)
         .distinctUntilChanged()
-        .flatMapLatest { query ->
-            if (query.isBlank()) {
-                flowOf(PagingData.empty())
-            } else {
-                tagRepository.getTagBySearch(query)
-            }
-        }
+        .flatMapLatest(tagRepository::getTagBySearch)
         .cachedIn(viewModelScope)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val resultPostList = _tag
-        .filter {
-        it != null
-    }.flatMapLatest { tag ->
-        tag?.let {
+    private val tagSelectedFlow = MutableSharedFlow<String>()
 
-            val pagingFlow = postRepository.getPostBySearch(tag.id)
-                .cachedIn(viewModelScope)
-                .onStart {
-                    emit(PagingData.empty())
-                }
+    val imagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
+        .debounce(300)
+        .debugLog("tagSelectedFlow")
+        .distinctUntilChanged()
+        .flatMapLatest(postRepository::getPostBySearch)
+        .debugLog("imagesFlow")
+        .cachedIn(viewModelScope)
 
-            val combineFlow = combine(
-                pagingFlow, reactionStateFlow
-            ) { paging, reaction ->
-                paging.map { item ->
-                    reaction[item.postId]?.let { reactionState ->
-                        val (myReaction, reactions) = if (reactionState.prev == null) {
-                            reactionState.current to item.reactions + reactionState.current
-                        } else {
-                            if (reactionState.prev == reactionState.current) {
-                                null to item.reactions - reactionState.current
-                            } else {
-                                reactionState.current to item.reactions + reactionState.current - reactionState.prev
-                            }
-                        }
-                        item.copy(reactions = reactions, myReaction = myReaction)
-                    } ?: item.copy()
-                }
-            }.cachedIn(viewModelScope)
-
-            combineFlow
-
-        } ?: flow { emit(PagingData.empty()) }
-    }.cachedIn(viewModelScope)
-
-
-    fun setSearchQuery(searchText: String) {
-        _searchQuery.value = searchText
+    override fun handleIntent(intent: SearchUiIntent) {
+        when (intent) {
+            is SearchUiIntent.Initial -> init()
+            is SearchUiIntent.OnBackClicked -> onBackClicked()
+            is SearchUiIntent.OnQueryChanged -> onQueryChanged(intent.query)
+            is SearchUiIntent.OnFocusChanged -> onFocusChanged(intent.hasFocus)
+            is SearchUiIntent.OnTagClicked -> onTagClicked(intent.tag)
+            is SearchUiIntent.OnImageClicked -> {}
+        }
     }
 
-    fun setTag(tag: Tag) {
-        _tag.value = tag
+    private fun init() = launch {
+        reduce {
+            copyData(
+                data = data
+            )
+        }
     }
 
-    fun setPage(page: Int) {
-        _firstPage = page
+    private fun onBackClicked() {
+        reduce {
+            SearchUiState.Content(data)
+        }
     }
 
-    fun selectReaction(imageItem: PostContentModel, reaction: Reactions) {
-        val currentReaction = imageItem.myReaction
-
-        viewModelScope.launch {
-            if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId)
-            } else {
-                postRepository.reactPost(
-                    postId = imageItem.postId, reaction = reaction
+    private fun onQueryChanged(query: String) = launch {
+        if (query.isNotBlank()) queryFlow.emit(query)
+        reduce {
+            copyData(
+                data = data.copy(
+                    query = query
                 )
+            )
+        }
+    }
+
+    private fun onFocusChanged(hasFocus: Boolean) = launch {
+        reduce {
+            when {
+                hasFocus -> SearchUiState.Focus(data)
+                !hasFocus && data.query.isBlank() -> SearchUiState.Blank
+                else -> SearchUiState.Content(data)
             }
         }
-        updateReactionState(imageItem.postId, currentReaction, reaction)
     }
 
-    private fun updateReactionState(
-        postId: String,
-        prevReaction: Reactions?,
-        currentReaction: Reactions,
-    ) {
-        reactionStateFlow.update { reactionState ->
-            val newState = reactionState.toMutableMap()
-            newState[postId] = ReactionState(prev = prevReaction, current = currentReaction)
-            newState
+    private fun onTagClicked(tag: Tag) = launch {
+        tagSelectedFlow.emit(tag.id)
+        reduce {
+            SearchUiState.Content(
+                data = data.copy(
+                    query = tag.name,
+                    selectedTag = tag
+                )
+            )
         }
     }
 
-    fun followUser(id: String, name: String) {
-        viewModelScope.launch {
-            followRepository.followUser(id, name)
-                .catch { Log.e("FollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
-            _followSharedFlow.emit(Pair(id, true))
-        }
-    }
-
-    fun unFollowUser(id: String) {
-        viewModelScope.launch {
-            followRepository.unFollowUser(id)
-                .catch { Log.e("UnFollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
-            _followSharedFlow.emit(Pair(id, false))
-        }
-    }
-
-    fun checkPostIsMine(authorId: String) = userRepository.checkUserId(authorId)
-
-
-    companion object {
-        const val SEARCH_DEBOUNCE_TIME_MILLIS = 300L
-    }
 }
-
-data class ReactionState(
-    val prev: Reactions? = null,
-    val current: Reactions = Reactions.LOVE,
-)

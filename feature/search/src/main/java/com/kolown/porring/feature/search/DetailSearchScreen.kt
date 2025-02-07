@@ -38,41 +38,41 @@ internal fun DetailSearchRoute(
     viewModel: SearchViewModel
 ) {
 
-    val searchResultPost = viewModel.resultPostList.collectAsLazyPagingItems()
-    var isReelsMode by remember { mutableStateOf(true) }
-    val pagerState = rememberPagerState(initialPage = viewModel.firstPage) { searchResultPost.itemCount }
-    val followState = viewModel.followState.collectAsStateWithLifecycle(null)
-    var blockDoubleTab by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-
-
-    DetailSearchScreen(
-        padding = padding,
-        pagingItems = searchResultPost,
-        popBackStack = popBackStack,
-        isReelsMode = isReelsMode,
-        onChangeReelsMode = { isReelsMode = it },
-        navigateToTheir = { id ->
-            coroutineScope.launch {
-                blockDoubleTab = true
-                navigateToTheir(id)
-                delay(300)
-                blockDoubleTab = false
-            }
-        },
-        blockDoubleTab = blockDoubleTab,
-        pagerState = pagerState,
-        followerState = followState,
-        onFollowClick = viewModel::followUser,
-        onUnfollowClick = viewModel::unFollowUser,
-        onSelectReaction = viewModel::selectReaction,
-        checkPostIsMine = viewModel::checkPostIsMine,
-        isLoggedIn = isLoggedIn,
-    )
-    BackHandler(enabled = true) {
-        blockDoubleTab = true
-        popBackStack()
-    }
+//    val searchResultPost = viewModel.resultPostList.collectAsLazyPagingItems()
+//    var isReelsMode by remember { mutableStateOf(true) }
+//    val pagerState = rememberPagerState(initialPage = viewModel.firstPage) { searchResultPost.itemCount }
+//    val followState = viewModel.followState.collectAsStateWithLifecycle(null)
+//    var blockDoubleTab by remember { mutableStateOf(false) }
+//    val coroutineScope = rememberCoroutineScope()
+//
+//
+//    DetailSearchScreen(
+//        padding = padding,
+//        pagingItems = searchResultPost,
+//        popBackStack = popBackStack,
+//        isReelsMode = isReelsMode,
+//        onChangeReelsMode = { isReelsMode = it },
+//        navigateToTheir = { id ->
+//            coroutineScope.launch {
+//                blockDoubleTab = true
+//                navigateToTheir(id)
+//                delay(300)
+//                blockDoubleTab = false
+//            }
+//        },
+//        blockDoubleTab = blockDoubleTab,
+//        pagerState = pagerState,
+//        followerState = followState,
+//        onFollowClick = viewModel::followUser,
+//        onUnfollowClick = viewModel::unFollowUser,
+//        onSelectReaction = viewModel::selectReaction,
+//        checkPostIsMine = viewModel::checkPostIsMine,
+//        isLoggedIn = isLoggedIn,
+//    )
+//    BackHandler(enabled = true) {
+//        blockDoubleTab = true
+//        popBackStack()
+//    }
 }
 
 @Composable

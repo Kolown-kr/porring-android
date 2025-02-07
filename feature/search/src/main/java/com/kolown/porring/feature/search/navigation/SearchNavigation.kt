@@ -38,7 +38,6 @@ fun NavGraphBuilder.searchNavGraph(
         SearchRoute(
             padding = padding,
             viewModel = hiltViewModel(parentEntry),
-            navigateToSearchDetail = navigateToSearchDetail
         )
     }
 

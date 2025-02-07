@@ -34,7 +34,7 @@ interface PostRepository {
     suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit>
     suspend fun removePostReaction(postId: String): Result<Unit>
     fun getUserPosts(userId: String? = null): Flow<PagingData<PostContentModel>>
-    suspend fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
+    fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
     suspend fun deletePost(postId: String): Flow<Boolean>
     fun getRandomPostList(count: Int, randomType: String): Flow<List<PostContentModel>>
 }
@@ -217,7 +217,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {
+    override fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {
         return Pager(
             config = PagingConfig(pageSize = SEARCH_PER_PAGE, enablePlaceholders = false),
             pagingSourceFactory = {
