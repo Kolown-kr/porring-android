@@ -159,3 +159,37 @@ jobs:
           FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}" \
           RELEASE_NOTES="$(printf '%s\n' "$(cat jira_entries.txt)")" \
           bundle exec fastlane deploy --verbose
+
+  slack_notification:
+    needs: [fastlane, update_jira]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download JIRA entries artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: JIRA_entries_file
+          path: .
+
+      - name: Send Slack Notification
+        run: |
+          RELEASE_VERSION="${{ needs.update_jira.outputs.APP_VERSION }}"
+          echo "[Debug] Found below lines in jira_entries.txt:"
+          cat jira_entries.txt
+          
+          RELEASE_VERSION="${{ needs.update_jira.outputs.APP_VERSION }}"
+          echo "Release Version: $RELEASE_VERSION"
+          
+          RAW_CONTENT="$(cat jira_entries.txt)"
+          SLACK_TEXT="$(cat jira_entries.txt | sed -E 's/(.*)#%\s*(https?:\/\/[^ ]+)/<\2|\1>/g')"
+          SLACK_MESSAGE="$(cat << EOF
+          🚀 *AOS $RELEASE_VERSION release*
+          
+          $SLACK_TEXT
+          
+          EOF
+          )"
+          
+          JSON_PAYLOAD=$(echo "$SLACK_MESSAGE" | jq -R --slurp '{text: .}')
+          curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} \
+          -H 'Content-type: application/json' \
+          --data "$JSON_PAYLOAD"
