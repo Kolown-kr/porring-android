@@ -18,12 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.common.component.DetailItem
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.common.component.DetailTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.delay
@@ -35,61 +38,61 @@ internal fun DetailSearchRoute(
     popBackStack: () -> Unit,
     navigateToTheir: (String) -> Unit,
     isLoggedIn: Boolean,
-    viewModel: SearchViewModel
+    viewModel: DetailSearchViewModel = hiltViewModel(),
+    imageViewModel: SearchImageViewModel = hiltViewModel()
 ) {
+    val images = imageViewModel.imagesFlow.collectAsLazyPagingItems()
+    var isReelsMode by remember { mutableStateOf(true) }
+    val pagerState = rememberPagerState(initialPage = viewModel.firstPage) { images.itemCount }
+    val followState = viewModel.followState.collectAsStateWithLifecycle(null)
+    var blockDoubleTab by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
-//    val searchResultPost = viewModel.resultPostList.collectAsLazyPagingItems()
-//    var isReelsMode by remember { mutableStateOf(true) }
-//    val pagerState = rememberPagerState(initialPage = viewModel.firstPage) { searchResultPost.itemCount }
-//    val followState = viewModel.followState.collectAsStateWithLifecycle(null)
-//    var blockDoubleTab by remember { mutableStateOf(false) }
-//    val coroutineScope = rememberCoroutineScope()
-//
-//
-//    DetailSearchScreen(
-//        padding = padding,
-//        pagingItems = searchResultPost,
-//        popBackStack = popBackStack,
-//        isReelsMode = isReelsMode,
-//        onChangeReelsMode = { isReelsMode = it },
-//        navigateToTheir = { id ->
-//            coroutineScope.launch {
-//                blockDoubleTab = true
-//                navigateToTheir(id)
-//                delay(300)
-//                blockDoubleTab = false
-//            }
-//        },
-//        blockDoubleTab = blockDoubleTab,
-//        pagerState = pagerState,
-//        followerState = followState,
-//        onFollowClick = viewModel::followUser,
-//        onUnfollowClick = viewModel::unFollowUser,
-//        onSelectReaction = viewModel::selectReaction,
-//        checkPostIsMine = viewModel::checkPostIsMine,
-//        isLoggedIn = isLoggedIn,
-//    )
-//    BackHandler(enabled = true) {
-//        blockDoubleTab = true
-//        popBackStack()
-//    }
+
+    DetailSearchScreen(
+        padding = padding,
+        pagingItems = images,
+        popBackStack = popBackStack,
+        isReelsMode = isReelsMode,
+        onChangeReelsMode = { isReelsMode = it },
+        navigateToTheir = { id ->
+            coroutineScope.launch {
+                blockDoubleTab = true
+                navigateToTheir(id)
+                delay(300)
+                blockDoubleTab = false
+            }
+        },
+        blockDoubleTab = blockDoubleTab,
+        pagerState = pagerState,
+        followerState = followState,
+        onFollowClick = viewModel::followUser,
+        onUnfollowClick = viewModel::unFollowUser,
+        onSelectReaction = viewModel::selectReaction,
+        checkPostIsMine = viewModel::checkPostIsMine,
+        isLoggedIn = isLoggedIn,
+    )
+    BackHandler(enabled = true) {
+        blockDoubleTab = true
+        popBackStack()
+    }
 }
 
 @Composable
 fun DetailSearchScreen(
+    isLoggedIn: Boolean,
+    pagerState: PagerState,
     popBackStack: () -> Unit = {},
     onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
     isReelsMode: Boolean = true,
     pagingItems: LazyPagingItems<PostContentModel>,
-    pagerState: PagerState,
     padding: PaddingValues = PaddingValues(),
-    navigateToTheir: (String) -> Unit,
+    navigateToTheir: (String) -> Unit = {},
     updatePage: (Int) -> Unit = {},
     blockDoubleTab: Boolean = false,
     onFollowClick: (String, String) -> Unit = { _, _ -> },
     onUnfollowClick: (String) -> Unit = {},
-    isLoggedIn: Boolean,
-    onChangeReelsMode: (Boolean) -> Unit,
+    onChangeReelsMode: (Boolean) -> Unit = {},
     followerState: State<Pair<String, Boolean>?>,
     checkPostIsMine: (String) -> Boolean
 ) {
@@ -169,4 +172,3 @@ fun DetailContent(
 
     }
 }
-
