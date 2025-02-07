@@ -26,6 +26,11 @@ jobs:
           APP_VERSION=$(grep VERSION_NAME gradle.properties | cut -d'=' -f2 | tr -d ' ')
           echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Create local.properties
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          echo "google_cient_id=${{ secrets.GOOGLE_CLIENT_ID }}" >> local.properties
+
       - name: get previous release tag
         id: get_prev_release
         run: |
