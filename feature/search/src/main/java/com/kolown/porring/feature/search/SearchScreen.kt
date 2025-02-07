@@ -39,20 +39,32 @@ import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Tag
+import com.kolown.porring.core.ui.util.LaunchSideEffect
 import com.kolown.porring.feature.search.component.PostItem
 import com.kolown.porring.feature.search.component.TagSearchBar
 import com.kolown.porring.feature.search.model.SearchUiIntent
 import com.kolown.porring.feature.search.model.SearchUiModel
+import com.kolown.porring.feature.search.model.SearchUiSideEffect
 import com.kolown.porring.feature.search.model.SearchUiState
 
 @Composable
 internal fun SearchRoute(
     padding: PaddingValues,
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
+    imageViewModel: SearchImageViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val tags = viewModel.tagsFlow.collectAsLazyPagingItems()
-    val images = viewModel.imagesFlow.collectAsLazyPagingItems()
+    val images = imageViewModel.imagesFlow.collectAsLazyPagingItems()
+
+    LaunchSideEffect(viewModel) { effect ->
+        when(effect) {
+            is SearchUiSideEffect.FetchPostsByTag -> {
+                imageViewModel.selectTag(effect.tag.id)
+            }
+            is SearchUiSideEffect.NavigateToDetail -> {}
+        }
+    }
 
     SearchScreen(
         padding = padding,

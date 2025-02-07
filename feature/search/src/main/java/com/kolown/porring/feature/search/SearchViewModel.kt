@@ -25,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
     private val tagRepository: TagRepository,
-    private val postRepository: PostRepository,
 ) : BaseMviViewModel<SearchUiState, SearchUiIntent, SearchUiSideEffect>(SearchUiState.Blank) {
 
     private val queryFlow = MutableSharedFlow<String>()
@@ -34,16 +33,6 @@ internal class SearchViewModel @Inject constructor(
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(tagRepository::getTagBySearch)
-        .cachedIn(viewModelScope)
-
-    private val tagSelectedFlow = MutableSharedFlow<String>()
-
-    val imagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
-        .debounce(300)
-        .debugLog("tagSelectedFlow")
-        .distinctUntilChanged()
-        .flatMapLatest(postRepository::getPostBySearch)
-        .debugLog("imagesFlow")
         .cachedIn(viewModelScope)
 
     override fun handleIntent(intent: SearchUiIntent) {
@@ -93,7 +82,7 @@ internal class SearchViewModel @Inject constructor(
     }
 
     private fun onTagClicked(tag: Tag) = launch {
-        tagSelectedFlow.emit(tag.id)
+        postSideEffect(SearchUiSideEffect.FetchPostsByTag(tag))
         reduce {
             SearchUiState.Content(
                 data = data.copy(
@@ -103,5 +92,4 @@ internal class SearchViewModel @Inject constructor(
             )
         }
     }
-
 }
