@@ -44,17 +44,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.feature.camera.R
 import com.kolown.porring.feature.camera.getImagePickerLauncher
 import com.kolown.porring.feature.camera.getSuspendedResult
 import com.kolown.porring.feature.camera.screen.component.CaptureButton
 import com.kolown.porring.feature.camera.screen.component.PreviewViewCompose
 import com.kolown.porring.feature.camera.takePhoto
-import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import kotlinx.coroutines.launch
 
 @Composable
-fun CameraPermissionSucceedScreen(
+internal fun CameraContent(
     isFlashOn: Boolean = false,
     viewModel: CameraScreenViewModel = hiltViewModel(),
     navigateToUpload: (String) -> Unit = {},
@@ -162,7 +162,8 @@ fun CameraPermissionSucceedScreen(
         } else {
             PreviewViewCompose(
                 cameraController,
-                modifier = Modifier.background(Color.Yellow)
+                modifier = Modifier
+                    .background(Color.Yellow)
                     .fillMaxWidth()
                     .aspectRatio(3f / 4f)
             )
@@ -189,7 +190,10 @@ fun CameraPermissionSucceedScreen(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth().height(48.dp).background(BackgroundDark),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .background(BackgroundDark),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

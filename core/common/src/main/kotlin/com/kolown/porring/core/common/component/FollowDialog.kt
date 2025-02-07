@@ -1,5 +1,6 @@
 package com.kolown.porring.core.common.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.kolown.porring.core.common.R
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Surface
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 
 @Composable
@@ -71,7 +73,7 @@ fun FollowDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(text = "팔로우 추가하기", style = MaterialTheme.typography.titleMedium)
+                Text(text = "팔로우 추가하기", style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(text = "원하는 이름을 입력해 주세요.", style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(15.dp))
@@ -84,8 +86,8 @@ fun FollowDialog(
                     colors = TextFieldDefaults.colors(
                         focusedIndicatorColor = Primary,
                         unfocusedIndicatorColor = Surface2,
-                        focusedContainerColor = Surface2,
-                        unfocusedContainerColor = Surface2,
+                        focusedContainerColor = Surface,
+                        unfocusedContainerColor = Surface,
                         focusedTextColor = Primary,
                         unfocusedTextColor = Primary
                     ),
@@ -99,7 +101,8 @@ fun FollowDialog(
                             }
                         )
                     },
-                    maxLines = 1
+                    maxLines = 1,
+                    modifier = Modifier.border(1.dp, Primary, RoundedCornerShape(5.dp))
                 )
                 Spacer(modifier = Modifier.height(5.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
