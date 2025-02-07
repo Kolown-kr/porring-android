@@ -6,11 +6,12 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
+import com.kolown.porring.core.data.utils.Constants.IMAGE_LONG
+import com.kolown.porring.core.data.utils.Constants.IMAGE_RATIO
+import com.kolown.porring.core.data.utils.Constants.IMAGE_SHORT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -52,7 +53,7 @@ class ImageGenerateRepositoryImpl(
 
     override suspend fun decodeSampledBitmapFromUri(
         uri: Uri,
-    ): Bitmap? {
+    ): Bitmap? = withContext(Dispatchers.IO) {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
@@ -63,33 +64,51 @@ class ImageGenerateRepositoryImpl(
         options.inSampleSize = calculateInSampleSize(options)
         options.inJustDecodeBounds = false
 
-        return applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
+        applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }?.let { originalBitmap ->
             rotateAndCropBitmap(originalBitmap, uri)
         }
     }
 
-    private fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap {
-        val exif = try {
-            applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
-                ExifInterface(inputStream)
-            }
-        } catch (e: IOException) {
-            Log.e("회전 에러", e.message.toString())
-            null
+    private suspend fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap =
+        withContext(Dispatchers.Default) {
+            val orientation = getExifOrientation(uri)
+            val matrix = getRotationMatrix(orientation)
+
+            val originalWidth = originalBitmap.width
+            val originalHeight = originalBitmap.height
+            val (cropWidth, cropHeight) = calculateCropSize(originalWidth, originalHeight)
+
+            val xOffset = (originalWidth - cropWidth) / 2
+            val yOffset = (originalHeight - cropHeight) / 2
+
+            Bitmap.createBitmap(
+                originalBitmap,
+                xOffset,
+                yOffset,
+                cropWidth,
+                cropHeight,
+                matrix,
+                true
+            )
         }
 
-        val orientation = exif?.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
+    private suspend fun getExifOrientation(uri: Uri): Int = withContext(Dispatchers.IO) {
+        try {
+            applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
+                ExifInterface(inputStream).getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+            } ?: ExifInterface.ORIENTATION_NORMAL
+        } catch (e: IOException) {
+            Log.e("Exif 오류", e.message.toString())
             ExifInterface.ORIENTATION_NORMAL
-        ) ?: ExifInterface.ORIENTATION_NORMAL
-
-        val rotatedBitmap = rotateBitmap(orientation, originalBitmap)
-        return cropToAspectRatio(rotatedBitmap)
+        }
     }
 
-    private fun rotateBitmap(orientation: Int, source: Bitmap): Bitmap {
+    private fun getRotationMatrix(orientation: Int): Matrix {
         val angle = when (orientation) {
             ExifInterface.ORIENTATION_ROTATE_90 -> 90f
             ExifInterface.ORIENTATION_ROTATE_180 -> 180f
@@ -97,51 +116,37 @@ class ImageGenerateRepositoryImpl(
             ExifInterface.ORIENTATION_NORMAL -> 0f
             else -> 0f
         }
-        val matrix = Matrix().apply {
-            postRotate(angle)
+        return Matrix().apply { postRotate(angle) }
+    }
+
+    private fun calculateCropSize(originalWidth: Int, originalHeight: Int): Pair<Int, Int> {
+        return if (originalWidth > originalHeight) {
+            val targetWidth = (originalHeight / IMAGE_RATIO).toInt()
+            Pair(min(originalWidth, targetWidth), originalHeight)
+        } else {
+            val targetHeight = (originalWidth / IMAGE_RATIO).toInt()
+            Pair(originalWidth, min(originalHeight, targetHeight))
         }
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
     private fun calculateInSampleSize(
         options: BitmapFactory.Options,
     ): Int {
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
+        val (height, width) = options.run { outHeight to outWidth }
         var inSampleSize = 1
 
-        if (height > 900 || width > 720) {
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
+        val maxSize = maxOf(height, width)
+        val minSize = minOf(height, width)
 
-            while (halfHeight / inSampleSize >= 900 && halfWidth / inSampleSize >= 720) {
+        if (maxSize > IMAGE_LONG || minSize > IMAGE_SHORT) {
+            val halfMax = maxSize / 2
+            val halfMin = minSize / 2
+
+            while (halfMax / inSampleSize >= IMAGE_LONG && halfMin / inSampleSize >= IMAGE_SHORT) {
                 inSampleSize *= 2
             }
         }
 
         return inSampleSize
-    }
-
-    private fun cropToAspectRatio(bitmap: Bitmap): Bitmap {
-        val originalWidth = bitmap.width
-        val originalHeight = bitmap.height
-
-        val targetRatio = 4f / 5f
-
-        var targetWidth = originalWidth
-        var targetHeight = originalHeight
-
-        if (originalWidth > originalHeight) {
-            targetWidth = (originalHeight / targetRatio).toInt()
-        } else {
-            targetHeight = (originalWidth / targetRatio).toInt()
-        }
-
-        val cropWidth = min(originalWidth, targetWidth)
-        val cropHeight = min(originalHeight, targetHeight)
-
-        val xOffset = (originalWidth - cropWidth) / 2
-        val yOffset = (originalHeight - cropHeight) / 2
-
-        return Bitmap.createBitmap(bitmap, xOffset, yOffset, cropWidth, cropHeight)
     }
 }
