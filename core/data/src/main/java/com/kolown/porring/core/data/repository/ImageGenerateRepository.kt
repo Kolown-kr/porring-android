@@ -24,7 +24,8 @@ interface ImageGenerateRepository {
         quality: Int = 100
     ): Uri?
 
-    suspend fun decodeSampledBitmapFromUri(uri: Uri): Bitmap?
+    suspend fun decodeSampledBitmapFromUri(uri: Uri, rotateNeeded: Boolean): Bitmap?
+    suspend fun resizeBitmap(bitmap: Bitmap): Bitmap
 }
 
 class ImageGenerateRepositoryImpl(
@@ -53,6 +54,7 @@ class ImageGenerateRepositoryImpl(
 
     override suspend fun decodeSampledBitmapFromUri(
         uri: Uri,
+        rotateNeeded: Boolean
     ): Bitmap? = withContext(Dispatchers.IO) {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
@@ -61,14 +63,27 @@ class ImageGenerateRepositoryImpl(
         applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
-        options.inSampleSize = calculateInSampleSize(options)
+        options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
         options.inJustDecodeBounds = false
 
         applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }?.let { originalBitmap ->
-            rotateAndCropBitmap(originalBitmap, uri)
+            if(rotateNeeded) {
+                rotateAndCropBitmap(originalBitmap, uri)
+            } else {
+                originalBitmap
+            }
         }
+    }
+
+    override suspend fun resizeBitmap(bitmap: Bitmap): Bitmap = withContext(Dispatchers.Default) {
+        val inSampleSize = calculateInSampleSize(bitmap.width, bitmap.height)
+
+        val newWidth = bitmap.width / inSampleSize
+        val newHeight = bitmap.height / inSampleSize
+
+        Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
     private suspend fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap =
@@ -129,12 +144,8 @@ class ImageGenerateRepositoryImpl(
         }
     }
 
-    private fun calculateInSampleSize(
-        options: BitmapFactory.Options,
-    ): Int {
-        val (height, width) = options.run { outHeight to outWidth }
+    private fun calculateInSampleSize(width: Int, height: Int): Int {
         var inSampleSize = 1
-
         val maxSize = maxOf(height, width)
         val minSize = minOf(height, width)
 
