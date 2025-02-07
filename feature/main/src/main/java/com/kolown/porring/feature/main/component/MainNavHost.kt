@@ -8,24 +8,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
+import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.join.navigation.joinNavGraph
 import com.kolown.porring.feature.login.navigation.loginNavGraph
 import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.feature.main.navigation.MainNavigator
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.feature.my.navigation.myNavGraph
-import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.search.navigation.searchNavGraph
 import com.kolown.porring.feature.setting.navigation.settingNavGraph
 import com.kolown.porring.feature.their.navigation.theirNavGraph
 import com.kolown.porring.feature.upload.navigation.uploadNavGraph
 
-//@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 internal fun MainNavHost(
     mainItems: List<PostContentModel>,
