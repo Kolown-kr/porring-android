@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
-import com.kolown.porring.core.navigation.SearchRoute
 import com.kolown.porring.feature.main.R
 
 internal enum class MainMenu(
@@ -21,7 +20,7 @@ internal enum class MainMenu(
     SEARCH(
         iconResId = R.drawable.ic_search_24dp,
         contentDescription = "Search",
-        route = SearchRoute.Search,
+        route = MainMenuRoute.Search,
     ),
     CAMERA(
         iconResId = R.drawable.ic_add_circle_48dp,
