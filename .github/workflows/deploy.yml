@@ -1,0 +1,120 @@
+name: update Jira & deploy to firebase with fastlane
+
+on:
+  workflow_run:
+    workflows:
+      - "release"
+    types:
+      - completed
+    conclusion: success
+
+jobs:
+  update_jira:
+    runs-on: ubuntu-latest
+    outputs:
+      APP_VERSION: ${{ steps.extract_version.outputs.APP_VERSION }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Extract app version from gradle.properties
+        id: extract_version
+        run: |
+          APP_VERSION=$(grep VERSION_NAME gradle.properties | cut -d'=' -f2 | tr -d ' ')
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: get previous release tag
+        id: get_prev_release
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
+
+      - name: get commit messages since last release
+        id: get_commit_messages
+        run: |
+          if [[ -z "${{ env.PREV_TAG }}" ]]; then
+            COMMITS=$(git log --pretty=format:"%s" --reverse)
+          else
+            COMMITS=$(git log ${{ env.PREV_TAG }}..HEAD --pretty=format:"%s" --reverse)
+          fi
+          echo "$COMMITS" > commit_messages.txt
+          
+          cat commit_messages.txt
+
+      - name: get jira and update
+        id: extract_jira_id
+        run: |
+          JIRA_ENTRIES=""
+          while IFS= read -r COMMIT_MSG; do
+            JIRA_IDS=$(echo "$COMMIT_MSG" | grep -oE '#[A-Za-z]+-[0-9]+' | tr -d '#' | sort -u)
+          
+            if [[ -z "$JIRA_IDS" ]]; then
+              echo "❌ No Jira ID found in: $COMMIT_MSG"
+            else
+              echo "✅ Extracted Jira IDs: $JIRA_IDS"
+            fi
+          
+            for JIRA_ID in $JIRA_IDS; do
+              if [[ -n "$JIRA_ID" ]]; then
+                JIRA_RESPONSE=$(
+                  curl -X GET "${{ secrets.JIRA_DOMAIN }}/rest/api/2/issue/$JIRA_ID" \
+                  -u "${{ secrets.JIRA_ADMIN }}:${{ secrets.JIRA_TOKEN }}" \
+                  -H "Accept: application/json"
+                )
+          
+                echo "$JIRA_RESPONSE" > jira_response.json
+                cat jira_response.json
+          
+                JIRA_TITLE=$(echo "$JIRA_RESPONSE" | jq -r '.fields.summary')
+                JIRA_LINK="${{ secrets.JIRA_DOMAIN }}/browse/$JIRA_ID"
+          
+                JIRA_ENTRIES+=$'\n- '
+                JIRA_ENTRIES+="$COMMIT_MSG"
+                JIRA_ENTRIES+=$'\n'
+                JIRA_ENTRIES+="$JIRA_TITLE"
+                JIRA_ENTRIES+=$'#%'
+                JIRA_ENTRIES+="$JIRA_LINK"
+          
+                curl -X POST "${{ secrets.JIRA_DOMAIN }}/rest/api/2/issue/$JIRA_ID/transitions" \
+                -u "${{ secrets.JIRA_ADMIN }}:${{ secrets.JIRA_TOKEN }}" \
+                -H "Accept: application/json" \
+                -H "Content-Type: application/json" \
+                --data '{"transition": {"id": "2"}}'
+              fi
+            done
+          done < commit_messages.txt
+          
+          echo "$JIRA_ENTRIES" >> jira_entries.txt
+
+      - name: upload release note
+        uses: actions/upload-artifact@v4
+        with:
+          name: JIRA_entries_file
+          path: jira_entries.txt
+
+      - name: Get last release tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: get_last_release
+        run: |
+          LATEST_RELEASE=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+          echo "LATEST_RELEASE=$LATEST_RELEASE" >> $GITHUB_ENV
+
+      - name: Update Release Notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_NOTES=$(gh release view ${{ env.LATEST_RELEASE }} --json body -q .body)
+          MARK_DOWN="$(cat jira_entries.txt | sed -E 's/(.*)#%\s*(https?:\/\/[^ ]+)/[\1](\2)/g')"
+          UPDATED_NOTES=$(cat <<EOF
+          ## Updated $RELEASE_NOTES Release Notes
+          
+          
+          ### Jira tasks
+          $MARK_DOWN
+          EOF
+          )
+          gh release edit "${{ env.LATEST_RELEASE }}" --notes "$UPDATED_NOTES"
