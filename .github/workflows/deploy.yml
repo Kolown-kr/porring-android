@@ -118,3 +118,44 @@ jobs:
           EOF
           )
           gh release edit "${{ env.LATEST_RELEASE }}" --notes "$UPDATED_NOTES"
+  
+
+  fastlane:
+    needs: update_jira
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: setup gradle
+        uses: gradle/gradle-build-action@v3
+
+      - name: grant gradlew
+        run: chmod +x gradlew
+
+      - name: setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.3.7
+
+      - name: bundle
+        run: bundle install
+
+      - name: decode firebase json
+        run: echo "${{ secrets.FIREBASE_ADMIN_BASE64 }}" | base64 --decode > app/firebase_admin.json
+
+      - name: Download JIRA entries artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: JIRA_entries_file
+          path: .
+
+      - name: deploy to app distribution
+        run: |
+          FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}" \
+          RELEASE_NOTES="$(printf '%s\n' "$(cat jira_entries.txt)")" \
+          bundle exec fastlane deploy --verbose
