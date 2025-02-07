@@ -7,6 +7,12 @@ plugins {
 
 configureCoroutineAndroid()
 
+android {
+    defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
 dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:data"))
