@@ -1,0 +1,19 @@
+default_platform(:android)
+
+platform :android do
+  desc "Deploy Beta Release to Firebase App Distribution"
+  lane :beta do
+    gradle(
+          task: "assemble",
+          build_type: "Debug",
+    )
+
+    firebase_app_distribution(
+        app: ENV["FIREBASE_APP_ID"],
+        apk_path: "app/build/outputs/apk/debug/app-debug.apk",
+        service_credentials_file: "app/firebase_admin.json",
+        groups: "porring",
+        release_notes: ENV["RELEASE_NOTES"],
+    )
+  end
+end
