@@ -22,7 +22,7 @@ class CameraScreenViewModel @Inject constructor(
     val uri: StateFlow<Uri?> = _uri.asStateFlow()
 
     fun setUri(uri: Uri) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(uri)
             _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap!!)
         }
