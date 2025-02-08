@@ -190,8 +190,7 @@ private fun MainScreenContent(
             MainBottomBar(
                 isLoggedIn = isLoggedIn,
                 modifier = Modifier
-                    .navigationBarsPadding()
-                    .padding(top = 12.dp, bottom = 16.dp),
+                    .navigationBarsPadding(),
                 visible = navigator.isShowBottomBar(),
                 menus = MainMenu.entries.toPersistentList(),
                 currentMenu = navigator.currentMenu,

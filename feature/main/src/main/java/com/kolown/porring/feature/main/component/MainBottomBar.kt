@@ -61,7 +61,6 @@ internal fun MainBottomBar(
         Row(
             modifier = modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             var showRationale by remember { mutableStateOf(false) }
             var showSetting by remember { mutableStateOf(false) }
