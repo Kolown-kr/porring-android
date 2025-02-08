@@ -34,13 +34,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.kolown.porring.core.common.component.CoilImage
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.util.LaunchSideEffect
-import com.kolown.porring.feature.search.component.PostItem
 import com.kolown.porring.feature.search.component.TagSearchBar
 import com.kolown.porring.feature.search.model.SearchUiIntent
 import com.kolown.porring.feature.search.model.SearchUiModel
@@ -212,9 +212,15 @@ private fun SearchImages(
             key = { it?.postId.orEmpty() }
         ) { image ->
             if (image != null) {
-                PostItem(
-                    post = image,
-                    onClick = onImageClicked
+                CoilImage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .aspectRatio(1f),
+                    onClick = onImageClicked,
+                    imageUrl = image.imageUrl,
+                    delay = 1500,
+                    isTextExist = false
                 )
             } else {
                 Box(
