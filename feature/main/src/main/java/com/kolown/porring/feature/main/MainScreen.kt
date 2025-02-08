@@ -152,7 +152,6 @@ internal fun MainScreen(
     )
 }
 
-//@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MainScreenContent(
     modifier: Modifier = Modifier,
@@ -189,8 +188,6 @@ private fun MainScreenContent(
         bottomBar = {
             MainBottomBar(
                 isLoggedIn = isLoggedIn,
-                modifier = Modifier
-                    .navigationBarsPadding(),
                 visible = navigator.isShowBottomBar(),
                 menus = MainMenu.entries.toPersistentList(),
                 currentMenu = navigator.currentMenu,
