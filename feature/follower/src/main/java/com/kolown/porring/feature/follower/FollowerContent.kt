@@ -98,7 +98,8 @@ internal fun FollowContent(
                 ) {
                     CoilImage(
                         imageUrl = imageUrl,
-                        onClickEnabled = false
+                        imageRatio = 1f,
+                        isClickedEnabled = false
                     )
                 }
             }
