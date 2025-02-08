@@ -60,8 +60,7 @@ internal fun MainBottomBar(
     if (visible) {
         Row(
             modifier = modifier
-                .fillMaxWidth()
-                .height(52.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             var showRationale by remember { mutableStateOf(false) }
@@ -82,18 +81,15 @@ internal fun MainBottomBar(
                 }
             }
 
-            menus.forEach { menu ->
-                MainBottomBarItem(
-                    menu = menu,
-                    selected = menu == currentMenu,
-                    onClick = {
-                        if (menu.route == MainMenuRoute.Camera) {
-                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                        } else {
-                            onMenuSelected(menu)
-                        }
-                    }
-                )
+            CurvedBottomBar(
+                menuItems = menus,
+                currentItem = currentMenu ?: MainMenu.HOME,
+            ) { menu ->
+                if (menu.route == MainMenuRoute.Camera) {
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                } else {
+                    onMenuSelected(menu)
+                }
             }
 
             if (showRationale) {

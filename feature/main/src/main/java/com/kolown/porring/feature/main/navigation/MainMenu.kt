@@ -13,12 +13,12 @@ internal enum class MainMenu(
     val route: MainMenuRoute,
 ) {
     HOME(
-        iconResId = R.drawable.ic_home_24dp,
+        iconResId = R.drawable.ic_home,
         contentDescription = "Home",
         route = MainMenuRoute.Home,
     ),
     SEARCH(
-        iconResId = R.drawable.ic_search_24dp,
+        iconResId = R.drawable.ic_search,
         contentDescription = "Search",
         route = MainMenuRoute.Search,
     ),
@@ -28,12 +28,12 @@ internal enum class MainMenu(
         route = MainMenuRoute.Camera,
     ),
     FOLLOWER(
-        iconResId = R.drawable.ic_follower_24dp,
+        iconResId = R.drawable.ic_follow,
         contentDescription = "Follow",
         route = MainMenuRoute.Follower,
     ),
     MY(
-        iconResId = R.drawable.ic_my_24dp,
+        iconResId = R.drawable.ic_my,
         contentDescription = "My",
         route = MainMenuRoute.My,
     );
