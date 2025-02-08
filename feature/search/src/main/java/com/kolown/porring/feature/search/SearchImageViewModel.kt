@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,11 +26,18 @@ internal class SearchImageViewModel @Inject constructor(
 ): ViewModel() {
     private val tagSelectedFlow = MutableSharedFlow<String>()
 
-    val imagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
+    private val clearImagesFlow: Flow<PagingData<PostContentModel>> =
+        tagSelectedFlow.map { PagingData.empty() }
+
+    private val loadImagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(postRepository::getPostBySearch)
         .cachedIn(viewModelScope)
+
+    val imagesFlow: Flow<PagingData<PostContentModel>> =
+        merge(clearImagesFlow, loadImagesFlow)
+            .cachedIn(viewModelScope)
 
     fun selectTag(tagId: String) {
         viewModelScope.launch {
