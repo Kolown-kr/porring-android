@@ -1,6 +1,8 @@
 package com.kolown.porring.feature.main.component
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,32 +11,37 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.ui.ext.shadow
 import com.kolown.porring.feature.main.navigation.MainMenu
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
@@ -50,20 +57,11 @@ internal fun CurvedBottomBar(
             modifier = Modifier
                 .align(Alignment.TopCenter)
         ) {
-            FloatingActionButton(
-                shape = CircleShape,
-                containerColor = Color.White,
-                contentColor = Color.Gray,
-                onClick = { onNavigateTo(menuItems[2]) },
-            ) {
-                Row(
-                    modifier = Modifier.size(64.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CurvedBottomBarItem(menuItems[2], currentItem == menuItems[2])
-                }
-            }
+            GradientFloatingActionButton(
+                item = menuItems[2],
+                onClick = onNavigateTo
+            )
+
             Spacer(modifier = Modifier.height(30.dp))
         }
 
@@ -72,6 +70,12 @@ internal fun CurvedBottomBar(
                 .fillMaxWidth()
                 .height(56.dp)
                 .align(Alignment.BottomCenter)
+                .shadow(
+                    color = Color(0xFF598AFF).copy(alpha = 0.1f),
+                    blur = 8.dp,
+                    offsetY = (-5).dp,
+                    shape = menuBarShape(isShadow = true),
+                )
                 .background(
                     color = Color.White,
                     shape = menuBarShape()
@@ -115,16 +119,42 @@ private fun RowScope.CurvedBottomBarItem(
     }
 }
 
-private fun menuBarShape() = GenericShape { size, _ ->
+@Composable
+private fun GradientFloatingActionButton(
+    item: MainMenu,
+    onClick: (MainMenu) -> Unit = {},
+) {
+    Box(
+        modifier = Modifier
+            .size(62.dp)
+            .clip(CircleShape)
+            .background(brush = Brush.verticalGradient(listOf(PrimaryDark, Primary)))
+            .clickable(
+                onClick = { onClick(item) },
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,//TODO 아이콘 추가 바람
+            contentDescription = item.contentDescription,
+            tint = Color.White,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+private fun Dp.toPx() = with(Resources.getSystem().displayMetrics.density) { this@toPx.value * this }
+
+private fun menuBarShape(isShadow: Boolean = false) = GenericShape { size, _ ->
     reset()
 
     moveTo(0f, 0f)
 
     val width = 250f
-    val height = 90f
+    val height = 40.dp.toPx()
 
-    val point1 = 75f
-    val point2 = 85f
+    val point1 = 100f
+    val point2 = 110f
 
     lineTo(size.width / 2 - width, 0f)
 
@@ -144,7 +174,9 @@ private fun menuBarShape() = GenericShape { size, _ ->
 
     lineTo(size.width, 0f)
     lineTo(size.width, size.height)
-    lineTo(0f, size.height)
+    if (!isShadow) {
+        lineTo(0f, size.height)
+    }
 
     close()
 }
@@ -153,11 +185,18 @@ private fun menuBarShape() = GenericShape { size, _ ->
 @Composable
 private fun Preview() {
     var currentItem by remember { mutableStateOf(MainMenu.HOME) }
-    PorringTheme(true) {
-        CurvedBottomBar(
-            menuItems = MainMenu.entries.toPersistentList(),
-            currentItem = currentItem,
-            onNavigateTo = { currentItem = it }
-        )
-    }
+    CurvedBottomBar(
+        menuItems = MainMenu.entries.toPersistentList(),
+        currentItem = currentItem,
+        onNavigateTo = { currentItem = it }
+    )
+}
+
+@Preview
+@Composable
+private fun FloatingPreview() {
+    GradientFloatingActionButton(
+        item = MainMenu.CAMERA,
+        onClick = {}
+    )
 }
