@@ -225,7 +225,6 @@ private fun StateLazyGrid(
                             pagingItems[index]?.let {
                                 GalleryItem(
                                     postContentModel = it,
-                                    width = width,
                                     onClickImage = {
                                         navigateToDetailTheir()
                                         setPage(index)

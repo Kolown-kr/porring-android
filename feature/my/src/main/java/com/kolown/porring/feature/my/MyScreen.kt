@@ -266,7 +266,6 @@ fun StateLazyGrid(
                                 pagingItems[index]?.let {
                                     GalleryItem(
                                         postContentModel = it,
-                                        width = width,
                                         onLongClickImage = { deletePost(it.postId) },
                                         onClickImage = {
                                             setPage(index)
