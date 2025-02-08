@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -257,6 +257,7 @@ private fun RandomImage(
     imageUrl: String = "https://echo.unicomm.fsu.edu/3.3/img/placeholders/ratio-4-5.png",
     onClickImage: () -> Unit,
 ) {
+    val imageRatio = remember { mutableFloatStateOf(4f / 5f) }
 
     Card(
         modifier = Modifier.fillMaxSize(),
@@ -266,6 +267,8 @@ private fun RandomImage(
     ) {
         CoilImage(
             imageUrl = imageUrl,
+            imageRatio = imageRatio.floatValue,
+            updateImageRatio = { imageRatio.floatValue = it },
             onClick = onClickImage
         )
     }

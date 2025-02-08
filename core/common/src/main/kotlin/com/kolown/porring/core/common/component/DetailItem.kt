@@ -171,11 +171,10 @@ private fun ReelsContent(
     ) {
         val tags = imageItem.tags.joinToString(", ") { "#$it" }
 
-        NoRippleCoilImage(
-            modifier = Modifier
-                .fillMaxWidth(),
+        CoilImage(
             imageUrl = imageItem.imageUrl,
             imageRatio = imageRatio,
+            isRipple = false,
             onClick = {
                 if (isReactionVisible.value) {
                     isReactionVisible.value = false

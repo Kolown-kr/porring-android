@@ -1,8 +1,10 @@
 package com.kolown.porring.core.common.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,20 +40,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun CoilImage(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-    onLongClick: () -> Unit = {},
     delay: Long = 0L,
     imageUrl: String,
     isTextExist: Boolean = true,
+    isClickedEnabled: Boolean = true,
+    isRipple: Boolean = true,
+    imageRatio: Float = 4f / 5f,
+    updateImageRatio: (Float) -> Unit = {},
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
     onDoubleClick: () -> Unit = {},
-    onClickEnabled: Boolean = true
 ) {
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val loadingModifier = modifier.shimmerEffect()
-    val imageRatio = remember { mutableFloatStateOf(4f / 5f) }
-
+    val interactionSource = remember { MutableInteractionSource() }
 
     if (isError) {
         Column(
@@ -85,14 +88,20 @@ fun CoilImage(
             modifier = if (isLoading) loadingModifier else modifier,
         ) {
             AsyncImage(
-                modifier = if (onClickEnabled) Modifier
-                    .aspectRatio(imageRatio.floatValue)
+                modifier = Modifier
+                    .aspectRatio(imageRatio)
                     .fillMaxWidth()
-                    .combinedClickable(
-                        onClick = onClick,
-                        onLongClick = onLongClick,
-                        onDoubleClick = onDoubleClick
-                    ) else Modifier.fillMaxSize(),
+                    .then(
+                        if (isClickedEnabled) Modifier.combinedClickable(
+                            indication = if (isRipple) LocalIndication.current else null,
+                            interactionSource = interactionSource,
+                            onClick = onClick,
+                            onLongClick = onLongClick,
+                            onDoubleClick = onDoubleClick
+                        ) else {
+                            Modifier
+                        }
+                    ),
                 model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
@@ -105,10 +114,10 @@ fun CoilImage(
                         val height = it.result.image.height
                         val width = it.result.image.width
 
-                        if(height > width) {
-                            imageRatio.floatValue = 4f / 5f
+                        if (height > width) {
+                            updateImageRatio(4f / 5f)
                         } else {
-                            imageRatio.floatValue = 5f/ 4f
+                            updateImageRatio(5f / 4f)
                         }
 
                         delay(delay)
