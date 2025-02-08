@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.google)
     alias(libs.plugins.porring.android.application)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -31,4 +32,8 @@ android {
 
 dependencies {
     implementation(projects.feature.main)
+
+    implementation(platform(libs.google.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 }
