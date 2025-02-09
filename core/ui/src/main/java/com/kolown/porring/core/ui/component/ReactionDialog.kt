@@ -1,4 +1,4 @@
-package com.kolown.porring.core.common.component
+package com.kolown.porring.core.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kolown.porring.core.common.R
+import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions

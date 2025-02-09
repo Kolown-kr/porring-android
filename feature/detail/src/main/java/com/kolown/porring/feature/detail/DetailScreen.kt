@@ -29,8 +29,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.common.component.DetailItem
-import com.kolown.porring.core.common.component.LoadingDetailContent
+import com.kolown.porring.core.ui.component.DetailItem
+import com.kolown.porring.core.ui.component.LoadingDetailContent
 import com.kolown.porring.core.designsystem.R.*
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
@@ -43,14 +43,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun DetailRoute(
-    isLoggedIn: Boolean,
-    detailFirstItem: PostContentModel,
-    updateMainPostReaction: (PostContentModel, Reactions) -> Unit,
     popBackStack: () -> Unit,
-    padding: PaddingValues = PaddingValues(),
     navigateToTheir: (String) -> Unit,
+    padding: PaddingValues = PaddingValues(),
     detailViewModel: DetailViewModel = hiltViewModel(),
-    updateFollow: (String) -> Unit
 ) {
     var isReelsMode by remember { mutableStateOf(true) }
     val uiState = detailViewModel.uiState.collectAsStateWithLifecycle()
@@ -78,14 +74,11 @@ internal fun DetailRoute(
             }
 
             DetailScreen(
-                isLoggedIn = isLoggedIn,
                 onChangeReelsMode = { isReelsMode = it },
                 popBackStack = popBackStack,
-                updateMainPostReaction = updateMainPostReaction,
                 onSelectReaction = detailViewModel::selectReaction,
                 isReelsMode = isReelsMode,
                 isPopBackStack = isPopBackStack,
-                firstItem = detailFirstItem,
                 pagingItems = pagingItems,
                 pagerState = pagerState,
                 padding = padding,
@@ -103,7 +96,6 @@ internal fun DetailRoute(
                 onFollowClick = detailViewModel::followUser,
                 onUnfollowClick = detailViewModel::unFollowUser,
                 followerState = followState,
-                updateFollow = updateFollow
             )
         }
 
@@ -118,6 +110,9 @@ internal fun DetailRoute(
 
 @Composable
 private fun DetailScreen(
+    firstItem: PostContentModel = PostContentModel("", "", "", "", "", emptyList(), false, emptyList()),
+    pagingItems: LazyPagingItems<PostContentModel>,
+    pagerState: PagerState,
     isLoggedIn: Boolean = false,
     onChangeReelsMode: (Boolean) -> Unit = {},
     popBackStack: () -> Unit = {},
@@ -125,15 +120,12 @@ private fun DetailScreen(
     onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
     isReelsMode: Boolean = true,
     isPopBackStack: Boolean = false,
-    firstItem: PostContentModel,
-    pagingItems: LazyPagingItems<PostContentModel>,
-    pagerState: PagerState,
     padding: PaddingValues = PaddingValues(),
-    navigateToTheir: (String) -> Unit,
-    updatePage: (Int) -> Unit,
+    navigateToTheir: (String) -> Unit = {},
+    updatePage: (Int) -> Unit = {},
     onFollowClick: (String, String) -> Unit = { _, _ -> },
     onUnfollowClick: (String) -> Unit = {},
-    followerState: State<Pair<String, Boolean>?>,
+    followerState: State<Pair<String, Boolean>?> = mutableStateOf(null),
     updateFollow: (String) -> Unit = {}
 ) {
     Box(

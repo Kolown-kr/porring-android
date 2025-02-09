@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
@@ -27,22 +25,11 @@ import com.kolown.porring.feature.upload.navigation.uploadNavGraph
 
 @Composable
 internal fun MainNavHost(
-    mainItems: List<PostContentModel>,
-    onSelectReaction: (PostContentModel, Reactions) -> Unit,
-
-    detailFirstItem: PostContentModel,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    updateFollow: (String) -> Unit,
-    isLoggedIn: Boolean,
-    updateLoginState: () -> Unit,
-    modifier: Modifier = Modifier,
     navigator: MainNavigator,
     padding: PaddingValues,
-    uploadPost: (String, String, List<String>) -> Unit,
-    updateMainItems: () -> Unit
 ) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
@@ -51,21 +38,12 @@ internal fun MainNavHost(
             startDestination = navigator.startDestination,
         ) {
             homeNavGraph(
-                isLoggedIn = isLoggedIn,
-                
-                mainItems = mainItems,
-                onSelectReaction = onSelectReaction,
-                fetchDetailFirst = fetchDetailFirst,
-                updateFollow = updateFollow,
                 padding = padding,
                 navigateToTheir = navigator::navigateToTheir,
                 navigateToDetail = navigator::navigateToDetail,
-                updateMainItems = updateMainItems
             )
 
             searchNavGraph(
-                isLoggedIn = isLoggedIn,
-                
                 padding = padding,
                 navigateToTheir = { id ->
                     navigator.navigateToTheir(id)
@@ -87,14 +65,12 @@ internal fun MainNavHost(
             )
 
             followerNavGraph(
-                isLoggedIn = isLoggedIn,
+                padding = padding,
                 navigateToLogin = navigator::navigateToLogin,
-                navigateToTheir = navigator::navigateToTheir,
-                padding = padding
+                navigateToTheir = navigator::navigateToTheir
             )
 
             myNavGraph(
-                isLoggedIn = isLoggedIn,
                 padding = padding,
                 navigateToLogin = navigator::navigateToLogin,
                 navigateToSetting = navigator::navigateToSetting,
@@ -104,24 +80,17 @@ internal fun MainNavHost(
             )
 
             detailNavGraph(
-                isLoggedIn = isLoggedIn,
-                
-                detailFirstItem = detailFirstItem,
-                updateMainPostReaction = onSelectReaction,
-                updateFollow = updateFollow,
-                popBackStack = navigator::popBackStack,
                 padding = padding,
-                navigateToTheir = navigator::navigateToTheir
+                navigateToTheir = navigator::navigateToTheir,
+                popBackStack = navigator::popBackStack
             )
 
             uploadNavGraph(
-                navigateToHome = { navigator.navigate(MainMenu.HOME) },
-                uploadPost = uploadPost,
-                padding = padding
+                padding = padding,
+                navigateToHome = { navigator.navigate(MainMenu.HOME) }
             )
 
             loginNavGraph(
-                updateLoginState = updateLoginState,
                 popBackStack = navigator::popBackStack,
                 navigateToJoin = navigator::navigateToJoin,
                 padding = padding
@@ -129,7 +98,6 @@ internal fun MainNavHost(
 
             settingNavGraph(
                 popBackStack = navigator::popBackStack,
-                updateLoginState = updateLoginState,
                 padding = padding
             )
 

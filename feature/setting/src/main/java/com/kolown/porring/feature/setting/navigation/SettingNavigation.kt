@@ -14,7 +14,7 @@ fun NavController.navigateSetting(navOptions: NavOptions) {
 
 fun NavGraphBuilder.settingNavGraph(
     popBackStack: () -> Unit,
-    updateLoginState: () -> Unit,
+    updateLoginState: () -> Unit = {},
     padding: PaddingValues,
 ) {
     composable<Route.Setting> {

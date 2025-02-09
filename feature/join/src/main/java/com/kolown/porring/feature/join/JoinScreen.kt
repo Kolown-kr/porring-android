@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.kolown.porring.core.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar

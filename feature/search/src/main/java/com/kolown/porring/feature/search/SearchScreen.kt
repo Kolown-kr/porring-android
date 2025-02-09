@@ -34,7 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.common.component.CoilImage
+import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
@@ -239,10 +239,8 @@ private fun SearchImages(
 @Preview
 @Composable
 private fun Preview() {
-    PorringTheme(true) {
-        SearchScreen(
-            padding = PaddingValues(),
-            state = SearchUiState.Content(SearchUiModel.initial())
-        )
-    }
+    SearchScreen(
+        padding = PaddingValues(),
+        state = SearchUiState.Content(SearchUiModel.initial())
+    )
 }

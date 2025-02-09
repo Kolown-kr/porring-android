@@ -51,8 +51,8 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
-import com.kolown.porring.core.common.component.GalleryItem
-import com.kolown.porring.core.common.component.RestrictedLoginContent
+import com.kolown.porring.core.ui.component.GalleryItem
+import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Primary

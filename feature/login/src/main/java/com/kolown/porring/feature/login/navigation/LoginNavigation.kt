@@ -13,14 +13,12 @@ fun NavController.navigateLogin(navOptions: NavOptions) {
 }
 
 fun NavGraphBuilder.loginNavGraph(
-    updateLoginState: () -> Unit,
     popBackStack: () -> Unit,
     navigateToJoin: () -> Unit,
     padding: PaddingValues,
 ) {
     composable<Route.Login> {
         LoginRoute(
-            updateLoginState = updateLoginState,
             popBackStack = popBackStack,
             navigateToJoin = navigateToJoin,
             padding = padding,

@@ -22,7 +22,7 @@ fun NavController.navigateMyDetail(navOptions: NavOptions) {
 }
 
 fun NavGraphBuilder.myNavGraph(
-    isLoggedIn: Boolean,
+    isLoggedIn: Boolean = false,
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
     navigateToDetailMy: () -> Unit,

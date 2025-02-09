@@ -1,4 +1,4 @@
-package com.kolown.porring.core.common.component
+package com.kolown.porring.core.ui.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background

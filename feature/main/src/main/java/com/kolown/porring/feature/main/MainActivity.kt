@@ -12,8 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.kolown.porring.core.common.component.LocalSnackBarBridge
-import com.kolown.porring.core.common.component.SnackBarBridge
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.SnackBarBridge
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
 import com.kolown.porring.feature.main.navigation.MainNavigator

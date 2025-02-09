@@ -1,4 +1,4 @@
-package com.kolown.porring.core.common.component
+package com.kolown.porring.core.ui.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
@@ -29,7 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kolown.porring.core.common.R
+import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.designsystem.ui.theme.Surface2

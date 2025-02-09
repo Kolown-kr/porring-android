@@ -29,8 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.common.component.CoilImage
-import com.kolown.porring.core.common.component.FollowDialog
+import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 

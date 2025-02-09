@@ -58,7 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.kolown.porring.core.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTextField
@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun LoginRoute(
-    updateLoginState: () -> Unit,
+    updateLoginState: () -> Unit = {},
     popBackStack: () -> Unit,
     navigateToJoin: () -> Unit,
     loginViewModel: LoginViewModel = hiltViewModel(),

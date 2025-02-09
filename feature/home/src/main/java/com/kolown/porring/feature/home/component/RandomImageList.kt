@@ -38,10 +38,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.common.component.CoilImage
-import com.kolown.porring.core.common.component.FollowDialog
-import com.kolown.porring.core.common.component.LocalSnackBarBridge
-import com.kolown.porring.core.common.component.UnfollowCheckDialog
+import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.component.FollowDialog
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.UnfollowCheckDialog
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions

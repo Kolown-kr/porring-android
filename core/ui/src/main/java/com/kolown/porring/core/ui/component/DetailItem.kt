@@ -1,4 +1,4 @@
-package com.kolown.porring.core.common.component
+package com.kolown.porring.core.ui.component
 
 import android.app.Activity
 import android.content.Context
@@ -62,14 +62,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.kolown.porring.core.common.R
+import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
-
 
 @Composable
 fun DetailItem(

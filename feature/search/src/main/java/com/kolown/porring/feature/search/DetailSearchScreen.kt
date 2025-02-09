@@ -23,9 +23,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.common.component.DetailItem
+import com.kolown.porring.core.ui.component.DetailItem
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
-import com.kolown.porring.core.common.component.DetailTopAppBar
+import com.kolown.porring.core.ui.component.DetailTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
@@ -37,7 +37,7 @@ internal fun DetailSearchRoute(
     padding: PaddingValues = PaddingValues(),
     popBackStack: () -> Unit,
     navigateToTheir: (String) -> Unit,
-    isLoggedIn: Boolean,
+    isLoggedIn: Boolean = false,
     viewModel: DetailSearchViewModel = hiltViewModel(),
     imageViewModel: SearchImageViewModel = hiltViewModel()
 ) {

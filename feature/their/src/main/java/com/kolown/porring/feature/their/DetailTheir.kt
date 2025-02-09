@@ -19,8 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.common.component.DetailItem
-import com.kolown.porring.core.common.component.DetailTopAppBar
+import com.kolown.porring.core.ui.component.DetailItem
+import com.kolown.porring.core.ui.component.DetailTopAppBar
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 
