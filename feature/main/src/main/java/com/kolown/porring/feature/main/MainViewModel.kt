@@ -3,6 +3,7 @@ package com.kolown.porring.feature.main
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
 import com.kolown.porring.core.model.SnackBarEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    authRepository: AuthRepository,
     private val remoteConfigRepository: RemoteConfigRepository
 ) : ViewModel() {
 
@@ -25,11 +27,7 @@ class MainViewModel @Inject constructor(
     lateinit var appContext: Context
 
     private val _versionNameFlow = MutableSharedFlow<String>()
-
     val versionNameFlow = _versionNameFlow.asSharedFlow()
-
-    private var _loginState = MutableStateFlow(false)
-    val loginState = _loginState.asStateFlow()
 
     private val _snackBarFlow = MutableSharedFlow<SnackBarEvent>(
         replay = 0,
@@ -37,6 +35,8 @@ class MainViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val snackBarFlow = _snackBarFlow.asSharedFlow()
+
+    val loginState = authRepository.checkUserLoggedIn()
 
     fun getVersionName() {
         viewModelScope.launch {
