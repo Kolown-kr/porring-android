@@ -5,6 +5,11 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.kolown.porring.core.model.User
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Named
@@ -13,7 +18,7 @@ interface AuthDataSource {
     suspend fun signInWithCredential(credential: CustomCredential): Result<Unit>
     fun getUserId(): String
     fun getUserInfo(): User
-    fun checkUserLoggedIn(): Boolean
+    fun checkUserLoggedIn(): Flow<Boolean>
     fun logout(): Result<Unit>
     suspend fun joinWithEmailAndPassword(email: String, password: String): Result<User>
     suspend fun signInWithEmailAndPassword(email: String, password: String): Result<User>
@@ -45,9 +50,14 @@ class AuthDataSourceImpl @Inject constructor(
         return User(userId = "user-${currentUser.uid}", email = currentUser.email.orEmpty())
     }
 
-    override fun checkUserLoggedIn(): Boolean {
-        return auth.currentUser != null
-    }
+    override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
+        FirebaseAuth.AuthStateListener { firebaseAuth ->
+            trySend(firebaseAuth.currentUser != null)
+        }
+    }.buffer(
+        capacity = Channel.CONFLATED,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
 
     override fun logout(): Result<Unit> {
         return kotlin.runCatching {

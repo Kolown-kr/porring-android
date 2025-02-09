@@ -4,14 +4,15 @@ package com.kolown.porring.core.data.repository
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.datastore.LocalUserDataSource
+import com.kolown.porring.core.network.AuthDataSource
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Named
 
 interface AuthRepository {
     suspend fun signInWithCredential(credential: Credential): Result<Unit>
-    fun checkUserLoggedIn(): Boolean
+    fun checkUserLoggedIn(): Flow<Boolean>
     fun logout(): Result<Unit>
     suspend fun joinWithEmailAndPassword(email: String, password: String): Result<Unit>
     suspend fun signInWithEmailAndPassword(email: String, password: String): Result<Unit>
@@ -35,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun checkUserLoggedIn(): Boolean {
+    override fun checkUserLoggedIn(): Flow<Boolean> {
         return googleAuthDataSource.checkUserLoggedIn()
     }
 

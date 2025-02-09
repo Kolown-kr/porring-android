@@ -45,7 +45,7 @@ internal fun MainScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
-    val isLoggedIn by mainViewModel.loginState.collectAsStateWithLifecycle()
+    val isLoggedIn by mainViewModel.loginState.collectAsStateWithLifecycle(false)
     val activity = LocalView.current.context as Activity
     val snackBarBridge = LocalSnackBarBridge.current
     var showRationale by remember { mutableStateOf(false) }
