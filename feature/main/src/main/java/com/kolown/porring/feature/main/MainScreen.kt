@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -12,49 +11,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import com.kolown.porring.core.common.component.showSnackBarWithData
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.SnackBarContainer
+import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.ui.component.showSnackBarWithData
 import com.kolown.porring.feature.main.component.MainBottomBar
 import com.kolown.porring.feature.main.component.MainNavHost
 import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
-import com.kolown.porring.core.model.InitUiState
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.SnackBarEvent
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun MainScreen(
     navigator: MainNavigator = rememberMainNavigator(),
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    val lifecycleScope = LocalLifecycleOwner.current.lifecycleScope
-
-    val mainItems by mainViewModel.mainItems.collectAsStateWithLifecycle()
-    val detailFirstItem by mainViewModel.detailFirstItem.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
     val isLoggedIn by mainViewModel.loginState.collectAsStateWithLifecycle()
-
-    val uploadState by mainViewModel.upLoadUiState.collectAsStateWithLifecycle()
-    val uploadModel by mainViewModel.uploadModel.collectAsStateWithLifecycle()
-
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-
 
     LaunchedEffect(Unit) {
         mainViewModel.snackBarFlow.collect {
@@ -65,72 +45,10 @@ internal fun MainScreen(
                             if (!isLoggedIn) navigator.navigateToLogin()
                         }
                     }
-
                 }
 
                 is SnackBarEvent.Message -> {
                     snackBarHostState.showSnackBarWithData(it)
-                }
-            }
-
-        }
-    }
-
-    val onShowLoginSnackBar: () -> Unit = {
-        lifecycleScope.launch {
-            snackBarHostState.showSnackbar(
-                message = context.getString(R.string.string_need_login),
-                actionLabel = context.getString(R.string.string_login),
-                duration = SnackbarDuration.Short
-            ).let { result ->
-                if (result == SnackbarResult.ActionPerformed) {
-                    navigator.navigateToLogin()
-                }
-            }
-        }
-    }
-
-    LaunchedEffect(uploadState) {
-        if (uploadState != InitUiState.Init) {
-            snackBarHostState.currentSnackbarData?.dismiss()
-        }
-
-        when (uploadState) {
-            InitUiState.Init -> {}
-
-            is InitUiState.Failure -> {
-                coroutineScope.launch {
-                    val result = snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.string_upload_fail),
-                        actionLabel = context.getString(R.string.string_move),
-                        duration = SnackbarDuration.Short
-                    )
-                    if (result == SnackbarResult.ActionPerformed) {
-                        navigator.navigateToUpload("", uploadModel)
-                    }
-                }
-            }
-
-            InitUiState.Loading -> {
-                coroutineScope.launch {
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.string_uploading),
-                        duration = SnackbarDuration.Indefinite
-                    )
-                }
-            }
-
-            is InitUiState.Success -> {
-                coroutineScope.launch {
-                    val result = snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.string_upload_success),
-                        actionLabel = context.getString(R.string.string_move),
-                        duration = SnackbarDuration.Short
-                    )
-                    if (result == SnackbarResult.ActionPerformed) {
-                        navigator.navigate(MainMenu.MY)
-                    }
-                    mainViewModel.resetUploadState()
                 }
             }
         }
@@ -138,56 +56,27 @@ internal fun MainScreen(
 
     MainScreenContent(
         navigator = navigator,
-        mainItems = mainItems,
-        detailFirstItem = detailFirstItem,
-        isLoggedIn = isLoggedIn,
-
         snackBarHostState = snackBarHostState,
-        onSelectReaction = mainViewModel::selectReaction,
-        fetchDetailFirst = mainViewModel::fetchDetailFirst,
-        updateFollow = mainViewModel::updateFollow,
-        updateLoginState = mainViewModel::updateLoginState,
-        uploadPost = mainViewModel::uploadPost,
-        updateMainItems = mainViewModel::refreshImageItem
     )
 }
 
 @Composable
 private fun MainScreenContent(
-    modifier: Modifier = Modifier,
     navigator: MainNavigator,
     snackBarHostState: SnackbarHostState,
-    mainItems: List<PostContentModel>,
-    isLoggedIn: Boolean,
-    detailFirstItem: PostContentModel,
-    updateLoginState: () -> Unit,
-    updateMainItems: () -> Unit,
-    updateFollow: (String) -> Unit,
-    uploadPost: (String, String, List<String>) -> Unit,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    onSelectReaction: (PostContentModel, Reactions) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
         snackbarHost = { CustomSnackBar(snackBarHostState) },
         content = { padding ->
             MainNavHost(
-                mainItems = mainItems,
-                onSelectReaction = onSelectReaction,
-                detailFirstItem = detailFirstItem,
-                fetchDetailFirst = fetchDetailFirst,
-                isLoggedIn = isLoggedIn,
                 navigator = navigator,
                 padding = padding,
-                updateFollow = updateFollow,
-                updateLoginState = updateLoginState,
-                uploadPost = uploadPost,
-                updateMainItems = updateMainItems
             )
         },
         bottomBar = {
             MainBottomBar(
-                isLoggedIn = isLoggedIn,
                 visible = navigator.isShowBottomBar(),
                 menus = MainMenu.entries.toPersistentList(),
                 currentMenu = navigator.currentMenu,

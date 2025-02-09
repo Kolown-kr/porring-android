@@ -25,8 +25,6 @@ fun NavController.navigateSearchDetail(navOptions: NavOptions) {
 fun NavGraphBuilder.searchNavGraph(
     padding: PaddingValues,
     navigateToTheir: (String) -> Unit,
-    isLoggedIn: Boolean,
-
     navigateToSearchDetail: () -> Unit,
     popBackStack: () -> Unit,
     getBackStackEntry: () -> NavBackStackEntry
@@ -47,7 +45,6 @@ fun NavGraphBuilder.searchNavGraph(
             imageViewModel = hiltViewModel(parentEntry),
             navigateToTheir = navigateToTheir,
             popBackStack = popBackStack,
-            isLoggedIn = isLoggedIn,
         )
     }
 }

@@ -55,8 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.common.component.CoilImage
-import com.kolown.porring.core.common.component.RestrictedLoginContent
+import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.FollowerThumbnail
@@ -66,7 +66,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FollowerRoute(
-    isLoggedIn: Boolean,
+    isLoggedIn: Boolean = false,
     navigateToLogin: () -> Unit,
     navigateToTheir: (String) -> Unit,
     padding: PaddingValues = PaddingValues(),

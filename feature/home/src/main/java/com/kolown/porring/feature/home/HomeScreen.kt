@@ -48,16 +48,10 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeRoute(
-    isLoggedIn: Boolean,
-    mainItems: List<PostContentModel>,
-    onSelectReaction: (PostContentModel, Reactions) -> Unit,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    updateFollow: (String) -> Unit,
     padding: PaddingValues = PaddingValues(),
     viewModel: HomeViewModel = hiltViewModel(),
     navigateToTheir: (String) -> Unit = {},
     navigateToDetail: () -> Unit = {},
-    updateMainItems: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var isReactionDialogVisible by remember { mutableStateOf(false) }
@@ -71,12 +65,8 @@ internal fun HomeRoute(
     val onRefresh: () -> Unit = {
         isRefreshing = true
         viewModel.changeLoading()
-        updateMainItems()
     }
 
-    LaunchedEffect(mainItems) {
-        viewModel.updateItems(mainItems)
-    }
     LaunchedEffect(uiState) {
         if (uiState is UiState.Loading) {
             isRefreshing = false
@@ -111,25 +101,14 @@ internal fun HomeRoute(
                     .fillMaxSize()
                     .align(Alignment.Center)
                     .verticalScroll(rememberScrollState()),
-                isLoggedIn = isLoggedIn,
                 isShowErrorScreen = isShowErrorScreen,
                 isReactionDialogVisible = isReactionDialogVisible,
                 uiState = uiState,
                 padding = padding,
-                onFollowClick = { id, name ->
-                    viewModel.followUser(id, name)
-                    updateFollow(id)
-                },
-                onUnfollowClick = {
-                    updateFollow(it)
-                    viewModel.unFollowUser(it)
-                },
+                onFollowClick = viewModel::followUser,
+                onUnfollowClick = viewModel::unFollowUser,
                 navigateToTheir = navigateToTheir,
-                onSelectReaction = { post, reaction ->
-                    viewModel.selectReaction(post, reaction)
-                    onSelectReaction(post, reaction)
-                },
-                fetchDetailFirst = fetchDetailFirst,
+                onSelectReaction =  viewModel::selectReaction,
                 navigateToDetail = navigateToDetail,
                 updateShowErrorScreen = { isShowErrorScreen = it },
                 updateIsReactionDialogVisible = { isReactionDialogVisible = it },

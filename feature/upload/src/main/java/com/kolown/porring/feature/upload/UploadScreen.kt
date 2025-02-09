@@ -69,7 +69,6 @@ internal fun UploadRoute(
     imgUri: String,
     padding: PaddingValues,
     navigateToHome: () -> Unit,
-    uploadPost: (String, String, List<String>) -> Unit,
 ) {
     val description by viewModel.description.collectAsStateWithLifecycle()
     val categoryItems by viewModel.categoryItems.collectAsStateWithLifecycle()
@@ -100,7 +99,7 @@ internal fun UploadRoute(
         addCategory = viewModel::addCategory,
         removeCategory = viewModel::removeCategory,
         changeCategoryName = viewModel::changeCategoryName,
-        uploadPost = { uploadPost(webPUri.toString(), description, categoryItems) },
+        uploadPost = {  },
         navigateToHome = navigateToHome
     )
 }

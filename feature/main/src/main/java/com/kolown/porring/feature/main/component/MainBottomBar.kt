@@ -17,6 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import com.kolown.porring.core.common.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
+import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.feature.main.R

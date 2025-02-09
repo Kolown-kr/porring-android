@@ -15,29 +15,15 @@ fun NavController.navigateHome(navOptions: NavOptions) {
 }
 
 fun NavGraphBuilder.homeNavGraph(
-    isLoggedIn: Boolean,
-
-    mainItems: List<PostContentModel>,
-    onSelectReaction: (PostContentModel, Reactions) -> Unit,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    updateFollow: (String) -> Unit,
     padding: PaddingValues,
     navigateToTheir: (String) -> Unit,
     navigateToDetail: () -> Unit,
-    updateMainItems: () -> Unit
 ) {
     composable<MainMenuRoute.Home> {
         HomeRoute(
-            isLoggedIn = isLoggedIn,
-
-            mainItems = mainItems,
-            onSelectReaction = onSelectReaction,
-            fetchDetailFirst = fetchDetailFirst,
-            updateFollow = updateFollow,
             padding = padding,
             navigateToTheir = navigateToTheir,
             navigateToDetail = navigateToDetail,
-            updateMainItems = updateMainItems
         )
     }
 }
