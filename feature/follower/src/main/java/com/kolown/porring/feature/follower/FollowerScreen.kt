@@ -66,7 +66,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FollowerRoute(
-    isLoggedIn: Boolean = false,
+    isLoggedIn: Boolean = true,
     navigateToLogin: () -> Unit,
     navigateToTheir: (String) -> Unit,
     padding: PaddingValues = PaddingValues(),

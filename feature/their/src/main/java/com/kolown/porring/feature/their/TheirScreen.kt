@@ -1,35 +1,19 @@
 package com.kolown.porring.feature.their
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,75 +21,52 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.ui.component.GalleryItem
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
-import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.feature.their.component.PageItemFooter
-import kotlinx.coroutines.delay
-
-@Composable
-internal fun TheirRoute(
-    navigateToDetailTheir: () -> Unit,
-    popBackStack: () -> Unit,
-    padding: PaddingValues = PaddingValues(),
-    followerId: String,
-    viewModel: TheirViewModel = hiltViewModel(),
-) {
-    LaunchedEffect(followerId) {
-        viewModel.setFollowerName(followerId)
-    }
-
-    val followerName by viewModel.followerName.collectAsStateWithLifecycle()
-    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
-    val listState = rememberLazyStaggeredGridState()
-
-    TheirScreen(
-        navigateToDetailTheir = navigateToDetailTheir,
-        popBackStack = popBackStack,
-        setPage = viewModel::setPage,
-        padding = padding,
-        followerName = followerName,
-        pagingItems = pagingItems,
-        listState = listState
-    )
-}
+import com.kolown.porring.core.ui.component.StateLazyGrid
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TheirScreen(
-    navigateToDetailTheir: () -> Unit = {},
-    popBackStack: () -> Unit = {},
-    setPage: (Int) -> Unit = {},
+internal fun TheirRoute(
+    followerId: String,
     padding: PaddingValues = PaddingValues(),
-    followerName: String = "",
-    pagingItems: LazyPagingItems<PostContentModel>,
-    listState: LazyStaggeredGridState,
+    viewModel: TheirViewModel = hiltViewModel(),
+    popBackStack: () -> Unit = {},
+    navigateToDetailTheir: () -> Unit = {},
 ) {
-    val width = LocalConfiguration.current.screenWidthDp.dp / 2
+    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
+    val followerName by viewModel.followerName.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
+    val listState = rememberLazyStaggeredGridState()
     val refreshState = rememberPullToRefreshState()
+
+    val title = if (followerName.isBlank()) {
+        stringResource(R.string.string_empty)
+    } else {
+        stringResource(R.string.string_others_gallery_name, followerName)
+    }
+
     val onRefresh: () -> Unit = {
         isRefreshing = true
         pagingItems.refresh()
     }
+
     val scaleFraction = {
         if (isRefreshing) 1f
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
+    }
+
+    LaunchedEffect(followerId) {
+        viewModel.setFollowerName(followerId)
     }
     LaunchedEffect(pagingItems.loadState) {
         isRefreshing = false
@@ -113,6 +74,38 @@ private fun TheirScreen(
     LaunchedEffect(pagingItems) {
         listState.scrollToItem(0)
     }
+
+    TheirScreen(
+        pagingItems = pagingItems,
+        title = title,
+        isRefreshing = isRefreshing,
+        padding = padding,
+        refreshState = refreshState,
+        listState = listState,
+        onRefresh = onRefresh,
+        setPage = viewModel::setPage,
+        popBackStack = popBackStack,
+        navigateToDetail = navigateToDetailTheir,
+        scaleFraction = scaleFraction
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TheirScreen(
+    pagingItems: LazyPagingItems<PostContentModel>,
+    title: String = "",
+    isRefreshing: Boolean = false,
+    padding: PaddingValues = PaddingValues(),
+    refreshState: PullToRefreshState = rememberPullToRefreshState(),
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    onRefresh: () -> Unit = {},
+    setPage: (Int) -> Unit = {},
+    popBackStack: () -> Unit = {},
+    navigateToDetail: () -> Unit = {},
+    scaleFraction: () -> Float = { 1f },
+) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -124,11 +117,7 @@ private fun TheirScreen(
             )
     ) {
         PorringCenterAlignTopAppBar(
-            title = if (followerName.isBlank()) {
-                stringResource(R.string.string_empty)
-            } else {
-                stringResource(R.string.string_others_gallery_name, followerName)
-            },
+            title = title,
             navigationIcon = {
                 PorringIconButton(
                     icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
@@ -142,9 +131,9 @@ private fun TheirScreen(
         ) {
             StateLazyGrid(
                 listState = listState,
+                longClickEnabled = false,
                 pagingItems = pagingItems,
-                width = width,
-                navigateToDetailTheir = navigateToDetailTheir,
+                navigateToDetail = navigateToDetail,
                 setPage = setPage
             )
             Box(
@@ -157,115 +146,6 @@ private fun TheirScreen(
             ) {
                 PullToRefreshDefaults.Indicator(state = refreshState, isRefreshing = isRefreshing)
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun StateLazyGrid(
-    listState: LazyStaggeredGridState,
-    pagingItems: LazyPagingItems<PostContentModel>,
-    width: Dp,
-    navigateToDetailTheir: () -> Unit,
-    setPage: (Int) -> Unit
-) {
-    var showErrorScreen by remember { mutableStateOf(false) }
-
-    LaunchedEffect(pagingItems.loadState.refresh) {
-        if (pagingItems.loadState.refresh == LoadState.Loading) {
-            delay(7000)
-            showErrorScreen = true
-        } else {
-            showErrorScreen = false
-        }
-    }
-
-    when {
-        showErrorScreen -> {
-            ErrorScreen()
-        }
-
-        pagingItems.loadState.refresh is LoadState.Error -> {
-            showErrorScreen = false
-            ErrorScreen()
-        }
-
-        pagingItems.loadState.refresh is LoadState.Loading -> {
-            showErrorScreen = false
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .align(Alignment.Center),
-                    color = Primary
-                )
-            }
-        }
-
-        pagingItems.loadState.refresh is LoadState.NotLoading -> {
-            showErrorScreen = false
-            CompositionLocalProvider(
-                LocalOverscrollConfiguration provides null
-            ) {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    state = listState,
-                    contentPadding = PaddingValues(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalItemSpacing = 8.dp,
-                    content = {
-                        items(pagingItems.itemCount) { index ->
-                            pagingItems[index]?.let {
-                                GalleryItem(
-                                    postContentModel = it,
-                                    onClickImage = {
-                                        navigateToDetailTheir()
-                                        setPage(index)
-                                    },
-                                    longClickEnabled = false
-                                )
-                            }
-                        }
-
-                        if (pagingItems.loadState.append !is LoadState.NotLoading) {
-                            item(key = "", span = StaggeredGridItemSpan.FullLine) {
-                                PageItemFooter(loadState = pagingItems.loadState.append) {
-                                    pagingItems.retry()
-                                }
-                            }
-                        }
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ErrorScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                imageVector = Icons.Default.Warning, contentDescription = null
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.string_error), color = Color.Red
-            )
         }
     }
 }

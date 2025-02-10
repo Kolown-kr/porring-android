@@ -22,10 +22,13 @@
     <string name="string_confirm_edit">이름 수정</string>
     <string name="string_unfollow">팔로우 취소</string>
     <string name="string_unfollow_description">팔로우를 취소하시겠습니까?</string>
+    <string name="string_no_post">게시물이 존재하지 않습니다!</string>
 
     <!--not available version screen-->
     <string name="description_not_available_version">사용 불가능한 이전 버전입니다.\n업데이트를 진행해주세요.</string>
     <string name="button_exit_app"> 앱 종료</string>
+    <string name="string_post_delete_title">게시물 삭제</string>
+    <string name="string_error">오류가 발생하였습니다!</string>
 
 
 </resources>
