@@ -1,14 +1,11 @@
 package com.kolown.porring.feature.my.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.porring.feature.my.DetailMyRoute
 import com.kolown.porring.feature.my.MyRoute
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
@@ -22,39 +19,18 @@ fun NavController.navigateMyDetail(navOptions: NavOptions) {
 }
 
 fun NavGraphBuilder.myNavGraph(
-    isLoggedIn: Boolean = false,
+    padding: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
-    navigateToDetailMy: () -> Unit,
-    padding: PaddingValues,
-    popBackStack: () -> Unit,
-    getBackStackEntry: () -> NavBackStackEntry
+    navigateToDetail: () -> Unit,
 ) {
-    composable<MainMenuRoute.My> { backStackEntry ->
-        val parentEntry = remember(backStackEntry) {
-            getBackStackEntry()
-        }
+    composable<MainMenuRoute.My> {
         MyRoute(
-            isLoggedIn = isLoggedIn,
             navigateToLogin = navigateToLogin,
             navigateToSetting = navigateToSetting,
-            navigateToDetailMy = navigateToDetailMy,
+            navigateToDetail = navigateToDetail,
             padding = padding,
-            viewModel = hiltViewModel(parentEntry)
-        )
-    }
-
-    composable<Route.DetailMy> { backStackEntry ->
-        val parentEntry = remember(backStackEntry) {
-            getBackStackEntry()
-        }
-        DetailMyRoute(
-            padding = padding,
-            popBackStack = popBackStack,
-            onShowLoginSnackBar = {
-                navigateToLogin()
-            },
-            viewModel = hiltViewModel(parentEntry)
+            viewModel = hiltViewModel()
         )
     }
 }
