@@ -11,7 +11,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Named
@@ -53,13 +52,15 @@ class AuthDataSourceImpl @Inject constructor(
     }
 
     override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
+        val auth = FirebaseAuth.getInstance()
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            launch {
-                send(firebaseAuth.currentUser != null)
-            }
+            trySend(firebaseAuth.currentUser != null).isSuccess
         }
+
+        auth.addAuthStateListener(listener)
+
         awaitClose {
-            FirebaseAuth.getInstance().removeAuthStateListener(listener)
+            auth.removeAuthStateListener(listener)
         }
     }.buffer(
         capacity = Channel.BUFFERED,
