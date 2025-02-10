@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.ui.R
@@ -24,15 +25,14 @@ import com.kolown.porring.core.model.Reactions
 @Composable
 fun ReactionDialog(
     modifier: Modifier = Modifier,
-    imageItem: PostContentModel,
-    updateMainPostReaction: (PostContentModel, Reactions) -> Unit,
-    selectedReaction: (PostContentModel, Reactions) -> Unit,
+    activatedReaction: Reactions? = null,
+    selectedReaction: (Reactions) -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(38.dp),
+        shape = CircleShape,
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Row(
@@ -44,11 +44,10 @@ fun ReactionDialog(
         ) {
             Reactions.entries.forEach {
                 ReactionButton(
-                    didIReact = imageItem.myReaction == it,
+                    didIReact = activatedReaction == it,
                     reaction = it,
                     onClick = { reaction ->
-                        updateMainPostReaction(imageItem, reaction)
-                        selectedReaction(imageItem, reaction)
+                        selectedReaction(reaction)
                         onDismiss()
                     }
                 )
@@ -90,3 +89,9 @@ fun Reactions.toImage() =
         Reactions.THUMB -> R.drawable.img_thumb
         Reactions.HEART -> R.drawable.img_heart
     }
+
+@Preview
+@Composable
+private fun Preview() {
+    ReactionDialog {  }
+}

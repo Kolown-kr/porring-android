@@ -277,11 +277,11 @@ private fun ReelsContent(
             }
 
             if (isReactionVisible.value) {
-                ReactionDialog(imageItem = imageItem,
-                    modifier = Modifier.padding(16.dp),
-                    updateMainPostReaction = updateMainPostReaction,
-                    selectedReaction = onSelectReaction,
-                    onDismiss = { isReactionVisible.value = false })
+//                ReactionDialog(imageItem = imageItem,
+//                    modifier = Modifier.padding(16.dp),
+//                    updateMainPostReaction = updateMainPostReaction,
+//                    selectedReaction = onSelectReaction,
+//                    onDismiss = { isReactionVisible.value = false })
             }
         }
     }
