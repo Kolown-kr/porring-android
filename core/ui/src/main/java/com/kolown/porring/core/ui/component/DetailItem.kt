@@ -289,7 +289,7 @@ private fun ReelsContent(
     if (isFollowDialogVisible.value) {
         if (isFollowed.value) {
             // TODO Exchange to AlertDialog
-            UnfollowCheckDialog(
+            BetaPorringAlertDialog(
                 title = stringResource(R.string.string_unfollow),
                 description = stringResource(R.string.string_unfollow_description),
                 dismissText = stringResource(R.string.string_cancel),

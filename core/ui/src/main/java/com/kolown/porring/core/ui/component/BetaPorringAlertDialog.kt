@@ -34,7 +34,7 @@ import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 
 @Composable
-fun UnfollowCheckDialog(
+fun BetaPorringAlertDialog(
     title: String = "",
     description: String = "",
     @DrawableRes iconResId: Int? = null,
@@ -132,7 +132,7 @@ private fun PreviewPermissionEduDialog() {
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            UnfollowCheckDialog()
+            BetaPorringAlertDialog()
         }
     }
 }
