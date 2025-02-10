@@ -120,6 +120,8 @@ internal fun DetailRoute(
         posts = posts,
         pagerState = pagerState,
         padding = padding,
+        eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
+        galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
         onShowReelsMode = { reelsModePostUrl = it },
         onReactionClick = viewModel::onReactionClick,
         onGalleryClick = navigateToTheir,
@@ -133,6 +135,8 @@ private fun DetailScreen(
     posts: LazyPagingItems<PostContentModel>,
     pagerState: PagerState = rememberPagerState { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
+    eventRowVisible: Boolean = true,
+    galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
     onGalleryClick: (String) -> Unit = {},
@@ -165,6 +169,8 @@ private fun DetailScreen(
 
             DetailContent(
                 post = post,
+                eventRowVisible = eventRowVisible,
+                galleryVisible = galleryVisible,
                 onShowReelsMode = onShowReelsMode,
                 onReactionClick = onReactionClick,
                 onGalleryClick = onGalleryClick,
@@ -177,6 +183,8 @@ private fun DetailScreen(
 @Composable
 private fun DetailContent(
     post: PostContentModel = PostContentModel.EMPTY,
+    eventRowVisible: Boolean = true,
+    galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
     onGalleryClick: (String) -> Unit = {},
@@ -231,10 +239,11 @@ private fun DetailContent(
             ReactionGroup(reactions = post.reactions)
         }
 
-        if (true) {
+        if (eventRowVisible) {
             EventRow(
                 isFavorite = post.myReaction != null,
                 isFollowed = post.isFollower,
+                galleryVisible = galleryVisible,
                 onReactionClick = { onReactionClick(post.postId, it) },
                 onGalleryClick = { onGalleryClick(post.authorId) },
                 onFollowClick = { onFollowClick(post) }
@@ -249,6 +258,7 @@ private fun DetailContent(
 private fun EventRow(
     isFavorite: Boolean = false,
     isFollowed: Boolean = false,
+    galleryVisible: Boolean = true,
     activatedReaction: Reactions? = null,
     onReactionClick: (Reactions) -> Unit = {},
     onGalleryClick: () -> Unit = {},
@@ -291,12 +301,13 @@ private fun EventRow(
 
         Spacer(Modifier.weight(1f))
 
-
-        DetailButton(
-            onClick = onGalleryClick,
-            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
-            buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_gallery)
-        )
+        if (galleryVisible) {
+            DetailButton(
+                onClick = onGalleryClick,
+                imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
+                buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_gallery)
+            )
+        }
 
         Spacer(Modifier.width(12.dp))
 
