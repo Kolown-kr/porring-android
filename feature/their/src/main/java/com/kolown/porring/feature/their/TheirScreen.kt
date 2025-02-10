@@ -1,6 +1,8 @@
 package com.kolown.porring.feature.their
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +16,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,12 +30,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.StateLazyGrid
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +53,7 @@ internal fun TheirRoute(
     val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
     val followerName by viewModel.followerName.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
+    var showErrorScreen by remember { mutableStateOf(false) }
     val listState = rememberLazyStaggeredGridState()
     val refreshState = rememberPullToRefreshState()
 
@@ -74,11 +82,20 @@ internal fun TheirRoute(
     LaunchedEffect(pagingItems) {
         listState.scrollToItem(0)
     }
+    LaunchedEffect(pagingItems.loadState.refresh) {
+        if (pagingItems.loadState.refresh == LoadState.Loading) {
+            delay(7000)
+            showErrorScreen = true
+        } else {
+            showErrorScreen = false
+        }
+    }
 
     TheirScreen(
         pagingItems = pagingItems,
         title = title,
         isRefreshing = isRefreshing,
+        showErrorScreen = false,
         padding = padding,
         refreshState = refreshState,
         listState = listState,
@@ -86,16 +103,18 @@ internal fun TheirRoute(
         setPage = viewModel::setPage,
         popBackStack = popBackStack,
         navigateToDetail = navigateToDetailTheir,
-        scaleFraction = scaleFraction
+        scaleFraction = scaleFraction,
+        updateShowErrorScreen = { showErrorScreen = it }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun TheirScreen(
     pagingItems: LazyPagingItems<PostContentModel>,
     title: String = "",
     isRefreshing: Boolean = false,
+    showErrorScreen: Boolean = false,
     padding: PaddingValues = PaddingValues(),
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
@@ -104,8 +123,8 @@ private fun TheirScreen(
     popBackStack: () -> Unit = {},
     navigateToDetail: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
+    updateShowErrorScreen: (Boolean) -> Unit = {}
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,13 +148,36 @@ private fun TheirScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            StateLazyGrid(
-                listState = listState,
-                longClickEnabled = false,
-                pagingItems = pagingItems,
-                navigateToDetail = navigateToDetail,
-                setPage = setPage
-            )
+            when {
+                showErrorScreen -> {
+                    ErrorScreen()
+                }
+
+                pagingItems.loadState.refresh is LoadState.Error -> {
+                    updateShowErrorScreen(false)
+                    ErrorScreen()
+                }
+
+                pagingItems.loadState.refresh is LoadState.Loading -> {
+                    updateShowErrorScreen(false)
+                    LoadingScreen()
+                }
+
+                pagingItems.loadState.refresh is LoadState.NotLoading -> {
+                    CompositionLocalProvider(
+                        LocalOverscrollConfiguration provides null
+                    ) {
+                        StateLazyGrid(
+                            listState = listState,
+                            longClickEnabled = false,
+                            pagingItems = pagingItems,
+                            navigateToDetail = navigateToDetail,
+                            setPage = setPage
+                        )
+                    }
+                }
+            }
+
             Box(
                 Modifier
                     .align(Alignment.TopCenter)

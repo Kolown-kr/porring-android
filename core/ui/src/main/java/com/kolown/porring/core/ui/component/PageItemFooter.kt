@@ -25,7 +25,6 @@ internal fun PageItemFooter(
     loadState: LoadState,
     onRetryClicked: () -> Unit,
 ) {
-
     when (loadState) {
         is LoadState.Loading -> {
             LoadingPageItem()
@@ -40,18 +39,25 @@ internal fun PageItemFooter(
 }
 
 @Composable
-private fun LoadingPageItem(modifier: Modifier = Modifier) {
+private fun LoadingPageItem(
+    modifier: Modifier = Modifier
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(60.dp)
     ) {
-        CircularProgressIndicator(modifier = modifier.align(Alignment.Center))
+        CircularProgressIndicator(
+            modifier = modifier.align(Alignment.Center)
+        )
     }
 }
 
 @Composable
-private fun RetryPageItem(modifier: Modifier = Modifier, onRetryClicked: () -> Unit) {
+private fun RetryPageItem(
+    modifier: Modifier = Modifier,
+    onRetryClicked: () -> Unit
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()

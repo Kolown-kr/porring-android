@@ -19,9 +19,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.ui.R
 
-// 이후 전역으로 바꿀 수도 있음
 @Composable
-internal fun ErrorScreen() {
+fun ErrorScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()

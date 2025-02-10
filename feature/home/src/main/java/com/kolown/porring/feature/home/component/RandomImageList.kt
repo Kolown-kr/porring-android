@@ -25,11 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.UnfollowCheckDialog
+import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
@@ -201,7 +199,7 @@ private fun ImageCard(
         if (isFollowDialogVisible.value) {
             if(imageItem.isFollower) {
                 // TODO Exchange to AlertDialog
-                UnfollowCheckDialog(
+                BetaPorringAlertDialog(
                     title = stringResource(R.string.string_unfollow),
                     description = stringResource(R.string.string_unfollow_description),
                     dismissText = stringResource(R.string.string_cancel),
