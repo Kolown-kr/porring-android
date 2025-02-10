@@ -70,9 +70,7 @@ internal fun MainNavHost(
                 padding = padding,
                 navigateToLogin = navigator::navigateToLogin,
                 navigateToSetting = navigator::navigateToSetting,
-                navigateToDetailMy = navigator::navigateToDetailMy,
-                popBackStack = navigator::popBackStack,
-                getBackStackEntry = { navigator.navController.getBackStackEntry(MainMenu.HOME.route) }
+                navigateToDetail = navigator::navigateToDetailMy,
             )
 
             detailNavGraph(
