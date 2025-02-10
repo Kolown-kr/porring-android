@@ -18,9 +18,9 @@ import coil3.compose.AsyncImage
 import com.kolown.porring.core.model.Reactions
 
 @Composable
-internal fun ReactionGroup(
-    modifier: Modifier,
+fun ReactionGroup(
     reactions: List<Reactions>,
+    modifier: Modifier = Modifier,
 ) {
     val reactionList = reactions.distinct().sortedBy { it.ordinal }
 

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import com.kolown.porring.core.model.UploadModel
+import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
@@ -40,7 +41,7 @@ internal fun MainNavHost(
             homeNavGraph(
                 padding = padding,
                 navigateToTheir = navigator::navigateToTheir,
-                navigateToDetail = navigator::navigateToDetail,
+                navigateToDetail = { navigator.navigateToDetail(MainMenuRoute.Detail.Type.DEFAULT, 0) },
             )
 
             searchNavGraph(
