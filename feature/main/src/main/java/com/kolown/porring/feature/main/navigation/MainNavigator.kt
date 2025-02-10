@@ -51,7 +51,7 @@ internal class MainNavigator(
         }
 
         when (menu) {
-            MainMenu.HOME -> navController.navigateHome(navOptions)
+            MainMenu.HOME -> navController.navigateToDetail(MainMenuRoute.Detail.Type.DEFAULT, 0 ,navOptions)
             MainMenu.SEARCH -> navController.navigateSearch(navOptions)
             MainMenu.CAMERA -> navController.navigateCamera(navOptions)
             MainMenu.FOLLOWER -> navController.navigateFollower(navOptions)
