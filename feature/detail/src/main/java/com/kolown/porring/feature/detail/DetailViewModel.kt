@@ -12,11 +12,15 @@ import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.navigation.MainMenuRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +38,15 @@ internal class DetailViewModel @Inject constructor(
     private val _followEvent = MutableSharedFlow<PostContentModel>()
     val followEvent = _followEvent.asSharedFlow()
 
-    val isLoggedIn = authRepository.checkUserLoggedIn()
+    private val loggedInChannel = Channel<Unit>(Channel.UNLIMITED)
+    val loggedInEvent = loggedInChannel.receiveAsFlow()
+
+    private val isLoggedIn = authRepository.checkUserLoggedIn()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
+        )
 
     fun init(
         type: MainMenuRoute.Detail.Type,
@@ -45,7 +57,16 @@ internal class DetailViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    private fun checkedLogIn(): Boolean {
+        if (isLoggedIn.value.not()) {
+            loggedInChannel.trySend(Unit)
+            return false
+        }
+        return true
+    }
+
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
+        if (checkedLogIn().not()) return@launch
         postRepository.reactPost(postId, reaction)
         _posts.update {
             _posts.value.replaceIf(
@@ -56,6 +77,7 @@ internal class DetailViewModel @Inject constructor(
     }
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
+        if (checkedLogIn().not()) return@launch
         if (post.isFollower) {
             followRepository.unFollowUser(post.authorId)
             _posts.update {
@@ -70,6 +92,7 @@ internal class DetailViewModel @Inject constructor(
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
+        if (checkedLogIn().not()) return@launch
         followRepository.followUser(authorId, name)
         _posts.update {
             _posts.value.replaceIf(
