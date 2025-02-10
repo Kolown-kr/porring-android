@@ -50,7 +50,6 @@ internal class DetailViewModel @Inject constructor(
 
     fun init(
         type: MainMenuRoute.Detail.Type,
-        order: Int,
     ) {
         postRepository.getRandomDetailPostList()
             .onEach(_posts::emit)
