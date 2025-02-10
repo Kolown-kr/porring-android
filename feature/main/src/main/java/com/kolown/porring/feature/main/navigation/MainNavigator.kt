@@ -10,6 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.kolown.porring.core.model.UploadModel
+import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
@@ -64,7 +65,7 @@ internal class MainNavigator(
     fun navigateToUpload(imgUri: String, uploadModel: UploadModel) =
         navController.navigateUpload(imgUri, uploadModel)
 
-    fun navigateToDetail() = navController.navigateToDetail(navOptions = singleTopOptions)
+    fun navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int) = navController.navigateToDetail(type, order, navOptions = singleTopOptions)
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)
 

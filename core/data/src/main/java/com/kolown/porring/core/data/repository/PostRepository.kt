@@ -30,7 +30,7 @@ import javax.inject.Named
 
 interface PostRepository {
     suspend fun uploadPost(fileUri: Uri, description: String, tags: List<String>): Result<Unit>
-    suspend fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>>
+    fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>>
     suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit>
     suspend fun removePostReaction(postId: String): Result<Unit>
     fun getUserPosts(userId: String? = null): Flow<PagingData<PostContentModel>>
@@ -179,7 +179,7 @@ class PostRepositoryImpl @Inject constructor(
             throw e
         }
 
-    override suspend fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
+    override fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
         return Pager(
             config = PagingConfig(pageSize = DETAIL_PER_PAGE, enablePlaceholders = false),
             pagingSourceFactory = {

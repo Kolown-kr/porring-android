@@ -1,135 +1,54 @@
 package com.kolown.porring.feature.detail
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
+import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class DetailViewModel @Inject constructor(
+internal class DetailViewModel @Inject constructor(
+    authRepository: AuthRepository,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
-) : ViewModel() {
-    private val _uiState =
-        MutableStateFlow<UiState<Flow<PagingData<PostContentModel>>>>(UiState.Loading)
-    val uiState = _uiState.asStateFlow()
+) : BaseViewModel<DetailViewModel.State>(State()) {
 
-    private val reactionStateFlow = MutableStateFlow<Map<String, ReactionState>>(emptyMap())
+    private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
+    val posts = _posts.cachedIn(viewModelScope)
 
-    private val _followSharedFlow = MutableSharedFlow<Pair<String,Boolean>>(0)
-    val followState = _followSharedFlow.asSharedFlow()
+    val isLoggedIn = authRepository.checkUserLoggedIn()
 
-    private var _currentPage = 0
-    val currentPage get() = _currentPage
-
-
-    init {
-        getItem()
-    }
-
-    private fun getItem() {
-        viewModelScope.launch {
-            _uiState.value = UiState.Loading
-            try {
-                val pagingFlow = postRepository.getRandomDetailPostList().cachedIn(viewModelScope)
-
-                val combineFlow = combine(
-                    pagingFlow, reactionStateFlow
-                ) { paging, reaction ->
-                    paging.map { item ->
-                        reaction[item.postId]?.let { reactionState ->
-                            val (myReaction, reactions) = if (reactionState.prev == null) {
-                                reactionState.current to item.reactions + reactionState.current
-                            } else {
-                                if (reactionState.prev == reactionState.current) {
-                                    null to item.reactions - reactionState.current
-                                } else {
-                                    reactionState.current to item.reactions + reactionState.current - reactionState.prev
-                                }
-                            }
-                            item.copy(reactions = reactions, myReaction = myReaction)
-                        } ?: item.copy()
-                    }
-                }
-
-                _uiState.value = UiState.Success(combineFlow)
-
-            } catch (e: Exception) {
-                _uiState.value = UiState.Failure(e)
-            }
-        }
-    }
-
-    fun selectReaction(imageItem: PostContentModel, reaction: Reactions) {
-        val currentReaction = imageItem.myReaction
-
-        viewModelScope.launch {
-            if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId)
-            } else {
-                postRepository.reactPost(
-                    postId = imageItem.postId, reaction = reaction
-                )
-            }
-        }
-        updateReactionState(imageItem.postId, currentReaction, reaction)
-    }
-
-    private fun updateReactionState(
-        postId: String,
-        prevReaction: Reactions?,
-        currentReaction: Reactions,
+    fun init(
+        type: MainMenuRoute.Detail.Type,
+        order: Int,
     ) {
-        reactionStateFlow.update { reactionState ->
-            val newState = reactionState.toMutableMap()
-            newState[postId] = ReactionState(prev = prevReaction, current = currentReaction)
-            newState
-        }
+        postRepository.getRandomDetailPostList()
+            .onEach(_posts::emit)
+            .launchIn(viewModelScope)
+
+        callbackFlow<String> { awaitClose {  } }.buffer()
     }
 
-    fun followUser(id: String, name: String) {
-        viewModelScope.launch {
-            followRepository.followUser(id, name)
-                .catch { Log.e("FollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
-            _followSharedFlow.emit(Pair(id,true))
-        }
+    fun onModeChange(isReelsMode: Boolean) = updateState {
+        copy(isReelsMode = isReelsMode)
     }
 
-    fun unFollowUser(id: String) {
-        viewModelScope.launch {
-            followRepository.unFollowUser(id)
-                .catch { Log.e("UnFollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
-            _followSharedFlow.emit(Pair(id,false))
-        }
-    }
-
-
-    fun updatePage(page: Int) {
-        _currentPage = page
-    }
-
-
+    data class State(
+        val isReelsMode: Boolean = true,
+    )
 }
 
 data class ReactionState(

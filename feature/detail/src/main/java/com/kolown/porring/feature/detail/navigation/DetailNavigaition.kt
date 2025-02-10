@@ -5,13 +5,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.porring.feature.detail.DetailRoute
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import androidx.navigation.toRoute
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.feature.detail.DetailRoute
 
-fun NavController.navigateToDetail(navOptions: NavOptions) {
-    navigate(MainMenuRoute.Detail, navOptions = navOptions)
+fun NavController.navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int, navOptions: NavOptions) {
+    navigate(MainMenuRoute.Detail(type, order), navOptions = navOptions)
 }
 
 fun NavGraphBuilder.detailNavGraph(
@@ -22,6 +21,8 @@ fun NavGraphBuilder.detailNavGraph(
     composable<MainMenuRoute.Detail> {
         DetailRoute(
             padding = padding,
+            type = it.toRoute<MainMenuRoute.Detail>().type,
+            order = it.toRoute<MainMenuRoute.Detail>().order,
             navigateToTheir = navigateToTheir,
             popBackStack = popBackStack,
         )

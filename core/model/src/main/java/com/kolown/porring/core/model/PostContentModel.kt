@@ -13,4 +13,8 @@ data class PostContentModel(
     val isFollower: Boolean,
     val reactions: List<Reactions>,
     val myReaction: Reactions? = null,
-)
+) {
+    companion object {
+        val EMPTY = PostContentModel("", "", "", "", "", emptyList(), false, emptyList())
+    }
+}
