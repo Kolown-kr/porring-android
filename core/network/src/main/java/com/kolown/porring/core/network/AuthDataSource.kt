@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Named
@@ -53,7 +54,9 @@ class AuthDataSourceImpl @Inject constructor(
 
     override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            trySend(firebaseAuth.currentUser != null)
+            launch {
+                send(firebaseAuth.currentUser != null)
+            }
         }
         awaitClose {
             FirebaseAuth.getInstance().removeAuthStateListener(listener)
