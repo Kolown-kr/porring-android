@@ -1,7 +1,7 @@
 package com.kolown.porring.feature.detail
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,29 +15,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,8 +39,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
@@ -59,88 +51,42 @@ import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.CoilImage
-import com.kolown.porring.core.ui.component.FollowDialog
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
-import com.kolown.porring.feature.detail.component.FullScreenEffect
 
 @Composable
 internal fun DetailRoute(
     type: MainMenuRoute.Detail.Type,
     order: Int,
+    navigateToTheir: (String) -> Unit,
+    popBackStack: () -> Unit,
     padding: PaddingValues = PaddingValues(),
     viewModel: DetailViewModel = hiltViewModel(),
-    navigateToTheir: (String) -> Unit = {},
-    popBackStack: () -> Unit = {},
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
-    val pagerState = rememberPagerState { posts.itemCount }
-    var followPost by remember { mutableStateOf<PostContentModel?>(null) }
-    var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
-    val snackBarBridge = LocalSnackBarBridge.current
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.init(type)
-        pagerState.scrollToPage(order)
-    }
-
-    LaunchedEffect(viewModel.loggedInEvent) {
-        viewModel.loggedInEvent.collect {
-            snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
-        }
-    }
-
-    LaunchedEffect(viewModel.followEvent) {
-        viewModel.followEvent.collect { post ->
-            followPost = post
-        }
-    }
-
-    followPost?.let { post ->
-        FollowDialog(
-            onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
-            onClickCancel = { followPost = null }
-        )
-    }
-
-    reelsModePostUrl?.let { postUrl ->
-        FullScreenEffect()
-        BackHandler(onBack = { reelsModePostUrl = null })
-        ReelsScreen(
-            postUrl = postUrl,
-            onDismiss = { reelsModePostUrl = null }
-        )
+        viewModel.init(type, order)
     }
 
     DetailScreen(
         posts = posts,
-        pagerState = pagerState,
+        state = state,
         padding = padding,
-        eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
-        galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
-        onShowReelsMode = { reelsModePostUrl = it },
-        onReactionClick = viewModel::onReactionClick,
-        onGalleryClick = navigateToTheir,
-        onFollowClick = viewModel::onFollowClick,
-        popBackStack = popBackStack
     )
 }
 
 @Composable
 private fun DetailScreen(
     posts: LazyPagingItems<PostContentModel>,
-    pagerState: PagerState = rememberPagerState { posts.itemCount },
+    state: DetailViewModel.State = DetailViewModel.State(),
     padding: PaddingValues = PaddingValues(),
-    eventRowVisible: Boolean = true,
-    galleryVisible: Boolean = true,
-    onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
-    onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {},
+    onShowReelsMode: () -> Unit = {},
+    onFavoriteClick: () -> Unit = {},
+    onGalleryClick: () -> Unit = {},
+    onFollowClick: () -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
     Box(
@@ -148,6 +94,7 @@ private fun DetailScreen(
             .fillMaxSize()
             .background(BackgroundDark)
             .padding(padding)
+            .clickable(onClick = onShowReelsMode)
     ) {
         PorringTopAppBar(
             navigationIcon = {
@@ -162,17 +109,14 @@ private fun DetailScreen(
 
         VerticalPager(
             modifier = Modifier.fillMaxSize(),
-            state = pagerState,
+            state = rememberPagerState { posts.itemCount },
             beyondViewportPageCount = 3
         ) { page: Int ->
             val post = posts[page] ?: return@VerticalPager
 
             DetailContent(
                 post = post,
-                eventRowVisible = eventRowVisible,
-                galleryVisible = galleryVisible,
-                onShowReelsMode = onShowReelsMode,
-                onReactionClick = onReactionClick,
+                onFavoriteClick = onFavoriteClick,
                 onGalleryClick = onGalleryClick,
                 onFollowClick = onFollowClick
             )
@@ -183,12 +127,9 @@ private fun DetailScreen(
 @Composable
 private fun DetailContent(
     post: PostContentModel = PostContentModel.EMPTY,
-    eventRowVisible: Boolean = true,
-    galleryVisible: Boolean = true,
-    onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
-    onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {}
+    onFavoriteClick: () -> Unit = {},
+    onGalleryClick: () -> Unit = {},
+    onFollowClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -201,9 +142,7 @@ private fun DetailContent(
                 .aspectRatio(4 / 5f)
         ) {
             CoilImage(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                onClick = { onShowReelsMode(post.imageUrl) },
+                modifier = Modifier.fillMaxWidth(),
                 imageUrl = post.imageUrl,
             )
         }
@@ -236,17 +175,16 @@ private fun DetailContent(
                 }
             }
 
-            ReactionGroup(reactions = post.reactions)
+            ReactionGroup(reactions = listOf(Reactions.LOVE, Reactions.STAR))
         }
 
-        if (eventRowVisible) {
+        if (true) {
             EventRow(
                 isFavorite = post.myReaction != null,
                 isFollowed = post.isFollower,
-                galleryVisible = galleryVisible,
-                onReactionClick = { onReactionClick(post.postId, it) },
-                onGalleryClick = { onGalleryClick(post.authorId) },
-                onFollowClick = { onFollowClick(post) }
+                onFavoriteClick = onFavoriteClick,
+                onGalleryClick = onGalleryClick,
+                onFollowClick = onFollowClick
             )
         }
 
@@ -258,56 +196,37 @@ private fun DetailContent(
 private fun EventRow(
     isFavorite: Boolean = false,
     isFollowed: Boolean = false,
-    galleryVisible: Boolean = true,
-    activatedReaction: Reactions? = null,
-    onReactionClick: (Reactions) -> Unit = {},
+    onFavoriteClick: () -> Unit = {},
     onGalleryClick: () -> Unit = {},
     onFollowClick: () -> Unit = {}
 ) {
-    var isExpand by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { isExpand = true }) {
-            Icon(
-                imageVector = if (isFavorite) {
-                    Icons.Default.Favorite
-                } else {
-                    Icons.Outlined.FavoriteBorder
-                },
-                tint = PrimaryDark,
-                contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
-                modifier = Modifier
-                    .size(30.dp)
-            )
-        }
-        DropdownMenu(
+        Icon(
+            imageVector = if (isFavorite) {
+                Icons.Default.Favorite
+            } else {
+                Icons.Outlined.FavoriteBorder
+            },
+            tint = PrimaryDark,
+            contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
             modifier = Modifier
-                .width(352.dp),
-            expanded = isExpand,
-            containerColor = Color.Transparent,
-            shape = CircleShape,
-            onDismissRequest = { isExpand = false }
-        ) {
-            ReactionDialog (
-                activatedReaction = activatedReaction,
-                selectedReaction = onReactionClick,
-                onDismiss = { isExpand = false }
-            )
-        }
+                .size(30.dp)
+                .clickable(onClick = onFavoriteClick)
+        )
 
         Spacer(Modifier.weight(1f))
 
-        if (galleryVisible) {
-            DetailButton(
-                onClick = onGalleryClick,
-                imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
-                buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_gallery)
-            )
-        }
+
+        DetailButton(
+            onClick = onGalleryClick,
+            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
+            buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_gallery)
+        )
 
         Spacer(Modifier.width(12.dp))
 
@@ -343,44 +262,136 @@ private fun DetailButton(
     }
 }
 
-@Composable
-private fun ReelsScreen(
-    postUrl: String = "",
-    onDismiss: () -> Unit = {},
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundDark)
-            .zIndex(1f)
-    ) {
-        PorringTopAppBar(
-            trailingIcon = {
-                PorringIconButton(
-                    icon = Icons.Default.Close,
-                    onClick = onDismiss,
-                    contentDescription = stringResource(R.string.string_end_mode),
-                    color = Color.White
-                )
-            }
-        )
-
-        CoilImage(
-            imageUrl = postUrl,
-            modifier = Modifier.align(Alignment.Center),
-        )
-    }
-}
-
 
 @Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
 private fun DetailScreenPreview() {
     DetailContent()
 }
+//@Composable
+//private fun DetailScreen(
+//    firstItem: PostContentModel = PostContentModel("", "", "", "", "", emptyList(), false, emptyList()),
+//    pagingItems: LazyPagingItems<PostContentModel>,
+//    pagerState: PagerState,
+//    isLoggedIn: Boolean = false,
+//    onChangeReelsMode: (Boolean) -> Unit = {},
+//    popBackStack: () -> Unit = {},
+//    updateMainPostReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
+//    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
+//    isReelsMode: Boolean = true,
+//    isPopBackStack: Boolean = false,
+//    padding: PaddingValues = PaddingValues(),
+//    navigateToTheir: (String) -> Unit = {},
+//    updatePage: (Int) -> Unit = {},
+//    onFollowClick: (String, String) -> Unit = { _, _ -> },
+//    onUnfollowClick: (String) -> Unit = {},
+//    followerState: State<Pair<String, Boolean>?> = mutableStateOf(null),
+//    updateFollow: (String) -> Unit = {}
+//) {
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(BackgroundDark)
+//            .padding(padding)
+//    ) {
+//        DetailContent(
+//            isLoggedIn = isLoggedIn,
+//            isReelsMode = isReelsMode,
+//            onChangeReelsMode = onChangeReelsMode,
+//            updateMainPostReaction = updateMainPostReaction,
+//            onSelectReaction = onSelectReaction,
+//            pagingItems = pagingItems,
+//            pagerState = pagerState,
+//            isPopBackStack = isPopBackStack,
+//            firstItem = firstItem,
+//            navigateToTheir = navigateToTheir,
+//            updatePage = updatePage,
+//            onFollowClick = onFollowClick,
+//            onUnfollowClick = onUnfollowClick,
+//            followerState = followerState,
+//            updateFollow = updateFollow
+//        )
+//
+//        PorringTopAppBar(
+//            navigationIcon = {
+//                if (isReelsMode) {
+//                    PorringIconButton(
+//                        icon = ImageVector.vectorResource(drawable.ic_arrow_back),
+//                        onClick = popBackStack,
+//                        contentDescription = stringResource(R.string.string_go_back),
+//                        color = Color.White
+//                    )
+//                }
+//            },
+//            trailingIcon = {
+//                if (isReelsMode.not()) {
+//                    PorringIconButton(
+//                        icon = Icons.Default.Close,
+//                        onClick = {
+//                            onChangeReelsMode(true)
+//                        },
+//                        contentDescription = stringResource(R.string.string_end_mode),
+//                        color = Color.White
+//                    )
+//                }
+//            }
+//        )
+//    }
+//}
+//
+//
+//@Composable
+//private fun DetailContent(
+//    isLoggedIn: Boolean,
+//    onChangeReelsMode: (Boolean) -> Unit,
+//    updateMainPostReaction: (PostContentModel, Reactions) -> Unit,
+//    onSelectReaction: (PostContentModel, Reactions) -> Unit,
+//    isReelsMode: Boolean,
+//    pagingItems: LazyPagingItems<PostContentModel>,
+//    isPopBackStack: Boolean = false,
+//    pagerState: PagerState,
+//    firstItem: PostContentModel,
+//    navigateToTheir: (String) -> Unit,
+//    updatePage: (Int) -> Unit,
+//    onFollowClick: (String, String) -> Unit = { _, _ -> },
+//    onUnfollowClick: (String) -> Unit = {},
+//    followerState: State<Pair<String, Boolean>?>,
+//    updateFollow: (String) -> Unit = {}
+//) {
+//
+//    VerticalPager(
+//        modifier = Modifier.fillMaxSize(),
+//        state = pagerState,
+//        userScrollEnabled = isReelsMode,
+//        beyondViewportPageCount = 3
+//    ) { page ->
+//
+//        val imageItem = when (page) {
+//            0 -> firstItem
+//            pagingItems.itemCount + 1 -> null
+//            else -> {
+//                pagingItems[page - 1] ?: return@VerticalPager
+//            }
+//        }
+//
+//        DetailItem(
+//            isLoggedIn = isLoggedIn,
+//            isReelsMode = isReelsMode,
+//            onChangeReelsMode = onChangeReelsMode,
+//            updateMainPostReaction = updateMainPostReaction,
+//            onSelectReaction = onSelectReaction,
+//            imageItem = imageItem,
+//            isPopBackStack = isPopBackStack,
+//            navigateToTheir = navigateToTheir,
+//            updatePage = {
+//                updatePage(pagerState.currentPage)
+//            },
+//            onFollowClick = onFollowClick,
+//            onUnfollowClick = onUnfollowClick,
+//            followerState = followerState,
+//            updateFollow = updateFollow
+//        )
+//    }
+//
+//}
 
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-private fun ReelsScreenPreview() {
-    ReelsScreen()
-}
