@@ -3,6 +3,7 @@ package com.kolown.porring.feature.my
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MyViewModel @Inject constructor(
     private val postRepository: PostRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    authRepository: AuthRepository
 ) : ViewModel() {
     private var _firstPage = 0
     val firstPage get() = _firstPage
@@ -31,6 +33,8 @@ class MyViewModel @Inject constructor(
     val galleryFlow = currentUserId.flatMapLatest {
         postRepository.getUserPosts().cachedIn(viewModelScope)
     }.cachedIn(viewModelScope)
+
+    val loginState = authRepository.checkUserLoggedIn()
 
     init {
         setUserId()
