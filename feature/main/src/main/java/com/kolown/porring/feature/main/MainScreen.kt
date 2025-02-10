@@ -69,18 +69,15 @@ internal fun MainScreen(
 
     LaunchedEffect(Unit) {
         mainViewModel.snackBarFlow.collect {
+            val result = snackBarHostState.showSnackBarWithData(it)
             when (it) {
                 is SnackBarEvent.LoginRequired -> {
-                    snackBarHostState.showSnackBarWithData(it).let { result ->
-                        if (result == SnackbarResult.ActionPerformed) {
-                            if (!isLoggedIn) navigator.navigateToLogin()
-                        }
+                    if (result == SnackbarResult.ActionPerformed && !isLoggedIn) {
+                        navigator.navigateToLogin()
                     }
                 }
 
-                is SnackBarEvent.Message -> {
-                    snackBarHostState.showSnackBarWithData(it)
-                }
+                is SnackBarEvent.Message -> Unit
             }
         }
     }
