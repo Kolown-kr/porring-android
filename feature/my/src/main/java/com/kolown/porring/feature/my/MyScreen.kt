@@ -27,7 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -41,9 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,65 +48,39 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
-import com.kolown.porring.core.ui.component.GalleryItem
-import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.ui.component.GalleryItem
+import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.feature.my.component.PageItemFooter
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MyRoute(
-    isLoggedIn: Boolean,
+    viewModel: MyViewModel = hiltViewModel(),
+    padding: PaddingValues = PaddingValues(),
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
-    navigateToDetailMy: () -> Unit,
-    padding: PaddingValues = PaddingValues(),
-    viewModel: MyViewModel = hiltViewModel(),
+    navigateToDetail: () -> Unit,
 ) {
     val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
+    val isLoggedIn = viewModel.loginState.collectAsStateWithLifecycle(initialValue = true)
     val isDeleteSuccess by viewModel.isDeleteSuccess.collectAsStateWithLifecycle()
-    val listState = rememberLazyStaggeredGridState()
-    var isRefreshing by remember { mutableStateOf(false) }
-    val refreshState = rememberPullToRefreshState()
-    val onRefresh: () -> Unit = {
-        isRefreshing = true
-        pagingItems.refresh()
-    }
-    val scaleFraction = {
-        if (isRefreshing) 1f
-        else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
-    }
 
-    LaunchedEffect(isDeleteSuccess) {
-        pagingItems.refresh()
-    }
-    LaunchedEffect(pagingItems.loadState) {
-        isRefreshing = false
-    }
-    LaunchedEffect(pagingItems) {
-        listState.scrollToItem(0)
-    }
-
-    if (isLoggedIn) {
+    if (isLoggedIn.value) {
         LaunchedEffect(Unit) {
             viewModel.setUserId()
         }
         MyScreen(
+            isDeleteSuccess = isDeleteSuccess,
             navigateToSetting = navigateToSetting,
-            navigateToDetailMy = navigateToDetailMy,
+            navigateToDetailMy = navigateToDetail,
             setPage = viewModel::setPage,
             padding = padding,
-            listState = listState,
             pagingItems = pagingItems,
             deletePost = viewModel::deletePost,
-            onRefresh = onRefresh,
-            isRefreshing = isRefreshing,
-            refreshState = refreshState,
-            scaleFraction = scaleFraction
         )
     } else {
         RestrictedLoginContent(navigateToLogin)
@@ -119,19 +90,37 @@ internal fun MyRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MyScreen(
+    isDeleteSuccess: Boolean = false,
+    padding: PaddingValues = PaddingValues(),
+    pagingItems: LazyPagingItems<PostContentModel>,
+    setPage: (Int) -> Unit = {},
+    deletePost: (String) -> Unit = {},
     navigateToSetting: () -> Unit = {},
     navigateToDetailMy: () -> Unit = {},
-    setPage: (Int) -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
-    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
-    pagingItems: LazyPagingItems<PostContentModel>,
-    deletePost: (String) -> Unit = {},
-    onRefresh: () -> Unit = {},
-    isRefreshing: Boolean = false,
-    refreshState: PullToRefreshState = rememberPullToRefreshState(),
-    scaleFraction: () -> Float = { 1f },
 ) {
-    val width = LocalConfiguration.current.screenWidthDp.dp / 2
+    val listState = rememberLazyStaggeredGridState()
+    var isRefreshing by remember { mutableStateOf(false) }
+    val refreshState = rememberPullToRefreshState()
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        pagingItems.refresh()
+    }
+
+    LaunchedEffect(pagingItems.loadState) {
+        isRefreshing = false
+    }
+    LaunchedEffect(pagingItems) {
+        listState.scrollToItem(0)
+    }
+    LaunchedEffect(isDeleteSuccess) {
+        pagingItems.refresh()
+    }
+
+    val scaleFraction = {
+        if (isRefreshing) 1f
+        else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -143,7 +132,7 @@ private fun MyScreen(
             )
     ) {
         PorringCenterAlignTopAppBar(
-            title = "My Gallery",
+            title = stringResource(R.string.string_my_gallery),
             trailingIcon = {
                 PorringIconButton(
                     icon = Icons.Default.Settings,
@@ -158,7 +147,6 @@ private fun MyScreen(
             StateLazyGrid(
                 listState = listState,
                 pagingItems = pagingItems,
-                width = width,
                 deletePost = deletePost,
                 navigateToDetailMy = navigateToDetailMy,
                 setPage = setPage
@@ -183,7 +171,6 @@ private fun MyScreen(
 fun StateLazyGrid(
     listState: LazyStaggeredGridState,
     pagingItems: LazyPagingItems<PostContentModel>,
-    width: Dp,
     deletePost: (String) -> Unit,
     navigateToDetailMy: () -> Unit,
     setPage: (Int) -> Unit
