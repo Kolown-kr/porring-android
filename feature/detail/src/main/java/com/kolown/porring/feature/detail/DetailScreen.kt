@@ -1,9 +1,7 @@
 package com.kolown.porring.feature.detail
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -79,12 +78,14 @@ internal fun DetailRoute(
     popBackStack: () -> Unit = {},
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
+    val pagerState = rememberPagerState { posts.itemCount }
     var followPost by remember { mutableStateOf<PostContentModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
     LaunchedEffect(Unit) {
-        viewModel.init(type, order)
+        viewModel.init(type)
+        pagerState.scrollToPage(order)
     }
 
     LaunchedEffect(viewModel.loggedInEvent) {
@@ -117,6 +118,7 @@ internal fun DetailRoute(
 
     DetailScreen(
         posts = posts,
+        pagerState = pagerState,
         padding = padding,
         onShowReelsMode = { reelsModePostUrl = it },
         onReactionClick = viewModel::onReactionClick,
@@ -129,6 +131,7 @@ internal fun DetailRoute(
 @Composable
 private fun DetailScreen(
     posts: LazyPagingItems<PostContentModel>,
+    pagerState: PagerState = rememberPagerState { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
@@ -155,7 +158,7 @@ private fun DetailScreen(
 
         VerticalPager(
             modifier = Modifier.fillMaxSize(),
-            state = rememberPagerState { posts.itemCount },
+            state = pagerState,
             beyondViewportPageCount = 3
         ) { page: Int ->
             val post = posts[page] ?: return@VerticalPager
