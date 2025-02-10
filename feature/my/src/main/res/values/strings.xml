@@ -4,4 +4,5 @@
     <string name="string_no_post">게시물이 존재하지 않습니다!</string>
     <string name="string_error">오류가 발생하였습니다!</string>
     <string name="string_retry">retry</string>
+    <string name="string_my_gallery">My Gallery</string>
 </resources>
