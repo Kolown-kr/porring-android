@@ -24,35 +24,18 @@ fun NavController.navigateTheirDetail(navOptions: NavOptions) {
 
 fun NavGraphBuilder.theirNavGraph(
     popBackStack: () -> Unit,
-    getBackStackEntry: () -> NavBackStackEntry,
     navigateToDetailTheir: () -> Unit,
     padding: PaddingValues,
 ) {
     composable<MainMenuRoute.Their> { navBackStackEntry ->
-        val parentEntry = remember(navBackStackEntry) {
-            getBackStackEntry()
-        }
         val followerId = navBackStackEntry.toRoute<MainMenuRoute.Their>().authorId
-        TheirRoute(
-            popBackStack = popBackStack,
-            navigateToDetailTheir = navigateToDetailTheir,
-            padding = padding,
-            followerId = followerId,
-            viewModel = hiltViewModel(parentEntry)
-        )
-    }
 
-    composable<Route.DetailTheir> { backStackEntry ->
-        val parentEntry = remember(backStackEntry) {
-            getBackStackEntry()
-        }
-        DetailTheirRoute(
+        TheirRoute(
+            followerId = followerId,
             padding = padding,
-            popBackStack = popBackStack,
-            onShowLoginSnackBar = {
-                navigateToDetailTheir()
-            },
-            viewModel = hiltViewModel(parentEntry)
+            viewModel = hiltViewModel(),
+            navigateToDetailTheir = navigateToDetailTheir,
+            popBackStack = popBackStack
         )
     }
 }
