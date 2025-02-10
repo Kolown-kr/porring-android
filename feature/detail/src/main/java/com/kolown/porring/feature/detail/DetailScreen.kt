@@ -60,9 +60,11 @@ import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 import com.kolown.porring.feature.detail.component.FullScreenEffect
@@ -79,9 +81,16 @@ internal fun DetailRoute(
     val posts = viewModel.posts.collectAsLazyPagingItems()
     var followPost by remember { mutableStateOf<PostContentModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
+    val snackBarBridge = LocalSnackBarBridge.current
 
     LaunchedEffect(Unit) {
         viewModel.init(type, order)
+    }
+
+    LaunchedEffect(viewModel.loggedInEvent) {
+        viewModel.loggedInEvent.collect {
+            snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
+        }
     }
 
     LaunchedEffect(viewModel.followEvent) {
