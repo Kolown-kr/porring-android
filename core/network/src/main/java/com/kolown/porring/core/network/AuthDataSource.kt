@@ -7,6 +7,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.kolown.porring.core.model.User
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
@@ -51,11 +52,14 @@ class AuthDataSourceImpl @Inject constructor(
     }
 
     override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
-        FirebaseAuth.AuthStateListener { firebaseAuth ->
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             trySend(firebaseAuth.currentUser != null)
         }
+        awaitClose {
+            FirebaseAuth.getInstance().removeAuthStateListener(listener)
+        }
     }.buffer(
-        capacity = Channel.CONFLATED,
+        capacity = Channel.BUFFERED,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
