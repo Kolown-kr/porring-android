@@ -52,7 +52,6 @@ class AuthDataSourceImpl @Inject constructor(
     }
 
     override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
-        val auth = FirebaseAuth.getInstance()
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
             trySend(firebaseAuth.currentUser != null).isSuccess
         }
