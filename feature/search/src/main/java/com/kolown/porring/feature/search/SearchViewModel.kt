@@ -19,12 +19,16 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
     private val tagRepository: TagRepository,
+    private val postRepository: PostRepository,
 ) : BaseMviViewModel<SearchUiState, SearchUiIntent, SearchUiSideEffect>(SearchUiState.Blank) {
 
     private val queryFlow = MutableSharedFlow<String>()
@@ -34,6 +38,21 @@ internal class SearchViewModel @Inject constructor(
         .distinctUntilChanged()
         .flatMapLatest(tagRepository::getTagBySearch)
         .cachedIn(viewModelScope)
+
+    private val tagSelectedFlow = MutableSharedFlow<String>()
+
+    private val clearImagesFlow: Flow<PagingData<PostContentModel>> =
+        tagSelectedFlow.map { PagingData.empty() }
+
+    private val loadImagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest(postRepository::getPostBySearch)
+        .cachedIn(viewModelScope)
+
+    val imagesFlow: Flow<PagingData<PostContentModel>> =
+        merge(clearImagesFlow, loadImagesFlow)
+            .cachedIn(viewModelScope)
 
     override fun handleIntent(intent: SearchUiIntent) {
         when (intent) {
@@ -82,7 +101,7 @@ internal class SearchViewModel @Inject constructor(
     }
 
     private fun onTagClicked(tag: Tag) = launch {
-        postSideEffect(SearchUiSideEffect.FetchPostsByTag(tag))
+        tagSelectedFlow.emit(tag.id)
         reduce {
             SearchUiState.Content(
                 data = data.copy(
