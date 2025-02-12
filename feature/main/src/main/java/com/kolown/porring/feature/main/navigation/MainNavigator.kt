@@ -73,7 +73,7 @@ internal class MainNavigator(
 
     fun navigateToJoin() = navController.navigateToJoin(navOptions = singleTopOptions)
 
-    fun navigateToDetailSearch() = navController.navigateSearchDetail(navOptions = singleTopOptions)
+    fun navigateToDetailSearch() = navController.navigateToDetail(MainMenuRoute.Detail.Type.DEFAULT, 0, navOptions = singleTopOptions)
 
     fun navigateToDetailMy() = navController.navigateMyDetail(navOptions = singleTopOptions)
 

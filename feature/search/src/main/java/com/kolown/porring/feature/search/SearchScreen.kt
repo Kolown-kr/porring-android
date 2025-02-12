@@ -34,12 +34,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.designsystem.ui.theme.Gray
-import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Tag
+import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.util.LaunchSideEffect
 import com.kolown.porring.feature.search.component.TagSearchBar
 import com.kolown.porring.feature.search.model.SearchUiIntent
@@ -51,19 +50,14 @@ import com.kolown.porring.feature.search.model.SearchUiState
 internal fun SearchRoute(
     padding: PaddingValues,
     viewModel: SearchViewModel = hiltViewModel(),
-    imageViewModel: SearchImageViewModel = hiltViewModel(),
     navigateToDetail: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val tags = viewModel.tagsFlow.collectAsLazyPagingItems()
-    val images = imageViewModel.imagesFlow.collectAsLazyPagingItems()
+    val images = viewModel.imagesFlow.collectAsLazyPagingItems()
 
     LaunchSideEffect(viewModel) { effect ->
         when (effect) {
-            is SearchUiSideEffect.FetchPostsByTag -> {
-                imageViewModel.selectTag(effect.tag.id)
-            }
-
             is SearchUiSideEffect.NavigateToDetail -> navigateToDetail()
         }
     }

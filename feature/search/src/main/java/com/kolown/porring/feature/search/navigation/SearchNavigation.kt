@@ -24,27 +24,12 @@ fun NavController.navigateSearchDetail(navOptions: NavOptions) {
 
 fun NavGraphBuilder.searchNavGraph(
     padding: PaddingValues,
-    navigateToTheir: (String) -> Unit,
     navigateToSearchDetail: () -> Unit,
-    popBackStack: () -> Unit,
-    getBackStackEntry: () -> NavBackStackEntry
 ) {
     composable<MainMenuRoute.Search> {
         SearchRoute(
             padding = padding,
             navigateToDetail = navigateToSearchDetail
-        )
-    }
-
-    composable<Route.DetailSearch> { backStackEntry ->
-        val parentEntry = remember(backStackEntry) {
-            getBackStackEntry()
-        }
-        DetailSearchRoute(
-            padding = padding,
-            imageViewModel = hiltViewModel(parentEntry),
-            navigateToTheir = navigateToTheir,
-            popBackStack = popBackStack,
         )
     }
 }
