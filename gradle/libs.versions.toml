@@ -24,7 +24,6 @@ junitVersion = "1.2.1"
 jetbrainsKotlinJvm = "2.0.0"
 kotlin = "2.0.0"
 kotlinxCoroutinesGuava = "1.9.0"
-kspVersion = "2.0.10-1.0.24"
 lottieCompose = "6.6.0"
 lifecycleRuntimeKtx = "2.8.7"
 material = "1.12.0"
@@ -37,6 +36,11 @@ playServicesAuth = "21.2.0"
 kotlinxSerializationJson = "1.7.0"
 # https://github.com/Kotlin/kotlinx.collections.immutable
 kotlinxImmutable = "0.3.8"
+
+## Ksp
+# https://github.com/google/ksp/releases
+kspVersion = "2.1.10-1.0.30"
+
 
 ## Compose
 # https://developer.android.com/jetpack/androidx/releases/compose-material3
@@ -54,7 +58,11 @@ exifinterfaceVersion = "1.3.7"
 firebaseAuthKtx = "23.1.0"
 firebaseCrashlyticsPlugin = "3.0.3"
 
-#test
+## Room
+# https://developer.android.com/training/data-storage/room?hl=ko
+room = "2.6.1"
+
+# test
 mockk = "1.13.14"
 turbine = "1.2.0"
 robolectric = "4.14.1"
@@ -81,6 +89,10 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kotlinx-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinxImmutable" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Room
+androidx-room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 ## junit
 junit = { group = "junit", name = "junit", version.ref = "junit" }
