@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -160,12 +161,12 @@ private fun DetailScreen(
             },
         )
 
-        VerticalPager(
+        HorizontalPager (
             modifier = Modifier.fillMaxSize(),
             state = pagerState,
             beyondViewportPageCount = 3
         ) { page: Int ->
-            val post = posts[page] ?: return@VerticalPager
+            val post = posts[page] ?: return@HorizontalPager
 
             DetailContent(
                 post = post,
