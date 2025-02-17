@@ -1,25 +1,19 @@
 package com.kolown.porring.feature.home
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -29,18 +23,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -57,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -66,19 +54,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
-import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,44 +76,71 @@ internal fun HomeRoute(
     navigateToTheir: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val loginState by viewModel.loginState.collectAsStateWithLifecycle(false)
+    var followPost by remember { mutableStateOf<PostContentModel?>(null) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isShowErrorScreen by remember { mutableStateOf(false) }
-    val myReaction: Reactions? by remember { mutableStateOf(null) }
-    val sizeAnimatable = remember { Animatable(1f) }
+    var imageRatio by remember { mutableFloatStateOf(4f / 5f) }
     val refreshState = rememberPullToRefreshState()
+    val snackBarBridge = LocalSnackBarBridge.current
     val scaleFraction = {
         if (isRefreshing) 1f
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
     }
 
-
     val onRefresh: () -> Unit = {
         isRefreshing = true
-        viewModel.changeLoading()
+        viewModel.loadItems()
     }
 
-    LaunchedEffect(uiState) {
-        if (uiState is UiState.Loading) {
-            isRefreshing = false
-            delay(7000)
-            isShowErrorScreen = true
-        } else {
-            isShowErrorScreen = false
+    LaunchedEffect(viewModel.loggedInEvent) {
+        viewModel.loggedInEvent.collect {
+            snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
         }
     }
 
-    LaunchedEffect(myReaction) {
-        myReaction?.let {
-            sizeAnimatable.animateTo(
-                targetValue = 1f,
-                animationSpec = keyframes {
-                    durationMillis = 400
-                    1.4f at 100
-                    1.1f at 200
-                    1.2f at 300
-                    1f at 400
-                }
+    LaunchedEffect(viewModel.followEvent) {
+        viewModel.followEvent.collect { post ->
+            followPost = post
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UiState.Loading -> {
+                isShowErrorScreen = false
+            }
+
+            is UiState.Failure -> {
+                isRefreshing = false
+                isShowErrorScreen = true
+            }
+
+            is UiState.Success -> {
+                isRefreshing = false
+                isShowErrorScreen = false
+            }
+
+            else -> {
+                isRefreshing = false
+                isShowErrorScreen = false
+            }
+        }
+    }
+
+    followPost?.let { post ->
+        if(post.isFollower) {
+            BetaPorringAlertDialog(
+                title = stringResource(R.string.string_unfollow),
+                description = stringResource(R.string.string_unfollow_description),
+                dismissText = stringResource(R.string.string_cancel),
+                confirmText = stringResource(R.string.string_confirm),
+                onConfirm = { viewModel.cancelFollow(post.authorId) },
+                onDismissRequest = { followPost = null }
+            )
+        } else {
+            FollowDialog(
+                onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
+                onClickCancel = { followPost = null }
             )
         }
     }
@@ -173,9 +187,13 @@ internal fun HomeRoute(
                                 .fillMaxSize()
                                 .align(Alignment.Center)
                                 .verticalScroll(rememberScrollState()),
+                            imageRatio = imageRatio,
                             pagerState = pagerState,
+                            onReactionClick = viewModel::onReactionClick,
                             onImageClick = navigateToDetail,
-                            onFollowClick = {}
+                            onGalleryClick = navigateToTheir,
+                            onFollowClick = viewModel::onFollowClick,
+                            updateImageRatio = { imageRatio = it }
                         )
                     }
                 }
@@ -199,14 +217,14 @@ internal fun HomeRoute(
 private fun HomeScreen(
     posts: List<PostContentModel>,
     modifier: Modifier = Modifier,
+    imageRatio: Float = 4f / 5f,
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
     onReactionClick: (String, Reactions) -> Unit = {_, _ ->},
     onImageClick: () -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {}
+    onFollowClick: (PostContentModel) -> Unit = {},
+    updateImageRatio: (Float) -> Unit = {}
 ) {
-    var imageRatio by remember { mutableFloatStateOf(4f / 5f) }
-
     HorizontalPager(
         modifier = modifier,
         state = pagerState
@@ -222,8 +240,7 @@ private fun HomeScreen(
 
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(imageRatio),
+                    .fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 8.dp
                 )
@@ -231,7 +248,7 @@ private fun HomeScreen(
                 CoilImage(
                     imageUrl = post.imageUrl,
                     imageRatio = imageRatio,
-                    updateImageRatio = { imageRatio = it },
+                    updateImageRatio = updateImageRatio,
                     onClick = onImageClick
                 )
             }
@@ -304,24 +321,24 @@ private fun EventRow(
 
         Spacer(Modifier.weight(1f))
 
-        DetailButton(
+        HomeButton(
             onClick = { onGalleryClick(post.authorId) },
             imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
         )
 
         Spacer(Modifier.width(12.dp))
 
-        DetailButton(
+        HomeButton(
             onClick = { onFollowClick(post) },
             imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_follow),
-            contentColor = if (isFollowed) Primary else Background,
-            backgroundColor = if (isFollowed) Background else Primary
+            contentColor = if (isFollowed) Background else Primary,
+            backgroundColor = if (isFollowed) Primary else Background
         )
     }
 }
 
 @Composable
-private fun DetailButton(
+private fun HomeButton(
     imageVector: ImageVector,
     contentColor: Color = Primary,
     backgroundColor: Color = Background,
