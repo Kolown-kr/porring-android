@@ -1,33 +1,45 @@
 package com.kolown.porring.feature.home
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
@@ -35,32 +47,37 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
+import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UiState
-import com.kolown.porring.core.ui.component.FollowDialog
+import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.UnfollowCheckDialog
-import com.kolown.porring.feature.home.component.IconButtonGroup
-import com.kolown.porring.feature.home.component.LottieFireWorkAnimation
-import com.kolown.porring.feature.home.component.RandomImage
-import com.kolown.porring.feature.home.component.ReactionDialog
-import com.kolown.porring.feature.home.component.ReactionGroup
+import com.kolown.porring.core.ui.component.ReactionDialog
+import com.kolown.porring.core.ui.component.ReactionGroup
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,14 +90,16 @@ internal fun HomeRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val loginState by viewModel.loginState.collectAsStateWithLifecycle(false)
-    var isReactionDialogVisible by remember { mutableStateOf(false) }
-    var isShowErrorScreen by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
+    var isShowErrorScreen by remember { mutableStateOf(false) }
+    val myReaction: Reactions? by remember { mutableStateOf(null) }
+    val sizeAnimatable = remember { Animatable(1f) }
     val refreshState = rememberPullToRefreshState()
     val scaleFraction = {
         if (isRefreshing) 1f
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
     }
+
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
@@ -97,15 +116,25 @@ internal fun HomeRoute(
         }
     }
 
+    LaunchedEffect(myReaction) {
+        myReaction?.let {
+            sizeAnimatable.animateTo(
+                targetValue = 1f,
+                animationSpec = keyframes {
+                    durationMillis = 400
+                    1.4f at 100
+                    1.1f at 200
+                    1.2f at 300
+                    1f at 400
+                }
+            )
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .pointerInput(isReactionDialogVisible) {
-                if (isReactionDialogVisible) {
-                    detectTapGestures { isReactionDialogVisible = false }
-                }
-            }
             .pullToRefresh(
                 state = refreshState,
                 isRefreshing = isRefreshing,
@@ -127,14 +156,7 @@ internal fun HomeRoute(
                 }
 
                 uiState is UiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .padding(padding)
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(48.dp), color = Primary)
-                    }
+                    LoadingScreen()
                 }
 
                 uiState is UiState.Success -> {
@@ -142,24 +164,18 @@ internal fun HomeRoute(
                     val pagerState = rememberPagerState(pageCount = { images.size })
                     isShowErrorScreen = false
 
-                    if(images.isEmpty()) {
+                    if (images.isEmpty()) {
                         viewModel.changeLoading()
                     } else {
                         HomeScreen(
+                            posts = images,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .align(Alignment.Center)
                                 .verticalScroll(rememberScrollState()),
-                            isLoggedIn = loginState,
-                            isReactionDialogVisible = isReactionDialogVisible,
-                            imageItems = images,
                             pagerState = pagerState,
-                            navigateToDetail = navigateToDetail,
-                            navigateToTheir = navigateToTheir,
-                            updateIsReactionDialogVisible = { isReactionDialogVisible = !isReactionDialogVisible },
-                            onSelectReaction =  viewModel::selectReaction,
-                            onUnfollowClick = viewModel::unFollowUser,
-                            onFollowClick = viewModel::followUser
+                            onImageClick = navigateToDetail,
+                            onFollowClick = {}
                         )
                     }
                 }
@@ -181,196 +197,156 @@ internal fun HomeRoute(
 
 @Composable
 private fun HomeScreen(
+    posts: List<PostContentModel>,
     modifier: Modifier = Modifier,
-    isLoggedIn: Boolean = false,
-    isReactionDialogVisible: Boolean = false,
-    imageItems: List<PostContentModel> = emptyList(),
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
-    navigateToDetail: () -> Unit = {},
-    navigateToTheir: (String) -> Unit = {},
-    updateIsReactionDialogVisible: () -> Unit = {},
-    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
-    onUnfollowClick: (String) -> Unit = {},
-    onFollowClick: (String, String) -> Unit = { _, _ -> },
-    fetchDetailFirst: (PostContentModel) -> Unit = {},
+    onReactionClick: (String, Reactions) -> Unit = {_, _ ->},
+    onImageClick: () -> Unit = {},
+    onGalleryClick: (String) -> Unit = {},
+    onFollowClick: (PostContentModel) -> Unit = {}
 ) {
+    var imageRatio by remember { mutableFloatStateOf(4f / 5f) }
+
     HorizontalPager(
         modifier = modifier,
         state = pagerState
     ) { page ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            ImageCard(
-                isLoggedIn = isLoggedIn,
-                imageItem = imageItems[page],
-                isReactionDialogVisible = isReactionDialogVisible,
-                onFollowClick = onFollowClick,
-                onUnfollowClick = onUnfollowClick,
-                onChangeReactionDialogVisibility = updateIsReactionDialogVisible,
-                navigateToTheir = navigateToTheir,
-                onSelectReaction = { reaction -> onSelectReaction(imageItems[page], reaction) },
-                fetchDetailFirst = fetchDetailFirst,
-                navigateToDetail = navigateToDetail
-            )
-            LottieFireWorkAnimation(
-                modifier = Modifier.align(Alignment.TopEnd),
-                reactions = imageItems[page].reactions,
-                myReaction = imageItems[page].myReaction
-            )
-        }
-    }
-}
+        val post = posts[page]
 
-@Composable
-private fun ImageCard(
-    isLoggedIn: Boolean,
-    imageItem: PostContentModel,
-    isReactionDialogVisible: Boolean,
-    onFollowClick: (String, String) -> Unit,
-    onUnfollowClick: (String) -> Unit,
-    onSelectReaction: (Reactions) -> Unit,
-    onChangeReactionDialogVisibility: () -> Unit,
-    navigateToTheir: (String) -> Unit,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    navigateToDetail: () -> Unit,
-) {
-    val likedImageVector =
-        if (imageItem.myReaction == null) Icons.Outlined.FavoriteBorder else Icons.Outlined.Favorite
-    var isFollowDialogVisible by remember { mutableStateOf(false) }
-    var isFirstRenderer by remember { mutableStateOf(true) }
-    val sizeAnimation = remember { Animatable(1f) }
-
-    val snackBarBridge = LocalSnackBarBridge.current
-
-    LaunchedEffect(imageItem.myReaction) {
-        if(isFirstRenderer) {
-            isFirstRenderer = false
-            return@LaunchedEffect
-        }
-        sizeAnimation.animateTo(
-            targetValue = 1f,
-            animationSpec = keyframes {
-                durationMillis = 400
-                1.4f at 100
-                1.1f at 200
-                1.2f at 300
-                1f at 400
-            }
-        )
-    }
-
-    Column {
-        Box(
+        Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .padding(top = 40.dp)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
         ) {
-            RandomImage(
-                imageItem.imageUrl,
-                onClickImage = {
-                    fetchDetailFirst(imageItem)
-                    navigateToDetail()
-                }
-            )
-            ReactionGroup(
-                modifier = Modifier.align(Alignment.TopEnd),
-                reactions = imageItem.reactions
-            )
-            IconButtonGroup(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                imageItem = imageItem,
-                navigateToTheir = { navigateToTheir(imageItem.authorId) },
-                onFollowClick = {
-                    if (isLoggedIn) {
-                        isFollowDialogVisible = true
-                    } else {
-                        snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
-                    }
-                }
-            )
-            if (isReactionDialogVisible) {
-                ReactionDialog(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    selectedReaction = imageItem.myReaction,
-                    onClick = onSelectReaction,
-                    onDismiss = onChangeReactionDialogVisibility
-                )
-            }
-        }
+            Spacer(Modifier.weight(1f))
 
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp),
-            onClick = {
-                if (isLoggedIn) onChangeReactionDialogVisibility()
-                else snackBarBridge.postSnackBarEvent(
-                    SnackBarEvent.LoginRequired()
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(imageRatio),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 8.dp
                 )
-            },
-        ) {
-            Icon(
-                modifier = Modifier.size(30.dp * sizeAnimation.value),
-                imageVector = likedImageVector,
-                contentDescription = null,
-                tint = Primary
-            )
-        }
-        if (isFollowDialogVisible) {
-            if(imageItem.isFollower) {
-                // TODO Exchange to AlertDialog
-                UnfollowCheckDialog(
-                    title = stringResource(R.string.string_unfollow),
-                    description = stringResource(R.string.string_unfollow_description),
-                    dismissText = stringResource(R.string.string_cancel),
-                    confirmText = stringResource(R.string.string_confirm),
-                    onDismissRequest = { isFollowDialogVisible = false },
-                    onConfirm = { onUnfollowClick(imageItem.authorId) }
-                )
-            } else {
-                FollowDialog(
-                    onClickCancel = { isFollowDialogVisible = false },
-                    onClickConfirm = { name ->
-                        onFollowClick(imageItem.authorId, name)
-                    }
+            ) {
+                CoilImage(
+                    imageUrl = post.imageUrl,
+                    imageRatio = imageRatio,
+                    updateImageRatio = { imageRatio = it },
+                    onClick = onImageClick
                 )
             }
+
+            Spacer(Modifier.height(20.dp))
+
+            EventRow(
+                post = post,
+                isFavorite = post.myReaction != null,
+                isFollowed = post.isFollower,
+                onReactionClick = { onReactionClick(post.postId, it) },
+                onGalleryClick = onGalleryClick,
+                onFollowClick = onFollowClick
+            )
+
+            Spacer(Modifier.weight(1f))
         }
     }
 }
 
-// todo dev 머지되면 삭제하고 ui에서 가져와서 사용
 @Composable
-private fun ErrorScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+private fun EventRow(
+    post: PostContentModel = PostContentModel.EMPTY,
+    isFavorite: Boolean = false,
+    isFollowed: Boolean = false,
+    activatedReaction: Reactions? = null,
+    onReactionClick: (Reactions) -> Unit = {},
+    onGalleryClick: (String) -> Unit = {},
+    onFollowClick: (PostContentModel) -> Unit = {}
+) {
+    var isExpand by remember { mutableStateOf(false) }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
+        IconButton(
+            modifier = Modifier.size(40.dp),
+            onClick = { isExpand = true }
         ) {
-            Image(
-                imageVector = Icons.Default.Warning, contentDescription = null
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.string_error), color = Color.Red
+            Icon(
+                imageVector = if (isFavorite) {
+                    Icons.Default.Favorite
+                } else {
+                    Icons.Outlined.FavoriteBorder
+                },
+                tint = Primary,
+                contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
+                modifier = Modifier.size(32.dp)
             )
         }
+
+        Spacer(Modifier.width(12.dp))
+
+        ReactionGroup(reactions = post.reactions)
+
+        DropdownMenu(
+            modifier = Modifier
+                .width(352.dp),
+            expanded = isExpand,
+            containerColor = Color.Transparent,
+            shape = CircleShape,
+            onDismissRequest = { isExpand = false }
+        ) {
+            ReactionDialog (
+                activatedReaction = activatedReaction,
+                selectedReaction = onReactionClick,
+                onDismiss = { isExpand = false }
+            )
+        }
+
+        Spacer(Modifier.weight(1f))
+
+        DetailButton(
+            onClick = { onGalleryClick(post.authorId) },
+            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
+        )
+
+        Spacer(Modifier.width(12.dp))
+
+        DetailButton(
+            onClick = { onFollowClick(post) },
+            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_follow),
+            contentColor = if (isFollowed) Primary else Background,
+            backgroundColor = if (isFollowed) Background else Primary
+        )
+    }
+}
+
+@Composable
+private fun DetailButton(
+    imageVector: ImageVector,
+    contentColor: Color = Primary,
+    backgroundColor: Color = Background,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(backgroundColor)
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = imageVector,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun PreviewHomeScreen() {
-    HomeScreen()
+    HomeScreen(listOf(PostContentModel.EMPTY, PostContentModel.EMPTY, PostContentModel.EMPTY))
 }
