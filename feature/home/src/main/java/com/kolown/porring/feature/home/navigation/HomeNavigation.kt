@@ -5,10 +5,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.porring.feature.home.HomeRoute
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.feature.home.HomeRoute
 
 fun NavController.navigateHome(navOptions: NavOptions) {
     navigate(MainMenuRoute.Home, navOptions)
@@ -22,8 +20,8 @@ fun NavGraphBuilder.homeNavGraph(
     composable<MainMenuRoute.Home> {
         HomeRoute(
             padding = padding,
-            navigateToTheir = navigateToTheir,
             navigateToDetail = navigateToDetail,
+            navigateToTheir = navigateToTheir,
         )
     }
 }
