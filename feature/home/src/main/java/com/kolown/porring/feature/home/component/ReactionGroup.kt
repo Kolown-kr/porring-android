@@ -39,7 +39,7 @@ internal fun ReactionGroup(
             horizontalArrangement = Arrangement.spacedBy((-15).dp)
         ) {
             reactionList.forEachIndexed { index, reaction ->
-                ReactionIcons(index, reaction, reactionList.size)
+                ReactionIcons(index, reaction)
             }
         }
     }
@@ -49,10 +49,7 @@ internal fun ReactionGroup(
 private fun ReactionIcons(
     index: Int,
     reaction: Reactions,
-    size: Int,
 ) {
-    val offset = (-15 * index + (size - 1) * 15).dp
-
     Card(
         modifier = Modifier
             .size(30.dp)
