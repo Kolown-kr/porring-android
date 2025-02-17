@@ -3,6 +3,7 @@ package com.kolown.porring.feature.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.PostContentModel
@@ -21,9 +22,12 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState<List<PostContentModel>>>(UiState.Loading)
     val uiState = _uiState.asStateFlow()
+
+    val loginState = authRepository.checkUserLoggedIn()
 
     fun changeLoading() {
         _uiState.update { UiState.Loading }

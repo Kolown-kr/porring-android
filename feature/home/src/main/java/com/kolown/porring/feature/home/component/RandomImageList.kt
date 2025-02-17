@@ -2,225 +2,30 @@ package com.kolown.porring.feature.home.component
 
 import IconFollow
 import IconGallery
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.ui.component.CoilImage
-import com.kolown.porring.core.ui.component.FollowDialog
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.SnackBarEvent
-import com.kolown.porring.feature.home.R
+import com.kolown.porring.core.ui.component.CoilImage
 
 @Composable
-internal fun RandomImageList(
-    modifier: Modifier = Modifier,
-    isLoggedIn: Boolean = false,
-    pagerState: PagerState = rememberPagerState(pageCount = { 10 }),
-    imageItems: List<PostContentModel> = emptyList(),
-    isReactionDialogVisible: Boolean = false,
-    onFollowClick: (String, String) -> Unit = { _, _ -> },
-    onUnfollowClick: (String) -> Unit = {},
-    onChangeReactionDialogVisibility: () -> Unit = {},
-    navigateToTheir: (String) -> Unit = {},
-    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
-    fetchDetailFirst: (PostContentModel) -> Unit = {},
-    navigateToDetail: () -> Unit = {},
-) {
-    HorizontalPager(
-        modifier = modifier,
-        state = pagerState
-    ) { page ->
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            ImageCard(
-                isLoggedIn = isLoggedIn,
-                imageItem = imageItems[page],
-                isReactionDialogVisible = isReactionDialogVisible,
-                onFollowClick = onFollowClick,
-                onUnfollowClick = onUnfollowClick,
-                onChangeReactionDialogVisibility = onChangeReactionDialogVisibility,
-                navigateToTheir = navigateToTheir,
-                onSelectReaction = { reaction -> onSelectReaction(imageItems[page], reaction) },
-                fetchDetailFirst = fetchDetailFirst,
-                navigateToDetail = navigateToDetail
-            )
-            LottieFireWorkAnimation(
-                modifier = Modifier.align(Alignment.TopEnd),
-                reactions = imageItems[page].reactions,
-                myReaction = imageItems[page].myReaction
-            )
-        }
-    }
-}
-
-@Composable
-private fun ImageCard(
-    isLoggedIn: Boolean,
-    imageItem: PostContentModel,
-    isReactionDialogVisible: Boolean,
-    onFollowClick: (String, String) -> Unit,
-    onUnfollowClick: (String) -> Unit,
-    onSelectReaction: (Reactions) -> Unit,
-    onChangeReactionDialogVisibility: () -> Unit,
-    navigateToTheir: (String) -> Unit,
-    fetchDetailFirst: (PostContentModel) -> Unit,
-    navigateToDetail: () -> Unit,
-) {
-    val likedImageVector =
-        if (imageItem.myReaction == null) Icons.Outlined.FavoriteBorder else Icons.Outlined.Favorite
-    val isFollowDialogVisible = remember { mutableStateOf(false) }
-    val isFirstRenderer = remember { mutableStateOf(true) }
-    val sizeAnimation = remember { Animatable(1f) }
-
-    val snackBarBridge = LocalSnackBarBridge.current
-
-    LaunchedEffect(imageItem.myReaction) {
-        if (!isFirstRenderer.value) {
-            sizeAnimation.animateTo(
-                targetValue = 1.4f,
-                animationSpec = tween(durationMillis = 100)
-            )
-            sizeAnimation.animateTo(
-                targetValue = 1.1f,
-                animationSpec = tween(durationMillis = 100)
-            )
-            sizeAnimation.animateTo(
-                targetValue = 1.2f,
-                animationSpec = tween(durationMillis = 100)
-            )
-            sizeAnimation.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 100)
-            )
-        } else {
-            isFirstRenderer.value = false
-        }
-    }
-
-    Column {
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .padding(top = 40.dp)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
-            RandomImage(
-                imageItem.imageUrl,
-                onClickImage = {
-                    fetchDetailFirst(imageItem)
-                    navigateToDetail()
-                }
-            )
-            ReactionGroup(
-                modifier = Modifier.align(Alignment.TopEnd),
-                reactions = imageItem.reactions
-            )
-            IconButtonGroup(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                imageItem = imageItem,
-                navigateToTheir = { navigateToTheir(imageItem.authorId) },
-                onFollowClick = {
-                    if (isLoggedIn) {
-                        isFollowDialogVisible.value = true
-                    } else {
-                        snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
-                    }
-                }
-            )
-            if (isReactionDialogVisible) {
-                ReactionDialog(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    selectedReaction = imageItem.myReaction,
-                    onClick = onSelectReaction,
-                    onDismiss = onChangeReactionDialogVisibility
-                )
-            }
-        }
-
-        IconButton(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp),
-            onClick = {
-                if (isLoggedIn) onChangeReactionDialogVisibility()
-                else snackBarBridge.postSnackBarEvent(
-                    SnackBarEvent.LoginRequired()
-                )
-            },
-        ) {
-            Icon(
-                modifier = Modifier.size(30.dp * sizeAnimation.value),
-                imageVector = likedImageVector,
-                contentDescription = null,
-                tint = Primary
-            )
-        }
-        if (isFollowDialogVisible.value) {
-            if(imageItem.isFollower) {
-                // TODO Exchange to AlertDialog
-                BetaPorringAlertDialog(
-                    title = stringResource(R.string.string_unfollow),
-                    description = stringResource(R.string.string_unfollow_description),
-                    dismissText = stringResource(R.string.string_cancel),
-                    confirmText = stringResource(R.string.string_confirm),
-                    onDismissRequest = { isFollowDialogVisible.value = false },
-                    onConfirm = { onUnfollowClick(imageItem.authorId) }
-                )
-            } else {
-                FollowDialog(
-                    onClickCancel = { isFollowDialogVisible.value = false },
-                    onClickConfirm = { name ->
-                        onFollowClick(imageItem.authorId, name)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun IconButtonGroup(
+fun IconButtonGroup(
     modifier: Modifier,
     imageItem: PostContentModel,
     onFollowClick: () -> Unit,
@@ -251,7 +56,7 @@ private fun IconButtonGroup(
 }
 
 @Composable
-private fun RandomImage(
+fun RandomImage(
     imageUrl: String = "https://echo.unicomm.fsu.edu/3.3/img/placeholders/ratio-4-5.png",
     onClickImage: () -> Unit,
 ) {
@@ -292,10 +97,4 @@ private fun CustomIconButton(
             tint = if (isSelected) Color.White else Primary
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewRandomImageList() {
-    RandomImageList()
 }

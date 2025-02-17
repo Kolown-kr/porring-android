@@ -1,6 +1,7 @@
 package com.kolown.porring.feature.home.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -10,6 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -25,11 +29,14 @@ internal fun ReactionGroup(
     modifier: Modifier,
     reactions: List<Reactions>,
 ) {
-    val reactionList = reactions.distinct().sortedBy { it.ordinal }
+    val reactionList by remember(reactions) {
+        mutableStateOf(reactions.distinct().sortedBy { it.ordinal })
+    }
 
     if (reactionList.isNotEmpty()) {
         Row(
-            modifier = modifier.padding(16.dp)
+            modifier = modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy((-15).dp)
         ) {
             reactionList.forEachIndexed { index, reaction ->
                 ReactionIcons(index, reaction, reactionList.size)
@@ -49,7 +56,6 @@ private fun ReactionIcons(
     Card(
         modifier = Modifier
             .size(30.dp)
-            .offset(x = offset)
             .zIndex(-index.toFloat())
             .background(
                 color = Color.White,
