@@ -9,5 +9,10 @@ setNamespace("core.local")
 
 dependencies {
     implementation(libs.androidx.room)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.paging.runtime)
+
+    implementation(projects.core.model)
 }

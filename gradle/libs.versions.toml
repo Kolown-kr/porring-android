@@ -39,7 +39,7 @@ kotlinxImmutable = "0.3.8"
 
 ## Ksp
 # https://github.com/google/ksp/releases
-kspVersion = "2.1.10-1.0.30"
+kspVersion = "2.0.10-1.0.24"
 
 
 ## Compose
@@ -92,6 +92,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 # Room
 androidx-room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 ## junit
