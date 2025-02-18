@@ -31,6 +31,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -77,11 +78,13 @@ internal fun HomeRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var followPost by remember { mutableStateOf<PostContentModel?>(null) }
+    val snackBarBridge = LocalSnackBarBridge.current
+
     var isRefreshing by remember { mutableStateOf(false) }
     var isShowErrorScreen by remember { mutableStateOf(false) }
     var imageRatio by remember { mutableFloatStateOf(4f / 5f) }
     val refreshState = rememberPullToRefreshState()
-    val snackBarBridge = LocalSnackBarBridge.current
+
     val scaleFraction = {
         if (isRefreshing) 1f
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
@@ -145,7 +148,7 @@ internal fun HomeRoute(
         }
     }
 
-    Column(
+    HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
@@ -154,6 +157,42 @@ internal fun HomeRoute(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh
             ),
+        uiState = uiState,
+        imageRatio = imageRatio,
+        isRefreshing = isRefreshing,
+        isShowErrorScreen = isShowErrorScreen,
+        scaleFraction = scaleFraction,
+        refreshState = refreshState,
+        updateImageRatio = { imageRatio = it },
+        updateIsShowErrorScreen = { isShowErrorScreen = it },
+        navigateToDetail = navigateToDetail,
+        navigateToTheir = navigateToTheir,
+        onFollowClick = viewModel::onFollowClick,
+        onReactionClick = viewModel::onReactionClick
+    )
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreen(
+    modifier: Modifier = Modifier,
+    uiState: UiState<List<PostContentModel>> = UiState.Loading,
+    imageRatio: Float = 4f / 5f,
+    isRefreshing: Boolean = false,
+    isShowErrorScreen: Boolean = false,
+    scaleFraction: () -> Float = { 1f },
+    refreshState: PullToRefreshState = rememberPullToRefreshState(),
+    updateImageRatio: (Float) -> Unit = {},
+    updateIsShowErrorScreen: (Boolean) -> Unit = {},
+    navigateToDetail: () -> Unit = {},
+    navigateToTheir: (String) -> Unit = {},
+    onFollowClick: (PostContentModel) -> Unit = {},
+    onReactionClick: (String, Reactions) -> Unit = {_, _ ->},
+
+    ) {
+    Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -165,7 +204,7 @@ internal fun HomeRoute(
                 }
 
                 uiState is UiState.Failure -> {
-                    isShowErrorScreen = false
+                    updateIsShowErrorScreen(false)
                     ErrorScreen()
                 }
 
@@ -174,28 +213,24 @@ internal fun HomeRoute(
                 }
 
                 uiState is UiState.Success -> {
-                    val images = (uiState as UiState.Success<List<PostContentModel>>).data
+                    val images = uiState.data
                     val pagerState = rememberPagerState(pageCount = { images.size })
-                    isShowErrorScreen = false
+                    updateIsShowErrorScreen(false)
 
-                    if (images.isEmpty()) {
-                        viewModel.changeLoading()
-                    } else {
-                        HomeScreen(
-                            posts = images,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.Center)
-                                .verticalScroll(rememberScrollState()),
-                            imageRatio = imageRatio,
-                            pagerState = pagerState,
-                            onReactionClick = viewModel::onReactionClick,
-                            onImageClick = navigateToDetail,
-                            onGalleryClick = navigateToTheir,
-                            onFollowClick = viewModel::onFollowClick,
-                            updateImageRatio = { imageRatio = it }
-                        )
-                    }
+                    HomeContent(
+                        posts = images,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .align(Alignment.Center)
+                            .verticalScroll(rememberScrollState()),
+                        imageRatio = imageRatio,
+                        pagerState = pagerState,
+                        onReactionClick = onReactionClick,
+                        onImageClick = navigateToDetail,
+                        onGalleryClick = navigateToTheir,
+                        onFollowClick = onFollowClick,
+                        updateImageRatio = updateImageRatio
+                    )
                 }
             }
 
@@ -214,7 +249,7 @@ internal fun HomeRoute(
 }
 
 @Composable
-private fun HomeScreen(
+private fun HomeContent(
     posts: List<PostContentModel>,
     modifier: Modifier = Modifier,
     imageRatio: Float = 4f / 5f,
@@ -280,6 +315,7 @@ private fun EventRow(
     onFollowClick: (PostContentModel) -> Unit = {}
 ) {
     var isExpand by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -365,5 +401,5 @@ private fun HomeButton(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewHomeScreen() {
-    HomeScreen(listOf(PostContentModel.EMPTY, PostContentModel.EMPTY, PostContentModel.EMPTY))
+    HomeContent(listOf(PostContentModel.EMPTY, PostContentModel.EMPTY, PostContentModel.EMPTY))
 }
