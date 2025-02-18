@@ -38,6 +38,7 @@ import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.LoadingScreen
+import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import kotlinx.coroutines.delay
 
@@ -125,68 +126,52 @@ private fun TheirScreen(
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .pullToRefresh(
-                state = refreshState,
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+    PullToRefreshColumn(
+        padding = padding,
+        refreshState = refreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        scaleFraction = scaleFraction,
+        topBar = {
+            PorringCenterAlignTopAppBar(
+                title = title,
+                navigationIcon = {
+                    PorringIconButton(
+                        icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
+                        onClick = popBackStack,
+                        contentDescription = stringResource(R.string.string_go_back)
+                    )
+                }
             )
+        }
     ) {
-        PorringCenterAlignTopAppBar(
-            title = title,
-            navigationIcon = {
-                PorringIconButton(
-                    icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
-                    onClick = popBackStack,
-                    contentDescription = stringResource(R.string.string_go_back)
-                )
-            }
-        )
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            when {
-                showErrorScreen -> {
-                    ErrorScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.Error -> {
-                    updateShowErrorScreen(false)
-                    ErrorScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.Loading -> {
-                    updateShowErrorScreen(false)
-                    LoadingScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.NotLoading -> {
-                    CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
-                    ) {
-                        StateLazyGrid(
-                            listState = listState,
-                            longClickEnabled = false,
-                            pagingItems = pagingItems,
-                            navigateToDetail = navigateToDetail,
-                            setPage = setPage
-                        )
-                    }
-                }
+        when {
+            showErrorScreen -> {
+                ErrorScreen()
             }
 
-            Box(
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer {
-                        scaleX = scaleFraction()
-                        scaleY = scaleFraction()
-                    }
-            ) {
-                PullToRefreshDefaults.Indicator(state = refreshState, isRefreshing = isRefreshing)
+            pagingItems.loadState.refresh is LoadState.Error -> {
+                updateShowErrorScreen(false)
+                ErrorScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.Loading -> {
+                updateShowErrorScreen(false)
+                LoadingScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.NotLoading -> {
+                CompositionLocalProvider(
+                    LocalOverscrollConfiguration provides null
+                ) {
+                    StateLazyGrid(
+                        listState = listState,
+                        longClickEnabled = false,
+                        pagingItems = pagingItems,
+                        navigateToDetail = navigateToDetail,
+                        setPage = setPage
+                    )
+                }
             }
         }
     }
