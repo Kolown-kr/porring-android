@@ -19,8 +19,8 @@ fun NavGraphBuilder.followerNavGraph(
 ) {
     composable<MainMenuRoute.Follower> {
         FollowerRoute(
-            navigateToLogin = navigateToLogin,
             padding = padding,
+            navigateToLogin = navigateToLogin,
             navigateToTheir = navigateToTheir
         )
     }

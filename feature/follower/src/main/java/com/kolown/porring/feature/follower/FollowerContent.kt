@@ -33,17 +33,16 @@ import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.model.FollowerThumbnail
+import com.kolown.porring.core.model.PostContentModel
 
 @Composable
 internal fun FollowContent(
-    followerName: String = "name",
-    followAlbums: List<String> = listOf(),
+    followerThumbnail: FollowerThumbnail,
     navigateToTheir: () -> Unit = {},
-    // TODO: If need id, add Int
-    editFollowName: (String) -> Unit = { _ -> },
+    updateFollowerThumbnail: (FollowerThumbnail) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    var isFollowDialogVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -64,14 +63,12 @@ internal fun FollowContent(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = followerName,
+                text = followerThumbnail.followerName,
                 color = Primary,
                 style = MaterialTheme.typography.titleLarge
             )
             TextButton (
-                onClick = {
-                    isFollowDialogVisible = true
-                }
+                onClick = { updateFollowerThumbnail(followerThumbnail) }
             ) {
                 Text(
                     text = stringResource(R.string.string_edit),
@@ -80,17 +77,17 @@ internal fun FollowContent(
                 )
             }
         }
+
         Spacer(modifier = Modifier.height(10.dp))
+
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 8.dp
-            )
+            horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
-            items(followAlbums) { imageUrl ->
+            items(followerThumbnail.posts) { imageUrl ->
                 Card(
                     modifier = Modifier
                         .size(100.dp)
@@ -104,18 +101,11 @@ internal fun FollowContent(
                 }
             }
         }
-        if (isFollowDialogVisible) {
-            FollowDialog(
-                isAddFollow = false,
-                onClickCancel = { isFollowDialogVisible = false },
-                onClickConfirm = { name -> editFollowName(name) }
-            )
-        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFollowContent() {
-    FollowContent()
+    FollowContent(FollowerThumbnail.dummy)
 }
