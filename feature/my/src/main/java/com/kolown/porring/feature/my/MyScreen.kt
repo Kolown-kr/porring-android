@@ -49,6 +49,7 @@ import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.LoadingScreen
+import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import kotlinx.coroutines.delay
@@ -155,75 +156,56 @@ private fun MyScreen(
     updateShowErrorScreen: (Boolean) -> Unit = {},
     updateDeletingPostId: (String) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .pullToRefresh(
-                state = refreshState,
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+    PullToRefreshColumn(
+        padding = padding,
+        refreshState = refreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        scaleFraction = scaleFraction,
+        topBar = {
+            PorringCenterAlignTopAppBar(
+                title = title,
+                trailingIcon = {
+                    PorringIconButton(
+                        icon = Icons.Default.Settings,
+                        onClick = navigateToSetting,
+                        contentDescription = stringResource(R.string.string_setting)
+                    )
+                }
             )
+        }
     ) {
-        PorringCenterAlignTopAppBar(
-            title = title,
-            trailingIcon = {
-                PorringIconButton(
-                    icon = Icons.Default.Settings,
-                    onClick = navigateToSetting,
-                    contentDescription = stringResource(R.string.string_setting)
-                )
-            }
-        )
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            when {
-                showErrorScreen -> {
-                    ErrorScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.Error -> {
-                    updateShowErrorScreen(false)
-                    ErrorScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.Loading -> {
-                    updateShowErrorScreen(false)
-                    LoadingScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
-                    NoItemScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount != 0 -> {
-                    CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
-                    ) {
-                        StateLazyGrid(
-                            listState = listState,
-                            pagingItems = pagingItems,
-                            navigateToDetail = navigateToDetail,
-                            setPage = setPage,
-                            onLongClick = updateDeletingPostId
-                        )
-                    }
-                }
+        when {
+            showErrorScreen -> {
+                ErrorScreen()
             }
 
-            Box(
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer {
-                        scaleX = scaleFraction()
-                        scaleY = scaleFraction()
-                    }
-            ) {
-                PullToRefreshDefaults.Indicator(
-                    state = refreshState,
-                    isRefreshing = isRefreshing
-                )
+            pagingItems.loadState.refresh is LoadState.Error -> {
+                updateShowErrorScreen(false)
+                ErrorScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.Loading -> {
+                updateShowErrorScreen(false)
+                LoadingScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
+                NoItemScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount != 0 -> {
+                CompositionLocalProvider(
+                    LocalOverscrollConfiguration provides null
+                ) {
+                    StateLazyGrid(
+                        listState = listState,
+                        pagingItems = pagingItems,
+                        navigateToDetail = navigateToDetail,
+                        setPage = setPage,
+                        onLongClick = updateDeletingPostId
+                    )
+                }
             }
         }
     }
