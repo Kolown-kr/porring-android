@@ -1,42 +1,18 @@
 package com.kolown.porring.feature.follower
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,44 +22,55 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.model.FollowerThumbnail
+import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.FollowDialog
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.feature.follower.component.PageItemFooter
+import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FollowerRoute(
-    isLoggedIn: Boolean = true,
-    navigateToLogin: () -> Unit,
-    navigateToTheir: (String) -> Unit,
     padding: PaddingValues = PaddingValues(),
     viewModel: FollowerViewModel = hiltViewModel(),
+    navigateToLogin: () -> Unit,
+    navigateToTheir: (String) -> Unit,
 ) {
     val pagingItems = viewModel.followerItems.collectAsLazyPagingItems()
+    val loginState by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val pagerState = rememberLazyListState()
+
+    var followerThumbnail by remember { mutableStateOf<FollowerThumbnail?>(null) }
     var showErrorScreen by remember { mutableStateOf(false) }
+
     var isRefreshing by remember { mutableStateOf(false) }
     val refreshState = rememberPullToRefreshState()
+
     val onRefresh: () -> Unit = {
         isRefreshing = true
         pagingItems.refresh()
     }
+
     val scaleFraction = {
         if (isRefreshing) 1f
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.init()
     }
 
     LaunchedEffect(pagingItems.loadState.refresh) {
@@ -96,74 +83,27 @@ internal fun FollowerRoute(
         }
     }
 
-    if (isLoggedIn) {
-        LaunchedEffect(Unit) {
-            viewModel.resetGalleryFlow()
-        }
+    followerThumbnail?.let {
+        FollowDialog(
+            isAddFollow = false,
+            onClickConfirm = {  },
+            onClickCancel = { followerThumbnail = null }
+        )
+    }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pullToRefresh(
-                    state = refreshState,
-                    isRefreshing = isRefreshing,
-                    onRefresh = onRefresh
-                )
-        ) {
-            when {
-                showErrorScreen -> {
-                    ErrorScreen()
-                }
-
-                pagingItems.loadState.refresh is LoadState.Loading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(48.dp), color = Primary)
-                    }
-                }
-
-                pagingItems.loadState.refresh is LoadState.NotLoading -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding),
-                    ) {
-                        PorringCenterAlignTopAppBar(title = stringResource(R.string.string_following))
-                        if (pagingItems.itemCount != 0) {
-                            FollowerScreen(
-                                items = pagingItems,
-                                pagerState = pagerState,
-                                navigateToTheir = navigateToTheir
-                            )
-                        } else {
-                            NoFollowerScreen()
-                        }
-                    }
-                }
-
-                pagingItems.loadState.refresh is LoadState.Error -> {
-                    ErrorScreen()
-                }
-            }
-
-            Box(
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer {
-                        scaleX = scaleFraction()
-                        scaleY = scaleFraction()
-                    }
-            ) {
-                PullToRefreshDefaults.Indicator(state = refreshState, isRefreshing = isRefreshing)
-            }
-        }
-
+    if (loginState) {
+        FollowerScreen(
+            pagingItems = pagingItems,
+            padding = padding,
+            isRefreshing = isRefreshing,
+            showErrorScreen = showErrorScreen,
+            pagerState = pagerState,
+            refreshState = refreshState,
+            onRefresh = onRefresh,
+            scaleFraction = scaleFraction,
+            navigateToTheir = navigateToTheir,
+            updateFollowerThumbnail = { followerThumbnail = it }
+        )
     } else {
         RestrictedLoginContent(
             navigateToLogin = navigateToLogin,
@@ -171,96 +111,69 @@ internal fun FollowerRoute(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FollowerScreen(
-    items: LazyPagingItems<FollowerThumbnail>,
-    pagerState: LazyListState,
-    navigateToTheir: (String) -> Unit,
+    pagingItems: LazyPagingItems<FollowerThumbnail>,
+    padding: PaddingValues = PaddingValues(),
+    isRefreshing: Boolean = false,
+    showErrorScreen: Boolean = false,
+    pagerState: LazyListState = rememberLazyListState(),
+    refreshState: PullToRefreshState  = rememberPullToRefreshState(),
+    onRefresh: () -> Unit = {},
+    scaleFraction: () -> Float = { 1f },
+    navigateToTheir: (String) -> Unit = {},
+    updateFollowerThumbnail: (FollowerThumbnail) -> Unit = {}
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        state = pagerState,
+    PullToRefreshColumn(
+        padding = padding,
+        refreshState = refreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        scaleFraction = scaleFraction,
+        topBar = { PorringCenterAlignTopAppBar(title = stringResource(R.string.string_following)) }
     ) {
-        items(items.itemCount) { index ->
-            items[index]?.let {
-                FollowContent(
-                    followerName = it.followerName,
-                    followAlbums = it.posts,
-                    navigateToTheir = { navigateToTheir(it.id) },
-                    editFollowName = { name ->
-                        // TODO: Follow Name Edit Api connect
-                    }
-                )
+        when {
+            showErrorScreen -> {
+                ErrorScreen()
             }
-        }
-        if (items.loadState.append !is LoadState.NotLoading) {
-            item(key = "") {
-                PageItemFooter(loadState = items.loadState.append) {
-                    items.retry()
-                }
-            }
-        }
-    }
-}
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-internal fun FollowContent(
-    followerName: String,
-    followAlbums: List<String>,
-    navigateToTheir: () -> Unit,
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable {
-                navigateToTheir()
-            },
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = followerName,
-                color = Primary,
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 8.dp
-            )
-        ) {
-            items(followAlbums) { imageUrl ->
-                Card(
+            pagingItems.loadState.refresh is LoadState.Error -> {
+                ErrorScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.Loading -> {
+                LoadingScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
+                NoFollowerScreen()
+            }
+
+            pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount != 0 -> {
+                LazyColumn(
                     modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .combinedClickable(
-                            indication = null,
-                            interactionSource = interactionSource,
-                            onClick = {
-                                navigateToTheir()
-                            }
-                        ),
-                    colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+                        .fillMaxSize()
+                        .background(Background),
+                    state = pagerState,
                 ) {
-                    CoilImage(
-                        imageUrl = imageUrl,
-                        imageRatio = 1f,
-                        isClickedEnabled = false
-                    )
+                    items(pagingItems.itemCount) { index ->
+                        pagingItems[index]?.let {
+                            FollowContent(
+                                followerThumbnail = it,
+                                navigateToTheir = { navigateToTheir(it.id) },
+                                updateFollowerThumbnail = updateFollowerThumbnail
+                            )
+                        }
+                    }
 
+                    if (pagingItems.loadState.append !is LoadState.NotLoading) {
+                        item(key = "") {
+                            PageItemFooter(loadState = pagingItems.loadState.append) {
+                                pagingItems.retry()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -268,7 +181,7 @@ internal fun FollowContent(
 }
 
 @Composable
-fun NoFollowerScreen() {
+private fun NoFollowerScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -277,27 +190,5 @@ fun NoFollowerScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = stringResource(R.string.string_not_follow), color = Color.Gray)
-    }
-}
-
-@Composable
-private fun ErrorScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                imageVector = Icons.Default.Warning, contentDescription = null
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.string_error), color = Color.Red
-            )
-        }
     }
 }
