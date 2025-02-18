@@ -65,6 +65,7 @@ import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 
@@ -149,14 +150,7 @@ internal fun HomeRoute(
     }
 
     HomeScreen(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .pullToRefresh(
-                state = refreshState,
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh
-            ),
+        padding = padding,
         uiState = uiState,
         imageRatio = imageRatio,
         isRefreshing = isRefreshing,
@@ -167,6 +161,7 @@ internal fun HomeRoute(
         updateIsShowErrorScreen = { isShowErrorScreen = it },
         navigateToDetail = navigateToDetail,
         navigateToTheir = navigateToTheir,
+        onRefresh = onRefresh,
         onFollowClick = viewModel::onFollowClick,
         onReactionClick = viewModel::onReactionClick
     )
@@ -176,7 +171,7 @@ internal fun HomeRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
-    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(),
     uiState: UiState<List<PostContentModel>> = UiState.Loading,
     imageRatio: Float = 4f / 5f,
     isRefreshing: Boolean = false,
@@ -187,36 +182,38 @@ private fun HomeScreen(
     updateIsShowErrorScreen: (Boolean) -> Unit = {},
     navigateToDetail: () -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
+    onRefresh: () -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_, _ ->},
-
+    onReactionClick: (String, Reactions) -> Unit = {_, _ ->}
+) {
+    PullToRefreshColumn(
+        padding = padding,
+        refreshState = refreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        scaleFraction = scaleFraction,
+        topBar = { },
     ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            Modifier.fillMaxSize()
-        ) {
-            when {
-                isShowErrorScreen -> {
-                    ErrorScreen()
-                }
+        when {
+            isShowErrorScreen -> {
+                ErrorScreen()
+            }
 
-                uiState is UiState.Failure -> {
-                    updateIsShowErrorScreen(false)
-                    ErrorScreen()
-                }
+            uiState is UiState.Failure -> {
+                updateIsShowErrorScreen(false)
+                ErrorScreen()
+            }
 
-                uiState is UiState.Loading -> {
-                    LoadingScreen()
-                }
+            uiState is UiState.Loading -> {
+                LoadingScreen()
+            }
 
-                uiState is UiState.Success -> {
-                    val images = uiState.data
-                    val pagerState = rememberPagerState(pageCount = { images.size })
-                    updateIsShowErrorScreen(false)
+            uiState is UiState.Success -> {
+                val images = uiState.data
+                val pagerState = rememberPagerState(pageCount = { images.size })
+                updateIsShowErrorScreen(false)
 
+                Box {
                     HomeContent(
                         posts = images,
                         modifier = Modifier
@@ -232,17 +229,6 @@ private fun HomeScreen(
                         updateImageRatio = updateImageRatio
                     )
                 }
-            }
-
-            Box(
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer {
-                        scaleX = scaleFraction()
-                        scaleY = scaleFraction()
-                    }
-            ) {
-                PullToRefreshDefaults.Indicator(state = refreshState, isRefreshing = isRefreshing)
             }
         }
     }
