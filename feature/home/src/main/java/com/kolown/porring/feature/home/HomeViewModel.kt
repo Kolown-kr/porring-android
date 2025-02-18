@@ -58,17 +58,15 @@ class HomeViewModel @Inject constructor(
         postRepository.getRandomPostList(10, randomType)
             .onEach { items ->
                 Log.d("HomeViewModel", "loadItems: $items")
-                _uiState.update { UiState.Success(items) }
+                if(items.isNotEmpty()) {
+                    _uiState.update { UiState.Success(items) }
+                }
             }
             .catch { e ->
                 Log.d("HomeViewModel", "loadItems: $e")
                 _uiState.update { UiState.Failure(e) }
             }
             .launchIn(viewModelScope)
-    }
-
-    fun changeLoading() {
-        _uiState.update { UiState.Loading }
     }
 
     private fun checkedLogIn(): Boolean {
