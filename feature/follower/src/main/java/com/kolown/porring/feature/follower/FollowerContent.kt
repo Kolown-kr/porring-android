@@ -1,8 +1,10 @@
 package com.kolown.porring.feature.follower
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +35,7 @@ import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.ui.theme.Surface
 import com.kolown.porring.core.model.FollowerThumbnail
 import com.kolown.porring.core.model.PostContentModel
 
@@ -53,12 +56,15 @@ internal fun FollowContent(
                 indication = null
             ) {
                 navigateToTheir()
-            }
-            .padding(16.dp),
+            },
         verticalArrangement = Arrangement.Center
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -67,8 +73,8 @@ internal fun FollowContent(
                 color = Primary,
                 style = MaterialTheme.typography.titleLarge
             )
-            TextButton (
-                onClick = { updateFollowerThumbnail(followerThumbnail) }
+            Box(
+                modifier = Modifier.clickable { updateFollowerThumbnail(followerThumbnail) }
             ) {
                 Text(
                     text = stringResource(R.string.string_edit),
@@ -83,7 +89,8 @@ internal fun FollowContent(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.CenterHorizontally),
+                .align(Alignment.CenterHorizontally)
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
@@ -101,6 +108,15 @@ internal fun FollowContent(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(Surface)
+        )
     }
 }
 
