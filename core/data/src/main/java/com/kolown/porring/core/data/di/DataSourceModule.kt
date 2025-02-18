@@ -42,6 +42,7 @@ abstract class DataSourceModule {
         postDataSource: PostDataSourceImpl,
     ): PostDataSource
 
+
     @Binds
     abstract fun bindTagDataSource(
         tagDataSource: TagDataSourceImpl,

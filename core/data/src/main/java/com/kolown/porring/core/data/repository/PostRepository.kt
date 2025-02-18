@@ -8,14 +8,15 @@ import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
+import com.kolown.porring.core.local.LocalPostDataSource
+import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -45,6 +46,7 @@ class PostRepositoryImpl @Inject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
+    @Named("home_post_datasource") private val homePostDataSource: LocalPostDataSource,
     private val followDataSource: FollowDataSource,
 ) : PostRepository {
 
