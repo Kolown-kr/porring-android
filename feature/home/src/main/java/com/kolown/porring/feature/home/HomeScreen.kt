@@ -326,9 +326,9 @@ private fun EventRow(
         ) {
             Icon(
                 imageVector = if (isFavorite) {
-                    Icons.Default.Favorite
+                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_selected)
                 } else {
-                    Icons.Outlined.FavoriteBorder
+                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected)
                 },
                 tint = Primary,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
