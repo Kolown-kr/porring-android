@@ -1,16 +1,16 @@
 package com.kolown.porring.feature.upload
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,12 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,10 +32,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -62,7 +59,6 @@ import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.feature.upload.component.CategoryGroup
-import kotlinx.coroutines.launch
 
 @Composable
 internal fun UploadRoute(
@@ -76,6 +72,15 @@ internal fun UploadRoute(
     val webPUri by viewModel.webPUri.collectAsStateWithLifecycle()
     val uploadEnable by viewModel.uploadEnable.collectAsStateWithLifecycle()
 
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    val previousSize = remember { mutableIntStateOf(categoryItems.size) }
+
+    val scrollState = rememberScrollState()
+    var imeHeightState by remember { mutableIntStateOf(0) }
+    val imeHeight = WindowInsets.ime.getBottom(LocalDensity.current)
+    var isDescriptionMax by remember { mutableStateOf(false) }
+
     BackHandler {
         navigateToHome()
     }
@@ -86,49 +91,63 @@ internal fun UploadRoute(
         }
     }
 
+    LaunchedEffect(imeHeight) {
+        imeHeightState = imeHeight
+        scrollState.scrollTo(imeHeight)
+    }
+
+    LaunchedEffect(categoryItems.size) {
+        if (categoryItems.size > previousSize.intValue) {
+            focusRequester.requestFocus()
+        }
+        previousSize.intValue = categoryItems.size
+    }
+
     UploadScreen(
+        imeHeightState = imeHeightState,
+        description = description,
+        uploadEnable = uploadEnable,
+        isDescriptionMax = isDescriptionMax,
+        padding = padding,
+        scrollState = scrollState,
+        focusManager = focusManager,
+        focusRequester = focusRequester,
         imgUri = if (imgUri == "") {
             webPUri.toString()
         } else {
             imgUri
         },
-        padding = padding,
-        description = description,
-        uploadEnable = uploadEnable,
-        changeDescription = viewModel::changeDescription,
         categoryItems = categoryItems,
+        uploadPost = { },
         addCategory = viewModel::addCategory,
+        navigateToHome = navigateToHome,
         removeCategory = viewModel::removeCategory,
-        changeCategoryName = viewModel::changeCategoryName,
-        uploadPost = {  },
-        navigateToHome = navigateToHome
+        changeDescription = viewModel::changeDescription,
+        updateIsDescriptionMax = { isDescriptionMax = it },
+        changeCategoryName = viewModel::changeCategoryName
     )
 }
 
 @Composable
 private fun UploadScreen(
-    imgUri: String = stringResource(R.string.string_mock_uri),
-    padding: PaddingValues = PaddingValues(),
+    imeHeightState: Int = 0,
     description: String = "",
     uploadEnable: Boolean = false,
-    changeDescription: (String) -> Unit = {},
+    isDescriptionMax: Boolean = false,
+    padding: PaddingValues = PaddingValues(),
+    scrollState: ScrollState = rememberScrollState(),
+    focusManager: FocusManager = LocalFocusManager.current,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    imgUri: String = stringResource(R.string.string_mock_uri),
     categoryItems: List<String> = emptyList(),
-    addCategory: () -> Unit = {},
-    removeCategory: (String) -> Unit = {},
-    changeCategoryName: (Int, String) -> Unit = { _, _ -> },
     uploadPost: () -> Unit = {},
+    addCategory: () -> Unit = {},
     navigateToHome: () -> Unit = {},
+    removeCategory: (String) -> Unit = {},
+    changeDescription: (String) -> Unit = {},
+    updateIsDescriptionMax: (Boolean) -> Unit = {},
+    changeCategoryName: (Int, String) -> Unit = { _, _ -> }
 ) {
-    val scrollState = rememberScrollState()
-    val imeHeight = WindowInsets.ime.getBottom(LocalDensity.current)
-    val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(imeHeight) {
-        coroutineScope.launch {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -147,15 +166,21 @@ private fun UploadScreen(
 
         UploadContent(
             imgUri = imgUri,
-            uploadEnable = uploadEnable,
             description = description,
-            changeDescription = changeDescription,
+            imeHeightState = imeHeightState,
+            uploadEnable = uploadEnable,
+            isDescriptionMax = isDescriptionMax,
             categoryItems = categoryItems,
-            addCategory = addCategory,
-            removeCategory = removeCategory,
-            changeCategoryName = changeCategoryName,
+            scrollState = scrollState,
+            focusManager = focusManager,
+            focusRequester = focusRequester,
             uploadPost = uploadPost,
-            navigateToHome = navigateToHome
+            addCategory = addCategory,
+            navigateToHome = navigateToHome,
+            removeCategory = removeCategory,
+            changeDescription = changeDescription,
+            changeCategoryName = changeCategoryName,
+            updateIsDescriptionMax = updateIsDescriptionMax
         )
     }
 }
@@ -163,103 +188,66 @@ private fun UploadScreen(
 @Composable
 private fun UploadContent(
     imgUri: String,
-    uploadEnable: Boolean,
     description: String,
-    changeDescription: (String) -> Unit,
+    imeHeightState: Int,
+    uploadEnable: Boolean,
+    isDescriptionMax: Boolean,
     categoryItems: List<String>,
-    addCategory: () -> Unit,
-    removeCategory: (String) -> Unit,
-    changeCategoryName: (Int, String) -> Unit,
+    scrollState: ScrollState,
+    focusManager: FocusManager,
+    focusRequester: FocusRequester,
     uploadPost: () -> Unit,
+    addCategory: () -> Unit,
     navigateToHome: () -> Unit,
-    modifier: Modifier = Modifier,
+    removeCategory: (String) -> Unit,
+    changeDescription: (String) -> Unit,
+    changeCategoryName: (Int, String) -> Unit,
+    updateIsDescriptionMax: (Boolean) -> Unit,
 ) {
-    val focusManager = LocalFocusManager.current
-    val scrollState = rememberScrollState()
-    var imeHeightState by remember { mutableIntStateOf(0) }
-    val imeHeight = WindowInsets.ime.getBottom(LocalDensity.current)
-    var isDescriptionMax by remember { mutableStateOf(false) }
-
-    LaunchedEffect(imeHeight) {
-        imeHeightState = imeHeight
-        scrollState.scrollTo(imeHeight)
-    }
-
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
             .padding(top = 8.dp)
     ) {
-
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
                 .padding(horizontal = 24.dp)
                 .imePadding()
+                .verticalScroll(scrollState)
+                .focusable(true),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
+            AsyncImage(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .focusable(true),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(10.dp)),
-                    model = imgUri,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = stringResource(R.string.string_upload_image)
-                )
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(10.dp)),
+                model = imgUri,
+                contentScale = ContentScale.Crop,
+                contentDescription = stringResource(R.string.string_upload_image)
+            )
 
-                Column(
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    PorringTextField(
-                        value = description,
-                        onValueChange = {
-                            changeDescription(it.substring(0, minOf(20, it.length)))
-                            isDescriptionMax = it.length > 20
-                        },
-                        hint = stringResource(R.string.string_input_description),
-                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Done
-                        ),
-                        trailingIcon = {
-                            PorringIconButton(
-                                icon = ImageVector.vectorResource(R.drawable.ic_cancel_circle),
-                                onClick = { changeDescription("") }
-                            )
-                        },
-                        maxLine = 3,
-                    )
+            EventColumn(
+                description = description,
+                isDescriptionMax = isDescriptionMax,
+                focusManager = focusManager,
+                updateIsDescriptionMax = updateIsDescriptionMax,
+                changeDescription = changeDescription
+            )
 
-                    if (isDescriptionMax) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            modifier = Modifier.padding(start = 4.dp),
-                            text = stringResource(R.string.string_max_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Error
-                        )
-                    }
-                }
-
-                CategoryGroup(
-                    categoryItems = categoryItems,
-                    addCategory = addCategory,
-                    removeCategory = removeCategory,
-                    changeCategoryName = changeCategoryName
-                )
-            }
+            CategoryGroup(
+                categoryItems = categoryItems,
+                focusManager = focusManager,
+                focusRequester = focusRequester,
+                addCategory = addCategory,
+                removeCategory = removeCategory,
+                changeCategoryName = changeCategoryName
+            )
         }
 
-
-        androidx.compose.animation.AnimatedVisibility(
+        AnimatedVisibility(
             visible = imeHeightState < 1,
             enter = fadeIn(),
             exit = ExitTransition.None
@@ -288,16 +276,43 @@ private fun UploadContent(
 }
 
 @Composable
-private fun TextFieldResetButton(
-    onClick: () -> Unit,
+private fun EventColumn(
+    description: String,
+    isDescriptionMax: Boolean,
+    focusManager: FocusManager,
+    updateIsDescriptionMax: (Boolean) -> Unit,
+    changeDescription: (String) -> Unit
 ) {
-    IconButton(
-        onClick = onClick
+    Column(
+        verticalArrangement = Arrangement.Top
     ) {
-        Icon(
-            imageVector = Icons.Outlined.Clear,
-            contentDescription = stringResource(R.string.string_trailing_icon)
+        PorringTextField(
+            value = description,
+            onValueChange = {
+                changeDescription(it.substring(0, minOf(20, it.length)))
+                updateIsDescriptionMax(it.length > 20)
+            },
+            hint = stringResource(R.string.string_input_description),
+            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            trailingIcon = {
+                PorringIconButton(
+                    icon = ImageVector.vectorResource(R.drawable.ic_cancel_circle),
+                    onClick = { changeDescription("") }
+                )
+            },
+            maxLine = 3,
         )
+
+        if (isDescriptionMax) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                modifier = Modifier.padding(start = 4.dp),
+                text = stringResource(R.string.string_max_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = Error
+            )
+        }
     }
 }
 
