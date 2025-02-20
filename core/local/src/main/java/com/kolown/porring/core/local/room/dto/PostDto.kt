@@ -1,17 +1,14 @@
 package com.kolown.porring.core.local.room.dto
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.kolown.porring.core.local.room.entity.HomeItemPost
-import com.kolown.porring.core.local.room.entity.Post
+data class PostDto(
+    val postId: String,
+    val authorId: String,
+    val imageUrl: String,
+    val registerAt: String,
+    val description: String,
+    val tags: List<String>,
+    val isFollower: Boolean,
+    val reactions: List<Int>,
+    val myReaction: Int? = null,
+)
 
-sealed interface PostDto {
-    data class HomeItemPostDto(
-        @Relation(
-            parentColumn = "post_id",
-            entityColumn = "post_id"
-        )
-        val post: Post,
-        @Embedded val homeItemPost: HomeItemPost,
-    ) : PostDto
-}

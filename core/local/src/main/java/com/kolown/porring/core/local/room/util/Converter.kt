@@ -1,7 +1,6 @@
 package com.kolown.porring.core.local.room.util
 
 import androidx.room.TypeConverter
-import com.kolown.porring.core.local.room.entity.PostType
 
 class Converter {
     @TypeConverter
@@ -15,10 +14,4 @@ class Converter {
 
     @TypeConverter
     fun List<Int>.intToData() = this.joinToString(",")
-
-    @TypeConverter
-    fun PostType.fromPostType() = this.name
-
-    @TypeConverter
-    fun String.toPostType() = PostType.valueOf(this)
 }

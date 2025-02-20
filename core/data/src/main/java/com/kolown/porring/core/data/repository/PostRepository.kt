@@ -185,7 +185,8 @@ class PostRepositoryImpl @Inject constructor(
             )
         }
 
-        homePostDataSource.clearAllItems()
+        homePostDataSource.clearHomeItems()
+        delay(100)
         homePostDataSource.insertItems(postContentModels)
     }
 
@@ -207,6 +208,8 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
+
+            homePostDataSource.updateReaction(postId, reaction.value)
 
             reactionDataSource.updatePostReaction(
                 userId = currentUserId,
