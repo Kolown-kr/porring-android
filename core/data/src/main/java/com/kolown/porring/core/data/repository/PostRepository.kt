@@ -17,14 +17,15 @@ import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
@@ -37,7 +38,8 @@ interface PostRepository {
     fun getUserPosts(userId: String? = null): Flow<PagingData<PostContentModel>>
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
     suspend fun deletePost(postId: String): Flow<Boolean>
-    fun getRandomPostList(count: Int, randomType: String): Flow<List<PostContentModel>>
+    suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
+    suspend fun fetchHomeItemPosts()
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -121,65 +123,71 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getRandomPostList(count: Int, randomType: String): Flow<List<PostContentModel>> =
-        flow {
-            val currentUserId = googleAuthDataSource.getUserId()
+    override suspend fun getHomeItemPosts(): Flow<List<PostContentModel>> =
+        withContext(Dispatchers.IO) { homePostDataSource.getItems() }
 
-            val posts = postDataSource.getRandomPost(currentUserId, count, randomType).getOrElse {
-                throw IOException("게시물 불러오기 실패")
-            }
-            val (tags, reactions, isFollowers) = coroutineScope {
-                val tagsDeferred = async {
-                    posts.map {
-                        async {
-                            tagDataSource.getPostTag(it.postId).getOrElse {
-                                throw IOException("태그 불러오기 실패")
-                            }
-                        }
-                    }.awaitAll()
-                }
-                val reactionsDeferred = async {
-                    posts.map {
-                        async {
-                            reactionDataSource.getReactionByPostId(it.postId).getOrElse {
-                                throw IOException("리액션 불러오기 실패")
-                            }
-                        }
-                    }.awaitAll()
-                }
-                val followDeferred = async {
-                    posts.map {
-                        async {
-                            followDataSource.getIsFollower(
-                                userId = currentUserId,
-                                followerId = it.authorId
-                            ).getOrElse {
-                                throw IOException("팔로우 확인 실패")
-                            }
-                        }
-                    }.awaitAll()
-                }
+    override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
+        val currentUserId = googleAuthDataSource.getUserId()
 
-                Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
-            }
-
-            val postContentModels = posts.mapIndexed { index, postModel ->
-                PostContentModel(
-                    postId = postModel.postId,
-                    authorId = postModel.authorId,
-                    imageUrl = postModel.imageUrl,
-                    registerAt = postModel.registerAt,
-                    description = postModel.description,
-                    tags = tags[index].map { it.tagName },
-                    isFollower = isFollowers[index],
-                    reactions = reactions[index].mapNotNull { it.reaction },
-                    myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
-                )
-            }
-            emit(postContentModels)
-        }.catch { e ->
-            throw e
+        val posts = postDataSource.getRandomPost(
+            currentUserId,
+            HOME_ITEM_SIZE,
+            RANDOM_SEED.random().toString()
+        ).getOrElse {
+            throw IOException("게시물 불러오기 실패")
         }
+        val (tags, reactions, isFollowers) = coroutineScope {
+            val tagsDeferred = async {
+                posts.map {
+                    async {
+                        tagDataSource.getPostTag(it.postId).getOrElse {
+                            throw IOException("태그 불러오기 실패")
+                        }
+                    }
+                }.awaitAll()
+            }
+            val reactionsDeferred = async {
+                posts.map {
+                    async {
+                        reactionDataSource.getReactionByPostId(it.postId).getOrElse {
+                            throw IOException("리액션 불러오기 실패")
+                        }
+                    }
+                }.awaitAll()
+            }
+            val followDeferred = async {
+                posts.map {
+                    async {
+                        followDataSource.getIsFollower(
+                            userId = currentUserId,
+                            followerId = it.authorId
+                        ).getOrElse {
+                            throw IOException("팔로우 확인 실패")
+                        }
+                    }
+                }.awaitAll()
+            }
+
+            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
+        }
+
+        val postContentModels = posts.mapIndexed { index, postModel ->
+            PostContentModel(
+                postId = postModel.postId,
+                authorId = postModel.authorId,
+                imageUrl = postModel.imageUrl,
+                registerAt = postModel.registerAt,
+                description = postModel.description,
+                tags = tags[index].map { it.tagName },
+                isFollower = isFollowers[index],
+                reactions = reactions[index].mapNotNull { it.reaction },
+                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
+            )
+        }
+
+        homePostDataSource.clearAllItems()
+        homePostDataSource.insertItems(postContentModels)
+    }
 
     override fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
         return Pager(
@@ -308,5 +316,7 @@ class PostRepositoryImpl @Inject constructor(
         const val DETAIL_PER_PAGE = 2
         const val SEARCH_PER_PAGE = 5
         const val GALLERY_PAGE_SIZE = 5
+        const val HOME_ITEM_SIZE = 10
+        const val RANDOM_SEED = "ABCDE"
     }
 }

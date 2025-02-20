@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface LocalPostDataSource {
-    suspend fun getItems(): Flow<List<PostContentModel>>
+    fun getItems(): Flow<List<PostContentModel>>
     suspend fun getItemById(postId: String): PostContentModel?
     suspend fun insertItems(items: List<PostContentModel>)
     suspend fun updateItem(item: PostContentModel)
@@ -19,7 +19,7 @@ interface LocalPostDataSource {
 class HomePostDataSourceImpl @Inject constructor(
     private val homePostDao: HomePostDao
 ) : LocalPostDataSource {
-    override suspend fun getItems(): Flow<List<PostContentModel>> {
+    override fun getItems(): Flow<List<PostContentModel>> {
         return homePostDao.getItems().map { items -> items.map { it.toPostContentModel() } }
     }
 
