@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
@@ -17,8 +16,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,25 +48,21 @@ class HomeViewModel @Inject constructor(
         )
 
     init {
-        loadItems()
+        viewModelScope.launch {
+            postRepository.getHomeItemPosts()
+                .onStart { _uiState.update { UiState.Loading } }
+                .catch { e -> _uiState.update { UiState.Failure(e) } }
+                .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
+
+            postRepository.fetchHomeItemPosts()
+        }
     }
 
-    fun loadItems() {
-        val randomType = listOf("A", "B", "C", "D", "E").random()
-
-        _uiState.update { UiState.Loading }
-        postRepository.getRandomPostList(10, randomType)
-            .onEach { items ->
-                Log.d("HomeViewModel", "loadItems: $items")
-                if(items.isNotEmpty()) {
-                    _uiState.update { UiState.Success(items) }
-                }
-            }
-            .catch { e ->
-                Log.d("HomeViewModel", "loadItems: $e")
-                _uiState.update { UiState.Failure(e) }
-            }
-            .launchIn(viewModelScope)
+    fun refreshItems() {
+//        _uiState.update { UiState.Loading }
+        viewModelScope.launch {
+            postRepository.fetchHomeItemPosts()
+        }
     }
 
     private fun checkedLogIn(): Boolean {
@@ -120,16 +116,17 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun syncReactionWithServer(postId: String, reaction: Reactions) = viewModelScope.launch {
-        val item = (_uiState.value as? UiState.Success<List<PostContentModel>>)?.data
-            ?.find { it.postId == postId } ?: return@launch
+    private fun syncReactionWithServer(postId: String, reaction: Reactions) =
+        viewModelScope.launch {
+            val item = (_uiState.value as? UiState.Success<List<PostContentModel>>)?.data
+                ?.find { it.postId == postId } ?: return@launch
 
-        if (item.myReaction == reaction) {
-            postRepository.removePostReaction(postId)
-        } else {
-            postRepository.reactPost(postId, reaction)
+            if (item.myReaction == reaction) {
+                postRepository.removePostReaction(postId)
+            } else {
+                postRepository.reactPost(postId, reaction)
+            }
         }
-    }
 
     private fun PostContentModel.toggleSingleReaction(reaction: Reactions): PostContentModel {
         val updatedReactions = reactions.toMutableList().apply {
@@ -159,6 +156,7 @@ class HomeViewModel @Inject constructor(
                     if (predicate(item)) replacement(item) else item
                 }
             )
+
             else -> this
         }
     }

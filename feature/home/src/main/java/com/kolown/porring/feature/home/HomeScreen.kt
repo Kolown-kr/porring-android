@@ -93,7 +93,7 @@ internal fun HomeRoute(
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
-        viewModel.loadItems()
+        viewModel.refreshItems()
     }
 
     LaunchedEffect(viewModel.loggedInEvent) {
