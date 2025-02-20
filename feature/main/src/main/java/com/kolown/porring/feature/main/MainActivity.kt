@@ -12,14 +12,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.SnackBarBridge
-import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
-import com.kolown.porring.core.navigation.MainMenuRoute
-import com.kolown.porring.core.navigation.Route
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        if(!BuildConfig.DEBUG) {
+        if (!BuildConfig.DEBUG) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
     }

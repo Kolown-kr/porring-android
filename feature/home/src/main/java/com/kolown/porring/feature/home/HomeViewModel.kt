@@ -49,17 +49,18 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            postRepository.getHomeItemPosts()
-                .onStart { _uiState.update { UiState.Loading } }
-                .catch { e -> _uiState.update { UiState.Failure(e) } }
-                .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
-
+            launch {
+                postRepository.getHomeItemPosts()
+                    .onStart { _uiState.update { UiState.Loading } }
+                    .catch { e -> _uiState.update { UiState.Failure(e) } }
+                    .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
+            }.join()
             postRepository.fetchHomeItemPosts()
         }
     }
 
     fun refreshItems() {
-//        _uiState.update { UiState.Loading }
+        _uiState.update { UiState.Loading }
         viewModelScope.launch {
             postRepository.fetchHomeItemPosts()
         }
@@ -104,16 +105,20 @@ class HomeViewModel @Inject constructor(
 
         updateReactionState(postId, reaction)
 
-        syncReactionWithServer(postId, reaction)
+//        syncReactionWithServer(postId, reaction)
     }
 
     private fun updateReactionState(postId: String, reaction: Reactions) {
-        _uiState.update { state ->
-            state.replaceIf(
-                predicate = { it.postId == postId },
-                replacement = { post -> post.toggleSingleReaction(reaction) }
-            )
+        viewModelScope.launch {
+
+            postRepository.reactPost(postId, reaction)
         }
+//        _uiState.update { state ->
+//            state.replaceIf(
+//                predicate = { it.postId == postId },
+//                replacement = { post -> post.toggleSingleReaction(reaction) }
+//            )
+//        }
     }
 
     private fun syncReactionWithServer(postId: String, reaction: Reactions) =
