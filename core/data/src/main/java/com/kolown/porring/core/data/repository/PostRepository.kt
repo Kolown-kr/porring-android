@@ -34,7 +34,7 @@ interface PostRepository {
     suspend fun uploadPost(fileUri: Uri, description: String, tags: List<String>): Result<Unit>
     fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>>
     suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit>
-    suspend fun removePostReaction(postId: String): Result<Unit>
+    suspend fun removePostReaction(postId: String, reaction: Reactions): Result<Unit>
     fun getUserPosts(userId: String? = null): Flow<PagingData<PostContentModel>>
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
     suspend fun deletePost(postId: String): Flow<Boolean>
@@ -210,7 +210,6 @@ class PostRepositoryImpl @Inject constructor(
             val currentUserId = googleAuthDataSource.getUserId()
 
             homePostDataSource.updateReaction(postId, reaction.value)
-
             reactionDataSource.updatePostReaction(
                 userId = currentUserId,
                 postId = postId,
@@ -219,10 +218,11 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removePostReaction(postId: String): Result<Unit> {
+    override suspend fun removePostReaction(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
+            homePostDataSource.updateReaction(postId, reaction.value)
             reactionDataSource.removePostReaction(
                 userId = currentUserId,
                 postId = postId,

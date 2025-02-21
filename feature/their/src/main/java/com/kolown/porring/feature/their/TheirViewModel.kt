@@ -72,13 +72,15 @@ class TheirViewModel @Inject constructor(
                 .onStart {
                     _followerName.update { "" }
                 }
-                .onEach { name -> _followerName.update {
-                    if(name == "") {
-                        "Anonymous"
-                    } else {
-                        name
+                .onEach { name ->
+                    _followerName.update {
+                        if (name == "") {
+                            "Anonymous"
+                        } else {
+                            name
+                        }
                     }
-                } }
+                }
                 .catch { e ->
                     _followerName.update { "Anonymous" }
                 }
@@ -91,7 +93,7 @@ class TheirViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId)
+                postRepository.removePostReaction(imageItem.postId, reaction)
             } else {
                 postRepository.reactPost(
                     postId = imageItem.postId, reaction = reaction

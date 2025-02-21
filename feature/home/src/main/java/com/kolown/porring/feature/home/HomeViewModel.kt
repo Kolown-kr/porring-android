@@ -103,31 +103,16 @@ class HomeViewModel @Inject constructor(
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
-        updateReactionState(postId, reaction)
-
-        syncReactionWithServer(postId, reaction)
+        reactPost(postId, reaction)
     }
 
-    private fun updateReactionState(postId: String, reaction: Reactions) {
-        viewModelScope.launch {
-
-            postRepository.reactPost(postId, reaction)
-        }
-//        _uiState.update { state ->
-//            state.replaceIf(
-//                predicate = { it.postId == postId },
-//                replacement = { post -> post.toggleSingleReaction(reaction) }
-//            )
-//        }
-    }
-
-    private fun syncReactionWithServer(postId: String, reaction: Reactions) =
+    private fun reactPost(postId: String, reaction: Reactions) =
         viewModelScope.launch {
             val item = (_uiState.value as? UiState.Success<List<PostContentModel>>)?.data
                 ?.find { it.postId == postId } ?: return@launch
 
             if (item.myReaction == reaction) {
-                postRepository.removePostReaction(postId)
+                postRepository.removePostReaction(postId, reaction)
             } else {
                 postRepository.reactPost(postId, reaction)
             }
