@@ -80,24 +80,14 @@ class HomeViewModel @Inject constructor(
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {
+        postRepository.updateFollowState(authorId, false)
         followRepository.unFollowUser(authorId).launchIn(viewModelScope)
-        _uiState.update { state ->
-            state.replaceIf(
-                predicate = { it.authorId == authorId },
-                replacement = { it.copy(isFollower = false) }
-            )
-        }
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
+        postRepository.updateFollowState(authorId, true)
         followRepository.followUser(authorId, name).launchIn(viewModelScope)
-        _uiState.update { state ->
-            state.replaceIf(
-                predicate = { it.authorId == authorId },
-                replacement = { it.copy(isFollower = true) }
-            )
-        }
     }
 
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {

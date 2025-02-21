@@ -82,6 +82,9 @@ interface PostDao {
     @Query("UPDATE post_default_info SET reactions = :reactions WHERE post_id = :postId")
     suspend fun updateReactions(postId: String, reactions: List<Int>)
 
+    @Query("UPDATE other_user_post_info SET is_follower = :isFollow WHERE author_id = :authorId")
+    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
+
     @Query("DELETE FROM home_items")
     suspend fun clearHomeItems()
 }
