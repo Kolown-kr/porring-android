@@ -232,7 +232,10 @@ private fun DetailContent(
                 }
             }
 
-            ReactionGroup(reactions = post.reactions)
+            ReactionGroup(
+                reactions = post.reactions,
+                myReaction = post.myReaction,
+            )
         }
 
         if (eventRowVisible) {

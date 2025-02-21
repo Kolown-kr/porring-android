@@ -1,6 +1,6 @@
 package com.kolown.porring.core.local
 
-import com.kolown.porring.core.local.room.dao.HomePostDao
+import com.kolown.porring.core.local.room.dao.PostDao
 import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -15,33 +15,33 @@ interface LocalPostDataSource {
 }
 
 class HomePostDataSourceImpl @Inject constructor(
-    private val homePostDao: HomePostDao
+    private val postDao: PostDao
 ) : LocalPostDataSource {
     override suspend fun insertItems(items: List<PostContentModel>) {
-        homePostDao.insertItems(items.map { it.toPostDto() })
+        postDao.insertItems(items.map { it.toPostDto() })
     }
 
     override fun getItems(): Flow<List<PostContentModel>> {
-        return homePostDao.getItems().map { items -> items.map { it.toPostContentModel() } }
+        return postDao.getItems().map { items -> items.map { it.toPostContentModel() } }
     }
 
     override suspend fun updateReaction(postId: String, reaction: Int) {
-        val post = homePostDao.getItemById(postId) ?: return
+        val post = postDao.getItemById(postId) ?: return
         val myReaction = if (post.myReaction == reaction) null else reaction
         val reactions = post.reactions.toMutableList()
 
         reactions.remove(post.myReaction)
-        if (myReaction != null) reactions.add(reaction)
+        if (myReaction != null) reactions.add(0, reaction)
 
-        homePostDao.updateReactions(postId, reactions.toList())
-        homePostDao.updateMyReaction(postId, myReaction)
+        postDao.updateReactions(postId, reactions.toList())
+        postDao.updateMyReaction(postId, myReaction)
     }
 
     override suspend fun getItemById(postId: String): PostContentModel? {
-        return homePostDao.getItemById(postId)?.toPostContentModel()
+        return postDao.getItemById(postId)?.toPostContentModel()
     }
 
     override suspend fun clearHomeItems() {
-        homePostDao.clearHomeItems()
+        postDao.clearHomeItems()
     }
 }

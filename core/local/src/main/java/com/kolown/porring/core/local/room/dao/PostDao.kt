@@ -15,7 +15,7 @@ import com.kolown.porring.core.local.toPostDefaultInfo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface HomePostDao {
+interface PostDao {
     @Transaction
     suspend fun insertItems(posts: List<PostDto>) {
         Log.e("refreshErrorTest", posts.toString())
