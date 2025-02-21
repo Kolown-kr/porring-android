@@ -21,18 +21,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
-import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -132,7 +126,7 @@ internal fun HomeRoute(
     }
 
     followPost?.let { post ->
-        if(post.isFollower) {
+        if (post.isFollower) {
             BetaPorringAlertDialog(
                 title = stringResource(R.string.string_unfollow),
                 description = stringResource(R.string.string_unfollow_description),
@@ -184,7 +178,7 @@ private fun HomeScreen(
     navigateToTheir: (String) -> Unit = {},
     onRefresh: () -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_, _ ->}
+    onReactionClick: (String, Reactions) -> Unit = { _, _ -> }
 ) {
     PullToRefreshColumn(
         padding = padding,
@@ -240,7 +234,7 @@ private fun HomeContent(
     modifier: Modifier = Modifier,
     imageRatio: Float = 4f / 5f,
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
-    onReactionClick: (String, Reactions) -> Unit = {_, _ ->},
+    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
     onImageClick: () -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
@@ -324,7 +318,10 @@ private fun EventRow(
 
         Spacer(Modifier.width(12.dp))
 
-        ReactionGroup(reactions = post.reactions)
+        ReactionGroup(
+            reactions = post.reactions,
+            myReaction = post.myReaction
+        )
 
         DropdownMenu(
             modifier = Modifier
@@ -334,7 +331,7 @@ private fun EventRow(
             shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
-            ReactionDialog (
+            ReactionDialog(
                 activatedReaction = activatedReaction,
                 selectedReaction = onReactionClick,
                 onDismiss = { isExpand = false }

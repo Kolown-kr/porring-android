@@ -105,7 +105,7 @@ class HomeViewModel @Inject constructor(
 
         updateReactionState(postId, reaction)
 
-//        syncReactionWithServer(postId, reaction)
+        syncReactionWithServer(postId, reaction)
     }
 
     private fun updateReactionState(postId: String, reaction: Reactions) {
