@@ -42,7 +42,7 @@ class DetailSearchViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId)
+                postRepository.removePostReaction(imageItem.postId, reaction)
             } else {
                 postRepository.reactPost(
                     postId = imageItem.postId, reaction = reaction
