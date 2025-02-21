@@ -12,6 +12,7 @@ interface LocalPostDataSource {
     suspend fun getItemById(postId: String): PostContentModel?
     suspend fun clearHomeItems()
     suspend fun updateReaction(postId: String, reaction: Int)
+    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
 }
 
 class HomePostDataSourceImpl @Inject constructor(
@@ -35,6 +36,10 @@ class HomePostDataSourceImpl @Inject constructor(
 
         postDao.updateReactions(postId, reactions.toList())
         postDao.updateMyReaction(postId, myReaction)
+    }
+
+    override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
+        postDao.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun getItemById(postId: String): PostContentModel? {

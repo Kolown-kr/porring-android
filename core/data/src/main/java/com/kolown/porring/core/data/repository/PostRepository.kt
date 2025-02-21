@@ -40,6 +40,7 @@ interface PostRepository {
     suspend fun deletePost(postId: String): Flow<Boolean>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
+    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -203,6 +204,10 @@ class PostRepositoryImpl @Inject constructor(
                 )
             }
         ).flow
+    }
+
+    override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
+        homePostDataSource.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit> {
