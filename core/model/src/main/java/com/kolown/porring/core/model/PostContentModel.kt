@@ -15,6 +15,6 @@ data class PostContentModel(
     val myReaction: Reactions? = null,
 ) {
     companion object {
-        val EMPTY = PostContentModel("", "", "", "", "", emptyList(), false, emptyList())
+        val EMPTY = PostContentModel("", "", "", "", "", emptyList(), true, listOf(Reactions.LOVE, Reactions.SMILE), Reactions.LOVE)
     }
 }
