@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 
 @Composable
@@ -82,12 +80,11 @@ private fun ReactionButton(
 
 fun Reactions.toImage() =
     when (this) {
-        Reactions.LOVE -> R.drawable.img_love
-        Reactions.SURPRISE -> R.drawable.img_surprise
-        Reactions.SMILE -> R.drawable.img_smile
-        Reactions.STAR -> R.drawable.img_star
-        Reactions.THUMB -> R.drawable.img_thumb
-        Reactions.HEART -> R.drawable.img_heart
+        Reactions.LOVE -> R.drawable.ic_reaction_1
+        Reactions.SURPRISE -> R.drawable.ic_reaction_2
+        Reactions.SMILE -> R.drawable.ic_reaction_3
+        Reactions.STAR -> R.drawable.ic_reaction_4
+        Reactions.THUMB -> R.drawable.ic_reaction_5
     }
 
 @Preview

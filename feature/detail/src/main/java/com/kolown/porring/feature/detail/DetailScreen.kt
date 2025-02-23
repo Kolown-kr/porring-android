@@ -14,20 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,9 +47,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.designsystem.ui.theme.Gray
-import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
+import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
@@ -67,6 +61,7 @@ import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
+import com.kolown.porring.core.ui.component.toImage
 import com.kolown.porring.feature.detail.component.FullScreenEffect
 
 @Composable
@@ -139,7 +134,7 @@ private fun DetailScreen(
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
+    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
     popBackStack: () -> Unit = {},
@@ -161,7 +156,7 @@ private fun DetailScreen(
             },
         )
 
-        HorizontalPager (
+        HorizontalPager(
             modifier = Modifier.fillMaxSize(),
             state = pagerState,
             beyondViewportPageCount = 3
@@ -187,7 +182,7 @@ private fun DetailContent(
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = {_,_ ->},
+    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {}
 ) {
@@ -242,7 +237,6 @@ private fun DetailContent(
 
         if (eventRowVisible) {
             EventRow(
-                isFavorite = post.myReaction != null,
                 isFollowed = post.isFollower,
                 galleryVisible = galleryVisible,
                 onReactionClick = { onReactionClick(post.postId, it) },
@@ -257,7 +251,6 @@ private fun DetailContent(
 
 @Composable
 private fun EventRow(
-    isFavorite: Boolean = false,
     isFollowed: Boolean = false,
     galleryVisible: Boolean = true,
     activatedReaction: Reactions? = null,
@@ -274,12 +267,12 @@ private fun EventRow(
     ) {
         IconButton(onClick = { isExpand = true }) {
             Icon(
-                imageVector = if (isFavorite) {
-                    Icons.Default.Favorite
+                imageVector = if (activatedReaction != null) {
+                    ImageVector.vectorResource(activatedReaction.toImage())
                 } else {
-                    Icons.Outlined.FavoriteBorder
+                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected)
                 },
-                tint = PrimaryDark,
+                tint = if (activatedReaction != null) Primary else PrimaryDark,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier
                     .size(30.dp)
@@ -293,7 +286,7 @@ private fun EventRow(
             shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
-            ReactionDialog (
+            ReactionDialog(
                 activatedReaction = activatedReaction,
                 selectedReaction = onReactionClick,
                 onDismiss = { isExpand = false }
@@ -303,44 +296,37 @@ private fun EventRow(
         Spacer(Modifier.weight(1f))
 
         if (galleryVisible) {
-            DetailButton(
-                onClick = onGalleryClick,
-                imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
-                buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_gallery)
-            )
+            IconButton(
+                onClick = onGalleryClick
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_gallery),
+                    contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_gallery),
+                    tint = PrimaryDark
+                )
+            }
         }
 
         Spacer(Modifier.width(12.dp))
 
-        DetailButton(
+        IconButton(
             onClick = onFollowClick,
-            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_follow),
-            buttonText = stringResource(com.kolown.porring.core.ui.R.string.string_follow),
-            contentColor = if (isFollowed) PrimaryContainerDark else PrimaryDark,
-            backgroundColor = if (isFollowed) PrimaryDark else PrimaryContainerDark
-        )
-    }
-}
-
-@Composable
-private fun DetailButton(
-    imageVector: ImageVector,
-    buttonText: String,
-    contentColor: Color = PrimaryDark,
-    backgroundColor: Color = PrimaryContainerDark,
-    onClick: () -> Unit,
-) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.wrapContentSize(),
-        shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = backgroundColor)
-    ) {
-        Icon(
-            imageVector = imageVector, contentDescription = null, tint = contentColor
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(text = buttonText, color = contentColor)
+        ) {
+            if (isFollowed) {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_follow_bg),
+                    contentDescription = null,
+                )
+            }
+            Icon(
+                modifier = Modifier.size(24.dp),
+                imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_follow),
+                contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_follow),
+                tint = if (isFollowed) Background else PrimaryDark,
+            )
+        }
     }
 }
 
