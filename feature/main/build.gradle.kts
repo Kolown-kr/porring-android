@@ -20,4 +20,5 @@ dependencies {
     implementation(projects.feature.setting)
     implementation(projects.feature.their)
     implementation(projects.feature.upload)
+    implementation(projects.feature.imageEdit)
 }
