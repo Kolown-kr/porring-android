@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 
 sealed interface Route {
     @Serializable
+    data class ImageEdit(val imgUri: String) : Route
+
+    @Serializable
     data class Upload(val imgUri: String, val uploadModel: UploadModel) : Route
 
     @Serializable

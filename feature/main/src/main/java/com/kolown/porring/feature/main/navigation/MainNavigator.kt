@@ -16,6 +16,7 @@ import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
 import com.kolown.porring.feature.follower.navigation.navigateFollower
 import com.kolown.porring.feature.home.navigation.navigateHome
+import com.kolown.porring.feature.imageedit.navigation.navigateImageEdit
 import com.kolown.porring.feature.join.navigation.navigateToJoin
 import com.kolown.porring.feature.login.navigation.navigateLogin
 import com.kolown.porring.feature.my.navigation.navigateMy
@@ -61,6 +62,9 @@ internal class MainNavigator(
 
     fun navigateToTheir(authorId: String) =
         navController.navigateTheir(authorId = authorId, navOptions = singleTopOptions)
+
+    fun navigateToImageEdit(imgUri: String) =
+        navController.navigateImageEdit(imgUri = imgUri, navOptions = singleTopOptions)
 
     fun navigateToUpload(imgUri: String, uploadModel: UploadModel) =
         navController.navigateUpload(imgUri, uploadModel)

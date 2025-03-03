@@ -57,7 +57,7 @@ import kotlinx.coroutines.launch
 internal fun CameraContent(
     isFlashOn: Boolean = false,
     viewModel: CameraScreenViewModel = hiltViewModel(),
-    navigateToUpload: (String) -> Unit = {},
+    navigateToImageEdit: (String) -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
     val context = LocalContext.current
@@ -69,7 +69,7 @@ internal fun CameraContent(
     var capturedImage: android.graphics.Bitmap? by remember { mutableStateOf(null) }
 
     LaunchedEffect(imageUri) {
-        imageUri?.let { navigateToUpload(it.toString()) }
+        imageUri?.let { navigateToImageEdit(it.toString()) }
     }
 
     val cameraController = remember {

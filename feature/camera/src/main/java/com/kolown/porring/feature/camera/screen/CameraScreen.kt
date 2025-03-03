@@ -21,12 +21,12 @@ import com.kolown.porring.feature.camera.R
 
 @Composable
 internal fun CameraRoute(
-    navigateToUpload: (String) -> Unit = {},
+    navigateToImageEdit: (String) -> Unit = {},
     padding: PaddingValues = PaddingValues(),
     popBackStack: () -> Unit = {},
 ) {
     CameraScreen(
-        navigateToUpload = navigateToUpload,
+        navigateToImageEdit = navigateToImageEdit,
         popBackStack = popBackStack,
         padding = padding
     )
@@ -34,7 +34,7 @@ internal fun CameraRoute(
 
 @Composable
 private fun CameraScreen(
-    navigateToUpload: (String) -> Unit = {},
+    navigateToImageEdit: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
@@ -46,7 +46,7 @@ private fun CameraScreen(
     ) {
         CameraContent(
             isFlashOn = cameraFlashState,
-            navigateToUpload = navigateToUpload,
+            navigateToImageEdit = navigateToImageEdit,
             padding = padding
         )
 
