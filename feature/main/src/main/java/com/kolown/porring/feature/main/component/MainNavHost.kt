@@ -14,6 +14,7 @@ import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
 import com.kolown.porring.feature.home.navigation.homeNavGraph
+import com.kolown.porring.feature.imageedit.navigation.imageEditNavGraph
 import com.kolown.porring.feature.join.navigation.joinNavGraph
 import com.kolown.porring.feature.login.navigation.loginNavGraph
 import com.kolown.porring.feature.main.navigation.MainMenu
@@ -41,7 +42,12 @@ internal fun MainNavHost(
             homeNavGraph(
                 padding = padding,
                 navigateToTheir = navigator::navigateToTheir,
-                navigateToDetail = { navigator.navigateToDetail(MainMenuRoute.Detail.Type.DEFAULT, 0) },
+                navigateToDetail = {
+                    navigator.navigateToDetail(
+                        MainMenuRoute.Detail.Type.DEFAULT,
+                        0
+                    )
+                },
             )
 
             searchNavGraph(
@@ -50,11 +56,8 @@ internal fun MainNavHost(
             )
 
             cameraNavGraph(
-                navigateToUpload = { imgUri ->
-                    navigator.navigateToUpload(
-                        imgUri,
-                        UploadModel("", "", emptyList())
-                    )
+                navigateToImageEdit = { imgUri ->
+                    navigator.navigateToImageEdit(imgUri)
                 },
                 padding = padding,
                 popBackStack = navigator::popBackStack
@@ -104,6 +107,16 @@ internal fun MainNavHost(
             joinNavGraph(
                 popBackStack = navigator::popBackStack,
                 padding = padding
+            )
+
+            imageEditNavGraph(
+                padding = padding,
+                navigateToUpload = { imgUri ->
+                    navigator.navigateToUpload(
+                        imgUri,
+                        UploadModel("", "", emptyList())
+                    )
+                }
             )
         }
     }
