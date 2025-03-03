@@ -24,7 +24,20 @@ interface ImageGenerateRepository {
         quality: Int = 100
     ): Uri?
 
-    suspend fun decodeSampledBitmapFromUri(uri: Uri, rotateNeeded: Boolean): Bitmap?
+    suspend fun saveEditedImage(
+        imageUri: String,
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float,
+        cropRatio: Float
+    ): String?
+
+    suspend fun decodeSampledBitmapFromUri(
+        uri: Uri,
+        resizeNeeded: Boolean = false,
+        rotateNeeded: Boolean
+    ): Bitmap?
+
     suspend fun resizeBitmap(bitmap: Bitmap): Bitmap
 }
 
@@ -52,8 +65,26 @@ class ImageGenerateRepositoryImpl(
         }
     }
 
+    override suspend fun saveEditedImage(
+        imageUri: String,
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float,
+        cropRatio: Float
+    ): String? = withContext(Dispatchers.IO) {
+        val originalBitmap = decodeSampledBitmapFromUri(
+            uri = Uri.parse(imageUri),
+            resizeNeeded = false,
+            rotateNeeded = true
+        ) ?: return@withContext null
+        val croppedBitmap = cropBitmap(originalBitmap, scale, offsetX, offsetY, cropRatio)
+
+        saveBitmapToCache(croppedBitmap)?.toString()
+    }
+
     override suspend fun decodeSampledBitmapFromUri(
         uri: Uri,
+        resizeNeeded: Boolean,
         rotateNeeded: Boolean
     ): Bitmap? = withContext(Dispatchers.IO) {
         val options = BitmapFactory.Options().apply {
@@ -63,14 +94,16 @@ class ImageGenerateRepositoryImpl(
         applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
-        options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
+        if(resizeNeeded) {
+            options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
+        }
         options.inJustDecodeBounds = false
 
         applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }?.let { originalBitmap ->
-            if(rotateNeeded) {
-                rotateAndCropBitmap(originalBitmap, uri)
+            if (rotateNeeded) {
+                rotateBitmap(originalBitmap, uri)
             } else {
                 originalBitmap
             }
@@ -86,24 +119,17 @@ class ImageGenerateRepositoryImpl(
         Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
-    private suspend fun rotateAndCropBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap =
+    private suspend fun rotateBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap =
         withContext(Dispatchers.Default) {
             val orientation = getExifOrientation(uri)
             val matrix = getRotationMatrix(orientation)
 
-            val originalWidth = originalBitmap.width
-            val originalHeight = originalBitmap.height
-            val (cropWidth, cropHeight) = calculateCropSize(originalWidth, originalHeight)
-
-            val xOffset = (originalWidth - cropWidth) / 2
-            val yOffset = (originalHeight - cropHeight) / 2
-
             Bitmap.createBitmap(
                 originalBitmap,
-                xOffset,
-                yOffset,
-                cropWidth,
-                cropHeight,
+                0,
+                0,
+                originalBitmap.width,
+                originalBitmap.height,
                 matrix,
                 true
             )
@@ -134,14 +160,24 @@ class ImageGenerateRepositoryImpl(
         return Matrix().apply { postRotate(angle) }
     }
 
-    private fun calculateCropSize(originalWidth: Int, originalHeight: Int): Pair<Int, Int> {
-        return if (originalWidth > originalHeight) {
-            val targetWidth = (originalHeight / IMAGE_RATIO).toInt()
-            Pair(min(originalWidth, targetWidth), originalHeight)
-        } else {
-            val targetHeight = (originalWidth / IMAGE_RATIO).toInt()
-            Pair(originalWidth, min(originalHeight, targetHeight))
-        }
+    private fun cropBitmap(
+        bitmap: Bitmap,
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float,
+        cropRatio: Float
+    ): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val boxWidth = (width / scale).toInt().coerceAtMost(width)
+        val boxHeight = (boxWidth / cropRatio).toInt().coerceAtMost(height)
+
+        val left = ((width - boxWidth) / 2 - offsetX * scale).toInt().coerceIn(0, width - boxWidth)
+        val top =
+            ((height - boxHeight) / 2 - offsetY * scale).toInt().coerceIn(0, height - boxHeight)
+
+        return Bitmap.createBitmap(bitmap, left, top, boxWidth, boxHeight)
     }
 
     private fun calculateInSampleSize(width: Int, height: Int): Int {

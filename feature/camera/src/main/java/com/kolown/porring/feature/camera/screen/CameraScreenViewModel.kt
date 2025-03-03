@@ -24,7 +24,11 @@ class CameraScreenViewModel @Inject constructor(
 
     fun setUri(uri: Uri) {
         viewModelScope.launch {
-            val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(uri, true)
+            val bitmap = imageGenerateRepository.decodeSampledBitmapFromUri(
+                uri = uri,
+                resizeNeeded = true,
+                rotateNeeded = true
+            )
             _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap!!)
         }
 //        TODO 이미지 편집 화면 나오면 그냥 uri 넘겨도 됨.(어차피 이미지 편집 화면에서 크롭할 예정)

@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +45,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
@@ -57,10 +60,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 internal fun ImageEditRoute(
+    viewModel: ImageEditViewModel = hiltViewModel(),
     imgUri: String = "",
     padding: PaddingValues = PaddingValues(),
     navigateToUpload: (String) -> Unit = {}
 ) {
+    val editedUri by viewModel.imageUri.collectAsStateWithLifecycle()
+
     var cropRatio by remember { mutableStateOf(CropRatio.PORTRAIT) }
     val boxSize = remember { mutableStateOf(Size.Zero) }
     val imageSize = remember { mutableStateOf(Size.Zero) }
@@ -71,9 +77,10 @@ internal fun ImageEditRoute(
 
     val coroutineScope = rememberCoroutineScope()
 
-    fun getBoundedOffset(scale: Float, offset: Float, boxSize: Float, imageSize: Float): Float {
-        val maxOffset = maxOf(((imageSize * scale) - boxSize) / 2, 0f)
-        return offset.coerceIn(-maxOffset, maxOffset)
+
+
+    LaunchedEffect(editedUri) {
+        editedUri?.let { navigateToUpload(it) }
     }
 
     ImageEditScreen(
@@ -86,18 +93,19 @@ internal fun ImageEditRoute(
         scale = scale,
         offsetX = offsetX,
         offsetY = offsetY,
-        navigateToUpload = { navigateToUpload("") },
+        cropImage = {
+            viewModel.cropImage(
+                imgUri,
+                scale.value,
+                offsetX.value,
+                offsetY.value,
+                cropRatio.ratio
+            )
+        },
         updateBoxSize = { boxSize.value = it },
         updateImageSize = { imageSize.value = it },
         updateCropRatio = { cropRatio = it },
-        getBoundedOffset = { _, _, box, image ->
-            getBoundedOffset(
-                scale.value,
-                offsetX.value,
-                box,
-                image
-            )
-        }
+        getBoundedOffset = viewModel::getBoundedOffset
     )
 }
 
@@ -112,7 +120,7 @@ private fun ImageEditScreen(
     scale: Animatable<Float, AnimationVector1D> = Animatable(1f),
     offsetX: Animatable<Float, AnimationVector1D> = Animatable(0f),
     offsetY: Animatable<Float, AnimationVector1D> = Animatable(0f),
-    navigateToUpload: () -> Unit = {},
+    cropImage: () -> Unit = {},
     updateBoxSize: (Size) -> Unit = { },
     updateImageSize: (Size) -> Unit = { },
     updateCropRatio: (CropRatio) -> Unit = { },
@@ -136,7 +144,7 @@ private fun ImageEditScreen(
             trailingIcon = {
                 PorringIconButton(
                     icon = ImageVector.vectorResource(drawable.ic_arrow_forward),
-                    onClick = navigateToUpload,
+                    onClick = cropImage,
                     contentDescription = stringResource(R.string.string_upload_image)
                 )
             }
@@ -298,10 +306,10 @@ private fun ButtonGroup(
     }
 }
 
+enum class CropRatio(val ratio: Float) { PORTRAIT(4f / 5f), LANDSCAPE(5f / 4f) }
+
 @Composable
 @Preview(showBackground = true)
 private fun PreviewImageEditScreen() {
     ImageEditScreen()
 }
-
-enum class CropRatio(val ratio: Float) { PORTRAIT(4f / 5f), LANDSCAPE(5f / 4f) }

@@ -80,7 +80,11 @@ class UploadViewModel @Inject constructor(
             var bitmap: Bitmap? = null
 
             while (retries < maxRetries) {
-                bitmap = repository.decodeSampledBitmapFromUri(Uri.parse(uri), false)
+                bitmap = repository.decodeSampledBitmapFromUri(
+                    uri = Uri.parse(uri),
+                    resizeNeeded = false,
+                    rotateNeeded = false
+                )
                 if (bitmap != null) break
                 retries++
             }
