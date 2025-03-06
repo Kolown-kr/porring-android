@@ -111,6 +111,7 @@ internal fun MainNavHost(
 
             imageEditNavGraph(
                 padding = padding,
+                navigateToHome = { navigator.navigate(MainMenu.HOME) },
                 navigateToUpload = { imgUri ->
                     navigator.navigateToUpload(
                         imgUri,
