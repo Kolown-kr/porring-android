@@ -7,6 +7,8 @@ plugins {
 setNamespace("feature.imageEdit")
 
 dependencies {
+    implementation(libs.androidx.foundation)
+
     // coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
