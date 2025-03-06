@@ -3,9 +3,11 @@ package com.kolown.porring.core.data.repository
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.net.Uri
 import android.util.Log
+import android.util.Size
 import androidx.exifinterface.media.ExifInterface
 import com.kolown.porring.core.data.utils.Constants.IMAGE_LONG
 import com.kolown.porring.core.data.utils.Constants.IMAGE_RATIO
@@ -29,7 +31,10 @@ interface ImageGenerateRepository {
         scale: Float,
         offsetX: Float,
         offsetY: Float,
-        cropRatio: Float
+        cropWidth: Float,
+        cropHeight: Float,
+        imageWidth: Float,
+        imageHeight: Float
     ): String?
 
     suspend fun decodeSampledBitmapFromUri(
@@ -70,14 +75,18 @@ class ImageGenerateRepositoryImpl(
         scale: Float,
         offsetX: Float,
         offsetY: Float,
-        cropRatio: Float
+        cropWidth: Float,
+        cropHeight: Float,
+        imageWidth: Float,
+        imageHeight: Float
     ): String? = withContext(Dispatchers.IO) {
         val originalBitmap = decodeSampledBitmapFromUri(
             uri = Uri.parse(imageUri),
             resizeNeeded = false,
             rotateNeeded = true
         ) ?: return@withContext null
-        val croppedBitmap = cropBitmap(originalBitmap, scale, offsetX, offsetY, cropRatio)
+        val croppedBitmap =
+            cropBitmap(originalBitmap, scale, offsetX, offsetY, cropWidth, cropHeight, imageWidth, imageHeight)
 
         saveBitmapToCache(croppedBitmap)?.toString()
     }
@@ -94,7 +103,7 @@ class ImageGenerateRepositoryImpl(
         applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
             BitmapFactory.decodeStream(inputStream, null, options)
         }
-        if(resizeNeeded) {
+        if (resizeNeeded) {
             options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
         }
         options.inJustDecodeBounds = false
@@ -160,24 +169,34 @@ class ImageGenerateRepositoryImpl(
         return Matrix().apply { postRotate(angle) }
     }
 
-    private fun cropBitmap(
+    private suspend fun cropBitmap(
         bitmap: Bitmap,
         scale: Float,
         offsetX: Float,
         offsetY: Float,
-        cropRatio: Float
-    ): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
+        boxWidth: Float,
+        boxHeight: Float,
+        imageWidth: Float,
+        imageHeight: Float
+    ): Bitmap = withContext(Dispatchers.Default) {
+        val originalWidth = bitmap.width.toFloat()
+        val originalHeight = bitmap.height.toFloat()
 
-        val boxWidth = (width / scale).toInt().coerceAtMost(width)
-        val boxHeight = (boxWidth / cropRatio).toInt().coerceAtMost(height)
+        val widthRatio = originalWidth / imageWidth
+        val heightRatio = originalHeight / imageHeight
 
-        val left = ((width - boxWidth) / 2 - offsetX * scale).toInt().coerceIn(0, width - boxWidth)
-        val top =
-            ((height - boxHeight) / 2 - offsetY * scale).toInt().coerceIn(0, height - boxHeight)
+        val cropWidth = boxWidth * widthRatio / scale
+        val cropHeight = boxHeight * heightRatio / scale
 
-        return Bitmap.createBitmap(bitmap, left, top, boxWidth, boxHeight)
+        val adjustedOffsetX = offsetX * widthRatio / scale
+        val adjustedOffsetY = offsetY * heightRatio / scale
+
+        val left = ((originalWidth - cropWidth) / 2 - adjustedOffsetX).coerceIn(0f, originalWidth).toInt()
+        val top = ((originalHeight - cropHeight) / 2 - adjustedOffsetY).coerceIn(0f, originalHeight).toInt()
+        val right = (left + cropWidth).coerceIn(0f, originalWidth).toInt()
+        val bottom = (top + cropHeight).coerceIn(0f, originalHeight).toInt()
+
+        Bitmap.createBitmap(bitmap, left, top, right - left, bottom - top)
     }
 
     private fun calculateInSampleSize(width: Int, height: Int): Int {
