@@ -25,5 +25,8 @@ class DatabaseModule {
     }
 
     @Provides
-    fun provideHomePostDao(database: AppDatabase) = database.homePostDao()
+    fun providePostDao(database: AppDatabase) = database.postDao()
+
+    @Provides
+    fun provideRemoteKeyDao(database: AppDatabase) = database.remoteKeyDao()
 }

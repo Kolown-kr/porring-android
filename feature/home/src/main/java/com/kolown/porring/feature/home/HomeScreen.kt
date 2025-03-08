@@ -153,7 +153,10 @@ internal fun HomeRoute(
         refreshState = refreshState,
         updateImageRatio = { imageRatio = it },
         updateIsShowErrorScreen = { isShowErrorScreen = it },
-        navigateToDetail = navigateToDetail,
+        navigateToDetail = {
+            viewModel.onClickItem(it)
+            navigateToDetail()
+        },
         navigateToTheir = navigateToTheir,
         onRefresh = onRefresh,
         onFollowClick = viewModel::onFollowClick,
@@ -174,7 +177,7 @@ private fun HomeScreen(
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     updateImageRatio: (Float) -> Unit = {},
     updateIsShowErrorScreen: (Boolean) -> Unit = {},
-    navigateToDetail: () -> Unit = {},
+    navigateToDetail: (PostContentModel) -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
     onRefresh: () -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
@@ -235,7 +238,7 @@ private fun HomeContent(
     imageRatio: Float = 4f / 5f,
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
     onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
-    onImageClick: () -> Unit = {},
+    onImageClick: (PostContentModel) -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostContentModel) -> Unit = {},
     updateImageRatio: (Float) -> Unit = {}
@@ -264,7 +267,7 @@ private fun HomeContent(
                     imageUrl = post.imageUrl,
                     imageRatio = imageRatio,
                     updateImageRatio = updateImageRatio,
-                    onClick = onImageClick
+                    onClick = { onImageClick(post) }
                 )
             }
 

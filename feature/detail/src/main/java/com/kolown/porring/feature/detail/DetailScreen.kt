@@ -75,12 +75,12 @@ internal fun DetailRoute(
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val pagerState = rememberPagerState { posts.itemCount }
+
     var followPost by remember { mutableStateOf<PostContentModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
     LaunchedEffect(Unit) {
-        viewModel.init(type)
         pagerState.scrollToPage(order)
     }
 
@@ -129,7 +129,7 @@ internal fun DetailRoute(
 @Composable
 private fun DetailScreen(
     posts: LazyPagingItems<PostContentModel>,
-    pagerState: PagerState = rememberPagerState { posts.itemCount },
+    pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
@@ -159,10 +159,9 @@ private fun DetailScreen(
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
             state = pagerState,
-            beyondViewportPageCount = 3
+            beyondViewportPageCount = 3,
         ) { page: Int ->
             val post = posts[page] ?: return@HorizontalPager
-
             DetailContent(
                 post = post,
                 eventRowVisible = eventRowVisible,
@@ -214,7 +213,7 @@ private fun DetailContent(
                 Text(
                     text = post.description,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = Color.White,
                 )
 
                 if (post.tags.isNotEmpty()) {

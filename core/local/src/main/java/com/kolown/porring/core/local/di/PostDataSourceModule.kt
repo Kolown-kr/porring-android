@@ -12,6 +12,6 @@ import javax.inject.Named
 @Module
 abstract class PostDataSourceModule {
     @Binds
-    @Named("home_post_datasource")
-    abstract fun bindHomePostDataSource(postDataSource: HomePostDataSourceImpl): LocalPostDataSource
+    @Named("local_post_datasource")
+    abstract fun bindPostDataSource(postDataSource: HomePostDataSourceImpl): LocalPostDataSource
 }

@@ -49,13 +49,11 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch {
-                postRepository.getHomeItemPosts()
-                    .onStart { _uiState.update { UiState.Loading } }
-                    .catch { e -> _uiState.update { UiState.Failure(e) } }
-                    .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
-            }.join()
             postRepository.fetchHomeItemPosts()
+            postRepository.getHomeItemPosts()
+                .onStart { _uiState.update { UiState.Loading } }
+                .catch { e -> _uiState.update { UiState.Failure(e) } }
+                .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
         }
     }
 
@@ -107,6 +105,13 @@ class HomeViewModel @Inject constructor(
                 postRepository.reactPost(postId, reaction)
             }
         }
+
+    fun onClickItem(post: PostContentModel) {
+        viewModelScope.launch {
+            postRepository.clearPagingItems()
+            postRepository.insertPagingItem(post)
+        }
+    }
 
     private fun PostContentModel.toggleSingleReaction(reaction: Reactions): PostContentModel {
         val updatedReactions = reactions.toMutableList().apply {
