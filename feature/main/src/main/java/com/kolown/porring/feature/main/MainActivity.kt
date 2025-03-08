@@ -28,7 +28,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        mainViewModel.getVersionName()
         setContent {
             val navigator: MainNavigator = rememberMainNavigator()
             var isLightBars by remember { mutableStateOf(false) }
@@ -60,7 +59,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
             }
         }
         if (!BuildConfig.DEBUG) {

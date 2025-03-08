@@ -1,14 +1,20 @@
 package com.kolown.porring.core.data.repository
 
 import android.net.Uri
+import android.util.Log
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
+import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediator
 import com.kolown.porring.core.local.LocalPostDataSource
+import com.kolown.porring.core.local.room.dao.ItemType
+import com.kolown.porring.core.local.toPostContentModel
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.network.AuthDataSource
@@ -24,6 +30,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -41,6 +48,9 @@ interface PostRepository {
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
     suspend fun updateFollowState(authorId: String, isFollow: Boolean)
+    suspend fun insertPagingItem(item: PostContentModel)
+    fun getPagingItemPosts(): Flow<PagingData<PostContentModel>>
+    suspend fun clearPagingItems()
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -49,10 +59,10 @@ class PostRepositoryImpl @Inject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    @Named("home_post_datasource") private val homePostDataSource: LocalPostDataSource,
+    @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
     private val followDataSource: FollowDataSource,
+    private val randomPostRemoteMediator: RandomPostRemoteMediator
 ) : PostRepository {
-
     override fun getUserPosts(userId: String?): Flow<PagingData<PostContentModel>> {
         val authorId = googleAuthDataSource.getUserId()
         val initialKey = if (userId == null) {
@@ -125,7 +135,27 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getHomeItemPosts(): Flow<List<PostContentModel>> =
-        withContext(Dispatchers.IO) { homePostDataSource.getItems() }
+        withContext(Dispatchers.IO) { localPostDataSource.getItems() }
+
+    override suspend fun clearPagingItems() = withContext(Dispatchers.IO) {
+        localPostDataSource.clearPagingItems()
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    override fun getPagingItemPosts(): Flow<PagingData<PostContentModel>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = DETAIL_PER_PAGE,
+                enablePlaceholders = true,
+            ),
+            remoteMediator = randomPostRemoteMediator,
+            pagingSourceFactory = { localPostDataSource.getPagingItems() }
+        ).flow.map { pagingData ->
+            pagingData.map { data ->
+                data.toPostContentModel()
+            }
+        }
+    }
 
     override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
         val currentUserId = googleAuthDataSource.getUserId()
@@ -135,6 +165,7 @@ class PostRepositoryImpl @Inject constructor(
             HOME_ITEM_SIZE,
             RANDOM_SEED.random().toString()
         ).getOrElse {
+            Log.e("fatal: postRepository", it.toString())
             throw IOException("게시물 불러오기 실패")
         }
         val (tags, reactions, isFollowers) = coroutineScope {
@@ -186,9 +217,9 @@ class PostRepositoryImpl @Inject constructor(
             )
         }
 
-        homePostDataSource.clearHomeItems()
+        localPostDataSource.clearHomeItems()
         delay(100)
-        homePostDataSource.insertItems(postContentModels)
+        localPostDataSource.insertItems(postContentModels, ItemType.HOME_ITEM)
     }
 
     override fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
@@ -207,14 +238,14 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
-        homePostDataSource.updateFollowState(authorId, isFollow)
+        localPostDataSource.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
-            homePostDataSource.updateReaction(postId, reaction.value)
+            localPostDataSource.updateReaction(postId, reaction.value)
             reactionDataSource.updatePostReaction(
                 userId = currentUserId,
                 postId = postId,
@@ -227,7 +258,7 @@ class PostRepositoryImpl @Inject constructor(
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
-            homePostDataSource.updateReaction(postId, reaction.value)
+            localPostDataSource.updateReaction(postId, reaction.value)
             reactionDataSource.removePostReaction(
                 userId = currentUserId,
                 postId = postId,
@@ -303,6 +334,10 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun insertPagingItem(item: PostContentModel) {
+        localPostDataSource.insertItems(listOf(item), ItemType.PAGING_ITEM)
+    }
+
     private suspend fun <T> retryWithLimit(
         maxAttempts: Int = 3,
         delayMillis: Long = 1000,
@@ -321,7 +356,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        const val DETAIL_PER_PAGE = 2
+        const val DETAIL_PER_PAGE = 3
         const val SEARCH_PER_PAGE = 5
         const val GALLERY_PAGE_SIZE = 5
         const val HOME_ITEM_SIZE = 10

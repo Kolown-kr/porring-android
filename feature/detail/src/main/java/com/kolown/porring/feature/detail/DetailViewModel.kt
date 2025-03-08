@@ -10,15 +10,14 @@ import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.navigation.MainMenuRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,7 +32,7 @@ internal class DetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val posts = _posts.cachedIn(viewModelScope)
+    val posts = _posts.asStateFlow()
 
     private val _followEvent = MutableSharedFlow<PostContentModel>()
     val followEvent = _followEvent.asSharedFlow()
@@ -48,12 +47,12 @@ internal class DetailViewModel @Inject constructor(
             initialValue = false
         )
 
-    fun init(
-        type: MainMenuRoute.Detail.Type,
-    ) {
-        postRepository.getRandomDetailPostList()
-            .onEach(_posts::emit)
-            .launchIn(viewModelScope)
+    init {
+        viewModelScope.launch {
+            postRepository.getPagingItemPosts()
+                .cachedIn(viewModelScope)
+                .collectLatest(_posts::emit)
+        }
     }
 
     private fun checkedLogIn(): Boolean {
@@ -67,12 +66,12 @@ internal class DetailViewModel @Inject constructor(
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
         postRepository.reactPost(postId, reaction)
-        _posts.update {
-            _posts.value.replaceIf(
-                predicate = { it.postId == postId },
-                replacement = { it.copy(myReaction = reaction) }
-            )
-        }
+//        _posts.update {
+//            _posts.value.replaceIf(
+//                predicate = { it.postId == postId },
+//                replacement = { it.copy(myReaction = reaction) }
+//            )
+//        }
     }
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {

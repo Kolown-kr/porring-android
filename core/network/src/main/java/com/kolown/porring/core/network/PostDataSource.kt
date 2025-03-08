@@ -107,23 +107,45 @@ class PostDataSourceImpl @Inject constructor(
         count: Int,
         randomType: String
     ): Result<List<PostModel>> {
-        this.randomType = randomType
-        val randomValue = (0..Long.MAX_VALUE).random()
+        return kotlin.runCatching {
+            this.randomType = randomType
 
-        return runCatching {
-            val fetchPosts: suspend (Long) -> List<PostModel> = { key ->
-                postCollection
+            val randomValue = (0..Long.MAX_VALUE).random()
+            val queryDirection =
+                listOf(Query.Direction.ASCENDING, Query.Direction.DESCENDING).random()
+            val query = postCollection
+                .whereNotEqualTo("authorId", uid)
+                .whereGreaterThan("random${this.randomType}", randomValue)
+                .orderBy("random${this.randomType}", queryDirection)
+                .limit(count.toLong())
+            val result = query
+                .get()
+                .await()
+                .map { querySnapshot ->
+                    querySnapshot
+                        .toObject(PostDto::class.java)
+                        .toPostModel(this.randomType)
+                }
+
+            if (result.size < count) {
+                val remainingCount = count - result.size
+                val fallbackQuery = postCollection
                     .whereNotEqualTo("authorId", uid)
-                    .whereGreaterThan("random${this.randomType}", key)
-                    .orderBy("random${this.randomType}", Query.Direction.ASCENDING)
-                    .limit(count.toLong())
+                    .whereGreaterThan("random${this.randomType}", 0)
+                    .orderBy("random${this.randomType}", queryDirection)
+                    .limit(remainingCount.toLong())
                     .get()
                     .await()
-                    .map { it.toObject(PostDto::class.java).toPostModel(this.randomType) }
-            }
-            val result = fetchPosts(randomValue)
+                    .map { querySnapshot ->
+                        querySnapshot
+                            .toObject(PostDto::class.java)
+                            .toPostModel(this.randomType)
+                    }
 
-            if (result.size > count) result else fetchPosts(0)
+                result + fallbackQuery
+            } else {
+                result
+            }
         }
     }
 

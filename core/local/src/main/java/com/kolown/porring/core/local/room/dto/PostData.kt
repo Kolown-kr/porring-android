@@ -1,6 +1,6 @@
 package com.kolown.porring.core.local.room.dto
 
-data class PostDto(
+data class PostData(
     val postId: String,
     val authorId: String,
     val imageUrl: String,
