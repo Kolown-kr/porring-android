@@ -65,6 +65,13 @@ class TheirViewModel @Inject constructor(
         _firstPage = page
     }
 
+    fun onClickItem(post: PostContentModel) {
+        viewModelScope.launch {
+            postRepository.clearPagingItems()
+            postRepository.insertPagingItem(post)
+        }
+    }
+
     fun setFollowerName(followerId: String) {
         _userId.update { followerId }
         viewModelScope.launch {

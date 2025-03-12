@@ -3,17 +3,11 @@ package com.kolown.porring.feature.their
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
-import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -22,9 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -49,7 +40,7 @@ internal fun TheirRoute(
     padding: PaddingValues = PaddingValues(),
     viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
-    navigateToDetailTheir: () -> Unit = {},
+    navigateToDetail: (String) -> Unit = {},
 ) {
     val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
     val followerName by viewModel.followerName.collectAsStateWithLifecycle()
@@ -103,7 +94,10 @@ internal fun TheirRoute(
         onRefresh = onRefresh,
         setPage = viewModel::setPage,
         popBackStack = popBackStack,
-        navigateToDetail = navigateToDetailTheir,
+        navigateToDetail = {
+            viewModel.onClickItem(it)
+            navigateToDetail(it.postId)
+        },
         scaleFraction = scaleFraction,
         updateShowErrorScreen = { showErrorScreen = it }
     )
@@ -122,7 +116,7 @@ private fun TheirScreen(
     onRefresh: () -> Unit = {},
     setPage: (Int) -> Unit = {},
     popBackStack: () -> Unit = {},
-    navigateToDetail: () -> Unit = {},
+    navigateToDetail: (PostContentModel) -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {}
 ) {

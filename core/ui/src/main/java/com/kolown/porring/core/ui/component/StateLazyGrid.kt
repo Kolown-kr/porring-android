@@ -26,7 +26,7 @@ fun StateLazyGrid(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     longClickEnabled: Boolean = true,
     pagingItems: LazyPagingItems<PostContentModel>,
-    navigateToDetail: () -> Unit = {},
+    navigateToDetail: (PostContentModel) -> Unit = {},
     setPage: (Int) -> Unit = {},
     onLongClick: (String) -> Unit = {}
 ) {
@@ -47,7 +47,7 @@ fun StateLazyGrid(
                     longClickEnabled = longClickEnabled,
                     onLongClickImage = { onLongClick(pagingItem.postId) },
                     onClickImage = {
-                        navigateToDetail()
+                        navigateToDetail(pagingItem)
                         setPage(index)
                     }
                 )

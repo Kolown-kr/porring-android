@@ -35,17 +35,17 @@ interface PostDao {
         clearPagingItems()
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPostDefaultInfo(postDefaultInfo: List<PostDefaultInfo>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertOtherUserPostInfo(otherUserPostInfo: List<OtherUserPostInfo>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertHomeItemPost(homeItemPost: List<HomeItemPost>)
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPagingItemPost(pagingItemPost: List<PagingItemPost>)
 
     @Transaction
@@ -90,9 +90,60 @@ interface PostDao {
         FROM paging_items AS pagingItems
         LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
         LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
+        ORDER BY
+            CASE WHEN :useRegisterAt = 1 THEN post.register_at END DESC,
+            pagingItems.paging_item_id ASC
     """
     )
-    fun getPagingItems(): PagingSource<Int, PostData>
+    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>
+
+    @Transaction
+    @Query(
+        """
+            SELECT
+            pagingItems.paging_item_id AS pagingItemId,
+            pagingItems.post_id AS postId,
+
+            post.image_url AS imageUrl,
+            post.register_at AS registerAt,
+            post.description AS description,
+            post.tags AS tags,
+            post.reactions AS reactions,
+
+            other.author_id AS authorId,
+            other.is_follower AS isFollower,
+            other.my_reaction AS myReaction
+            FROM paging_items AS pagingItems
+            LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
+            LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
+            ORDER BY register_at DESC LIMIT 1
+        """
+    )
+    fun getFirstPageItem(): PostData
+
+    @Transaction
+    @Query(
+        """
+            SELECT
+            pagingItems.paging_item_id AS pagingItemId,
+            pagingItems.post_id AS postId,
+
+            post.image_url AS imageUrl,
+            post.register_at AS registerAt,
+            post.description AS description,
+            post.tags AS tags,
+            post.reactions AS reactions,
+
+            other.author_id AS authorId,
+            other.is_follower AS isFollower,
+            other.my_reaction AS myReaction
+            FROM paging_items AS pagingItems
+            LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
+            LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
+            ORDER BY register_at ASC LIMIT 1
+        """
+    )
+    fun getLastPageItem(): PostData
 
     @Transaction
     @Query(

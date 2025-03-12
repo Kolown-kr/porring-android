@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
@@ -19,9 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
-import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,7 +30,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,7 +57,7 @@ internal fun MyRoute(
     padding: PaddingValues = PaddingValues(),
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
-    navigateToDetail: () -> Unit = {},
+    navigateToDetail: (String) -> Unit = {},
 ) {
     val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
     val isDeleteSuccess by viewModel.isDeleteSuccess.collectAsStateWithLifecycle()
@@ -127,7 +123,10 @@ internal fun MyRoute(
             listState = listState,
             onRefresh = onRefresh,
             setPage = viewModel::setPage,
-            navigateToDetail = navigateToDetail,
+            navigateToDetail = { post ->
+                navigateToDetail(post.postId)
+                viewModel.onClickItem(post)
+            },
             navigateToSetting = navigateToSetting,
             scaleFraction = scaleFraction,
             updateShowErrorScreen = { showErrorScreen = it },
@@ -150,7 +149,7 @@ private fun MyScreen(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     onRefresh: () -> Unit = {},
     setPage: (Int) -> Unit = {},
-    navigateToDetail: () -> Unit = {},
+    navigateToDetail: (PostContentModel) -> Unit = {},
     navigateToSetting: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {},

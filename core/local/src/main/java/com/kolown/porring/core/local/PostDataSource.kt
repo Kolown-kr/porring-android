@@ -12,12 +12,14 @@ import javax.inject.Inject
 interface LocalPostDataSource {
     suspend fun insertItems(items: List<PostContentModel>, itemType: ItemType)
     fun getItems(): Flow<List<PostContentModel>>
-    fun getPagingItems(): PagingSource<Int, PostData>
+    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>
     suspend fun getItemById(postId: String): PostContentModel?
     suspend fun clearHomeItems()
     suspend fun updateReaction(postId: String, reaction: Int)
     suspend fun updateFollowState(authorId: String, isFollow: Boolean)
     suspend fun clearPagingItems()
+    suspend fun getFirstPageItem(): PostData
+    suspend fun getLastPageItem(): PostData
 }
 
 class HomePostDataSourceImpl @Inject constructor(
@@ -27,11 +29,16 @@ class HomePostDataSourceImpl @Inject constructor(
         postDao.insertItems(items.map { it.toPostData() }, itemType)
     }
 
+    override suspend fun getFirstPageItem() = postDao.getFirstPageItem()
+
+    override suspend fun getLastPageItem() = postDao.getLastPageItem()
+
     override fun getItems(): Flow<List<PostContentModel>> {
         return postDao.getItems().map { items -> items.map { it.toPostContentModel() } }
     }
 
-    override fun getPagingItems(): PagingSource<Int, PostData> = postDao.getPagingItems()
+    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, PostData> =
+        postDao.getPagingItems(useRegisterAt)
 
     override suspend fun updateReaction(postId: String, reaction: Int) {
         val post = postDao.getItemById(postId) ?: return

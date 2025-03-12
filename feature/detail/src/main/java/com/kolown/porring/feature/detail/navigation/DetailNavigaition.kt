@@ -9,14 +9,19 @@ import androidx.navigation.toRoute
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.feature.detail.DetailRoute
 
-fun NavController.navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int, navOptions: NavOptions) {
-    navigate(MainMenuRoute.Detail(type, order), navOptions = navOptions)
+fun NavController.navigateToDetail(
+    type: MainMenuRoute.Detail.Type,
+    order: Int,
+    postId: String? = null,
+    navOptions: NavOptions
+) {
+    navigate(MainMenuRoute.Detail(type, order, postId), navOptions = navOptions)
 }
 
 fun NavGraphBuilder.detailNavGraph(
     padding: PaddingValues,
     popBackStack: () -> Unit,
-    navigateToTheir : (String) -> Unit,
+    navigateToTheir: (String) -> Unit,
 ) {
     composable<MainMenuRoute.Detail> {
         DetailRoute(

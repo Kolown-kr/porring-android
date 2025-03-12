@@ -49,7 +49,9 @@ sealed interface MainMenuRoute : Route {
     data class Their(val authorId: String) : MainMenuRoute
 
     @Serializable
-    data class Detail(val type: Type, val order: Int) : MainMenuRoute {
+    data class Detail(val type: Type, val order: Int, val postId: String? = null) :
+        MainMenuRoute {
+        @Serializable
         enum class Type {
             DEFAULT, MY, FOLLOW
         }
