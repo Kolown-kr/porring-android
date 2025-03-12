@@ -6,6 +6,7 @@ import androidx.paging.cachedIn
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.UserRepository
+import com.kolown.porring.core.model.PostContentModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,6 +43,13 @@ class MyViewModel @Inject constructor(
 
     fun setPage(page: Int) {
         _firstPage = page
+    }
+
+    fun onClickItem(post: PostContentModel) {
+        viewModelScope.launch {
+            postRepository.clearPagingItems()
+            postRepository.insertPagingItem(post)
+        }
     }
 
     fun setUserId() {

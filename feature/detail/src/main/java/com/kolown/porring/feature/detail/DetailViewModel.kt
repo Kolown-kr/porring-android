@@ -1,15 +1,17 @@
 package com.kolown.porring.feature.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.navigation.MainMenuRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,6 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class DetailViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
@@ -33,6 +36,9 @@ internal class DetailViewModel @Inject constructor(
 
     private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
     val posts = _posts.asStateFlow()
+
+    private val _pageState = MutableStateFlow(PageState())
+    private val pageState = _pageState.asStateFlow()
 
     private val _followEvent = MutableSharedFlow<PostContentModel>()
     val followEvent = _followEvent.asSharedFlow()
@@ -49,10 +55,32 @@ internal class DetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            postRepository.getPagingItemPosts()
-                .cachedIn(viewModelScope)
-                .collectLatest(_posts::emit)
+            val type = savedStateHandle.get<MainMenuRoute.Detail.Type>("type") ?: return@launch
+            val postId = savedStateHandle.get<String>("postId") ?: ""
+
+            when (type) {
+                MainMenuRoute.Detail.Type.DEFAULT -> {
+                    postRepository.getRandomPagingItemPosts(pageState)
+                        .collectLatest(_posts::emit)
+                }
+
+                MainMenuRoute.Detail.Type.FOLLOW -> {
+                    postRepository.getUserPagingItemPosts(postId, pageState)
+                        .collectLatest(_posts::emit)
+                }
+
+
+                MainMenuRoute.Detail.Type.MY -> {
+                    postRepository.getUserPagingItemPosts(postId, pageState)
+                        .collectLatest(_posts::emit)
+                }
+            }
+
         }
+    }
+
+    fun updatePage(pageState: PageState) {
+        _pageState.update { pageState }
     }
 
     private fun checkedLogIn(): Boolean {

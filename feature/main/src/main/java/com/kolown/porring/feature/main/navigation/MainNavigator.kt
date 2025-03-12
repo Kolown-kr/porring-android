@@ -22,7 +22,6 @@ import com.kolown.porring.feature.login.navigation.navigateLogin
 import com.kolown.porring.feature.my.navigation.navigateMy
 import com.kolown.porring.feature.my.navigation.navigateMyDetail
 import com.kolown.porring.feature.search.navigation.navigateSearch
-import com.kolown.porring.feature.search.navigation.navigateSearchDetail
 import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.their.navigation.navigateTheirDetail
@@ -69,7 +68,8 @@ internal class MainNavigator(
     fun navigateToUpload(imgUri: String, uploadModel: UploadModel) =
         navController.navigateUpload(imgUri, uploadModel)
 
-    fun navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int) = navController.navigateToDetail(type, order, navOptions = singleTopOptions)
+    fun navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int, postId: String? = null) =
+        navController.navigateToDetail(type, order, postId, navOptions = singleTopOptions)
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)
 
@@ -77,14 +77,18 @@ internal class MainNavigator(
 
     fun navigateToJoin() = navController.navigateToJoin(navOptions = singleTopOptions)
 
-    fun navigateToDetailSearch() = navController.navigateToDetail(MainMenuRoute.Detail.Type.DEFAULT, 0, navOptions = singleTopOptions)
+    fun navigateToDetailSearch() = navController.navigateToDetail(
+        MainMenuRoute.Detail.Type.DEFAULT,
+        0,
+        navOptions = singleTopOptions
+    )
 
     fun navigateToDetailMy() = navController.navigateMyDetail(navOptions = singleTopOptions)
 
     fun navigateToDetailTheir() = navController.navigateTheirDetail(navOptions = singleTopOptions)
 
     fun popBackStack() {
-        navController.previousBackStackEntry?.let{
+        navController.previousBackStackEntry?.let {
             navController.popBackStack()
         }
     }

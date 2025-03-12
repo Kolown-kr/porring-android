@@ -11,10 +11,12 @@ import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
-import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediator
+import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
+import com.kolown.porring.core.data.remotemediator.UserPostRemoteMediatorFactory
 import com.kolown.porring.core.local.LocalPostDataSource
 import com.kolown.porring.core.local.room.dao.ItemType
 import com.kolown.porring.core.local.toPostContentModel
+import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.network.AuthDataSource
@@ -29,6 +31,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -49,8 +52,13 @@ interface PostRepository {
     suspend fun fetchHomeItemPosts()
     suspend fun updateFollowState(authorId: String, isFollow: Boolean)
     suspend fun insertPagingItem(item: PostContentModel)
-    fun getPagingItemPosts(): Flow<PagingData<PostContentModel>>
     suspend fun clearPagingItems()
+    suspend fun getUserPagingItemPosts(
+        postId: String,
+        pageState: StateFlow<PageState>
+    ): Flow<PagingData<PostContentModel>>
+
+    fun getRandomPagingItemPosts(pageState: StateFlow<PageState>): Flow<PagingData<PostContentModel>>
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -61,7 +69,8 @@ class PostRepositoryImpl @Inject constructor(
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
     private val followDataSource: FollowDataSource,
-    private val randomPostRemoteMediator: RandomPostRemoteMediator
+    private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
+    private val userPostRemoteMediatorFactory: UserPostRemoteMediatorFactory,
 ) : PostRepository {
     override fun getUserPosts(userId: String?): Flow<PagingData<PostContentModel>> {
         val authorId = googleAuthDataSource.getUserId()
@@ -142,14 +151,35 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override fun getPagingItemPosts(): Flow<PagingData<PostContentModel>> {
+    override fun getRandomPagingItemPosts(pageState: StateFlow<PageState>): Flow<PagingData<PostContentModel>> {
         return Pager(
             config = PagingConfig(
                 pageSize = DETAIL_PER_PAGE,
                 enablePlaceholders = true,
             ),
-            remoteMediator = randomPostRemoteMediator,
+            remoteMediator = randomPostRemoteMediatorFactory.create(pageState),
             pagingSourceFactory = { localPostDataSource.getPagingItems() }
+        ).flow.map { pagingData ->
+            pagingData.map { data ->
+                data.toPostContentModel()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    override suspend fun getUserPagingItemPosts(
+        postId: String,
+        pageState: StateFlow<PageState>
+    ): Flow<PagingData<PostContentModel>> {
+        val item = requireNotNull(localPostDataSource.getItemById(postId))
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = DETAIL_PER_PAGE,
+                enablePlaceholders = true,
+            ),
+            remoteMediator = userPostRemoteMediatorFactory.create(item, pageState),
+            pagingSourceFactory = { localPostDataSource.getPagingItems(true) }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toPostContentModel()
@@ -356,7 +386,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        const val DETAIL_PER_PAGE = 3
+        const val DETAIL_PER_PAGE = 5
         const val SEARCH_PER_PAGE = 5
         const val GALLERY_PAGE_SIZE = 5
         const val HOME_ITEM_SIZE = 10

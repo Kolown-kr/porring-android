@@ -52,12 +52,14 @@ import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
@@ -82,6 +84,12 @@ internal fun DetailRoute(
 
     LaunchedEffect(Unit) {
         pagerState.scrollToPage(order)
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        val state = PageState(pagerState.currentPage, pagerState.pageCount)
+
+        viewModel.updatePage(state)
     }
 
     LaunchedEffect(viewModel.loggedInEvent) {
@@ -156,21 +164,29 @@ private fun DetailScreen(
             },
         )
 
-        HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
-            state = pagerState,
-            beyondViewportPageCount = 3,
-        ) { page: Int ->
-            val post = posts[page] ?: return@HorizontalPager
-            DetailContent(
-                post = post,
-                eventRowVisible = eventRowVisible,
-                galleryVisible = galleryVisible,
-                onShowReelsMode = onShowReelsMode,
-                onReactionClick = onReactionClick,
-                onGalleryClick = onGalleryClick,
-                onFollowClick = onFollowClick
-            )
+        if (posts.itemCount < 2) {
+            LoadingScreen()
+        } else {
+            HorizontalPager(
+                modifier = Modifier.fillMaxSize(),
+                state = pagerState,
+                key = { index ->
+                    val item = posts[index]
+                    "${item?.postId}"
+                },
+                beyondViewportPageCount = 3,
+            ) { page: Int ->
+                val post = posts[page] ?: return@HorizontalPager
+                DetailContent(
+                    post = post,
+                    eventRowVisible = eventRowVisible,
+                    galleryVisible = galleryVisible,
+                    onShowReelsMode = onShowReelsMode,
+                    onReactionClick = onReactionClick,
+                    onGalleryClick = onGalleryClick,
+                    onFollowClick = onFollowClick
+                )
+            }
         }
     }
 }

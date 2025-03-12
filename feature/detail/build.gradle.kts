@@ -18,4 +18,6 @@ dependencies {
 
     //paging3
     implementation(libs.androidx.paging.compose)
+
+    implementation(libs.kotlinx.serialization.json)
 }
