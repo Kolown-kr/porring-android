@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,16 +73,16 @@ internal fun MainNavHost(
                 padding = padding,
                 navigateToLogin = navigator::navigateToLogin,
                 navigateToSetting = navigator::navigateToSetting,
-                navigateToDetail = { postId ->
+                navigateToDetail = { authorId, postId ->
                     navigator.navigateToDetail(
-                        MainMenuRoute.Detail.Type.MY,
-                        0,
-                        postId
+                        type = MainMenuRoute.Detail.Type.MY,
+                        order = 0,
+                        authorId = authorId,
+                        postId = postId,
                     )
                 },
             )
 
-            LazyListState
             detailNavGraph(
                 padding = padding,
                 navigateToTheir = navigator::navigateToTheir,
@@ -108,11 +107,12 @@ internal fun MainNavHost(
 
             theirNavGraph(
                 popBackStack = navigator::popBackStack,
-                navigateToDetail = { postId ->
+                navigateToDetail = { authorId, postId ->
                     navigator.navigateToDetail(
-                        MainMenuRoute.Detail.Type.FOLLOW,
-                        0,
-                        postId
+                        type = MainMenuRoute.Detail.Type.FOLLOW,
+                        order = 0,
+                        authorId = authorId,
+                        postId = postId
                     )
                 },
                 padding = padding

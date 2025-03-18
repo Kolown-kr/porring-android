@@ -8,6 +8,7 @@ import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
@@ -57,21 +58,35 @@ internal class DetailViewModel @Inject constructor(
         viewModelScope.launch {
             val type = savedStateHandle.get<MainMenuRoute.Detail.Type>("type") ?: return@launch
             val postId = savedStateHandle.get<String>("postId") ?: ""
+            val authorId = savedStateHandle.get<String>("authorId") ?: ""
 
             when (type) {
                 MainMenuRoute.Detail.Type.DEFAULT -> {
-                    postRepository.getRandomPagingItemPosts(pageState)
+                    postRepository.getPagingItemPosts(
+                        postType = PostType.RANDOM_DETAIL,
+                        pageState = pageState,
+                    )
                         .collectLatest(_posts::emit)
                 }
 
                 MainMenuRoute.Detail.Type.FOLLOW -> {
-                    postRepository.getUserPagingItemPosts(postId, pageState)
+                    postRepository.getPagingItemPosts(
+                        postType = PostType.USER_DETAIL,
+                        pageState = pageState,
+                        authorId = authorId,
+                        postId = postId
+                    )
                         .collectLatest(_posts::emit)
                 }
 
 
                 MainMenuRoute.Detail.Type.MY -> {
-                    postRepository.getUserPagingItemPosts(postId, pageState)
+                    postRepository.getPagingItemPosts(
+                        postType = PostType.USER_DETAIL,
+                        pageState = pageState,
+                        authorId = authorId,
+                        postId = postId
+                    )
                         .collectLatest(_posts::emit)
                 }
             }

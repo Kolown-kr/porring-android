@@ -1,22 +1,29 @@
 package com.kolown.porring.core.data.remotemediator
 
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostContentModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import kotlinx.coroutines.flow.StateFlow
 
 @AssistedFactory
-interface UserPostRemoteMediatorFactory {
+interface UserDetailRemoteMediatorFactory {
     fun create(
-        @Assisted postItem: PostContentModel,
+        @Assisted("author_id") authorId: String,
+        @Assisted("post_id") postId: String?,
         @Assisted pageState: StateFlow<PageState>
-    ): UserPostRemoteMediator
+    ): UserDetailPostRemoteMediator
 }
 
 @AssistedFactory
 interface RandomPostRemoteMediatorFactory {
     fun create(
         @Assisted pageState: StateFlow<PageState>
-    ): RandomPostRemoteMediator
+    ): RandomDetailPostRemoteMediator
+}
+
+@AssistedFactory
+interface UserGalleryPostRemoteMediatorFactory {
+    fun create(
+        @Assisted("author_id") authorId: String,
+    ): UserGalleryPostRemoteMediator
 }

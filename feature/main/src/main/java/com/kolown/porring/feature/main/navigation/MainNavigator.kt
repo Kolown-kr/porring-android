@@ -68,8 +68,19 @@ internal class MainNavigator(
     fun navigateToUpload(imgUri: String, uploadModel: UploadModel) =
         navController.navigateUpload(imgUri, uploadModel)
 
-    fun navigateToDetail(type: MainMenuRoute.Detail.Type, order: Int, postId: String? = null) =
-        navController.navigateToDetail(type, order, postId, navOptions = singleTopOptions)
+    fun navigateToDetail(
+        type: MainMenuRoute.Detail.Type,
+        order: Int,
+        authorId: String = "",
+        postId: String? = null
+    ) =
+        navController.navigateToDetail(
+            type = type,
+            order = order,
+            authorId = authorId,
+            postId = postId,
+            navOptions = singleTopOptions
+        )
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)
 

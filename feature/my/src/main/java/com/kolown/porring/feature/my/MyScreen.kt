@@ -57,9 +57,9 @@ internal fun MyRoute(
     padding: PaddingValues = PaddingValues(),
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
-    navigateToDetail: (String) -> Unit = {},
+    navigateToDetail: (String, String) -> Unit = { _, _ -> },
 ) {
-    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
+    val pagingItems = viewModel.posts.collectAsLazyPagingItems()
     val isDeleteSuccess by viewModel.isDeleteSuccess.collectAsStateWithLifecycle()
     val isLoggedIn by viewModel.loginState.collectAsStateWithLifecycle(initialValue = true)
     var isRefreshing by remember { mutableStateOf(false) }
@@ -124,7 +124,7 @@ internal fun MyRoute(
             onRefresh = onRefresh,
             setPage = viewModel::setPage,
             navigateToDetail = { post ->
-                navigateToDetail(post.postId)
+                navigateToDetail(post.authorId, post.postId)
                 viewModel.onClickItem(post)
             },
             navigateToSetting = navigateToSetting,
