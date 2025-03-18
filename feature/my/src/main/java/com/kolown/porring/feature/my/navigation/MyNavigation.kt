@@ -22,7 +22,7 @@ fun NavGraphBuilder.myNavGraph(
     padding: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
-    navigateToDetail: (String) -> Unit,
+    navigateToDetail: (String, String) -> Unit,
 ) {
     composable<MainMenuRoute.My> {
         MyRoute(

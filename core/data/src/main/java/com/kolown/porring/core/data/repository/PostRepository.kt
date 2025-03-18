@@ -12,7 +12,10 @@ import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
-import com.kolown.porring.core.data.remotemediator.UserPostRemoteMediatorFactory
+import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFactory
+import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
+import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETAIL_PER_PAGE
+import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
 import com.kolown.porring.core.local.LocalPostDataSource
 import com.kolown.porring.core.local.room.dao.ItemType
 import com.kolown.porring.core.local.toPostContentModel
@@ -53,12 +56,12 @@ interface PostRepository {
     suspend fun updateFollowState(authorId: String, isFollow: Boolean)
     suspend fun insertPagingItem(item: PostContentModel)
     suspend fun clearPagingItems()
-    suspend fun getUserPagingItemPosts(
-        postId: String,
-        pageState: StateFlow<PageState>
+    fun getPagingItemPosts(
+        postType: PostType,
+        pageState: StateFlow<PageState>?,
+        authorId: String? = null,
+        postId: String? = null
     ): Flow<PagingData<PostContentModel>>
-
-    fun getRandomPagingItemPosts(pageState: StateFlow<PageState>): Flow<PagingData<PostContentModel>>
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -70,7 +73,8 @@ class PostRepositoryImpl @Inject constructor(
     @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
     private val followDataSource: FollowDataSource,
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
-    private val userPostRemoteMediatorFactory: UserPostRemoteMediatorFactory,
+    private val userDetailRemoteMediatorFactory: UserDetailRemoteMediatorFactory,
+    private val userGalleryRemoteMediatorFactory: UserGalleryPostRemoteMediatorFactory,
 ) : PostRepository {
     override fun getUserPosts(userId: String?): Flow<PagingData<PostContentModel>> {
         val authorId = googleAuthDataSource.getUserId()
@@ -150,11 +154,38 @@ class PostRepositoryImpl @Inject constructor(
         localPostDataSource.clearPagingItems()
     }
 
+    override fun getPagingItemPosts(
+        postType: PostType,
+        pageState: StateFlow<PageState>?,
+        authorId: String?,
+        postId: String?
+    ): Flow<PagingData<PostContentModel>> {
+        return when (postType) {
+            PostType.RANDOM_DETAIL -> getRandomPagingItem(postType.pageSize, pageState)
+            PostType.USER_DETAIL -> getUserDetailPagingItem(
+                postType.pageSize,
+                pageState,
+                authorId,
+                postId
+            )
+
+            PostType.USER_GALLERY -> getUserGalleryPagingItem(
+                postType.pageSize,
+                authorId,
+            )
+        }
+    }
+
     @OptIn(ExperimentalPagingApi::class)
-    override fun getRandomPagingItemPosts(pageState: StateFlow<PageState>): Flow<PagingData<PostContentModel>> {
+    private fun getRandomPagingItem(
+        pageSize: Int,
+        pageState: StateFlow<PageState>?
+    ): Flow<PagingData<PostContentModel>> {
+        if (pageState == null) throw IllegalArgumentException("Page State가 없습니다.")
+
         return Pager(
             config = PagingConfig(
-                pageSize = DETAIL_PER_PAGE,
+                pageSize = pageSize,
                 enablePlaceholders = true,
             ),
             remoteMediator = randomPostRemoteMediatorFactory.create(pageState),
@@ -167,18 +198,45 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    override suspend fun getUserPagingItemPosts(
-        postId: String,
-        pageState: StateFlow<PageState>
+    private fun getUserDetailPagingItem(
+        pageSize: Int,
+        pageState: StateFlow<PageState>?,
+        authorId: String?,
+        postId: String?
     ): Flow<PagingData<PostContentModel>> {
-        val item = requireNotNull(localPostDataSource.getItemById(postId))
+        if (pageState == null) throw IllegalArgumentException("Page State가 없습니다.")
+        if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
 
         return Pager(
             config = PagingConfig(
-                pageSize = DETAIL_PER_PAGE,
+                pageSize = pageSize,
                 enablePlaceholders = true,
             ),
-            remoteMediator = userPostRemoteMediatorFactory.create(item, pageState),
+            remoteMediator = userDetailRemoteMediatorFactory.create(
+                authorId = authorId,
+                postId = postId,
+                pageState = pageState
+            ),
+            pagingSourceFactory = { localPostDataSource.getPagingItems(true) }
+        ).flow.map { pagingData ->
+            pagingData.map { data ->
+                data.toPostContentModel()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalPagingApi::class)
+    private fun getUserGalleryPagingItem(
+        pageSize: Int,
+        authorId: String?,
+    ): Flow<PagingData<PostContentModel>> {
+        if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
+
+        return Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+            ),
+            remoteMediator = userGalleryRemoteMediatorFactory.create(authorId = authorId),
             pagingSourceFactory = { localPostDataSource.getPagingItems(true) }
         ).flow.map { pagingData ->
             pagingData.map { data ->
@@ -388,8 +446,14 @@ class PostRepositoryImpl @Inject constructor(
     companion object {
         const val DETAIL_PER_PAGE = 5
         const val SEARCH_PER_PAGE = 5
-        const val GALLERY_PAGE_SIZE = 5
+        const val GALLERY_PAGE_SIZE = 15
         const val HOME_ITEM_SIZE = 10
         const val RANDOM_SEED = "ABCDE"
     }
+}
+
+enum class PostType(val pageSize: Int) {
+    RANDOM_DETAIL(DETAIL_PER_PAGE),
+    USER_DETAIL(DETAIL_PER_PAGE),
+    USER_GALLERY(GALLERY_PAGE_SIZE),
 }

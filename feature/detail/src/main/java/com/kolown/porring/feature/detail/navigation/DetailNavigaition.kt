@@ -12,10 +12,11 @@ import com.kolown.porring.feature.detail.DetailRoute
 fun NavController.navigateToDetail(
     type: MainMenuRoute.Detail.Type,
     order: Int,
-    postId: String? = null,
-    navOptions: NavOptions
+    navOptions: NavOptions,
+    authorId: String = "",
+    postId: String? = null
 ) {
-    navigate(MainMenuRoute.Detail(type, order, postId), navOptions = navOptions)
+    navigate(MainMenuRoute.Detail(type, order, authorId, postId), navOptions = navOptions)
 }
 
 fun NavGraphBuilder.detailNavGraph(
@@ -28,6 +29,7 @@ fun NavGraphBuilder.detailNavGraph(
             padding = padding,
             type = it.toRoute<MainMenuRoute.Detail>().type,
             order = it.toRoute<MainMenuRoute.Detail>().order,
+            postId = it.toRoute<MainMenuRoute.Detail>().postId,
             navigateToTheir = navigateToTheir,
             popBackStack = popBackStack,
         )

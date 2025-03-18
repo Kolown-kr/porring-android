@@ -49,7 +49,12 @@ sealed interface MainMenuRoute : Route {
     data class Their(val authorId: String) : MainMenuRoute
 
     @Serializable
-    data class Detail(val type: Type, val order: Int, val postId: String? = null) :
+    data class Detail(
+        val type: Type,
+        val order: Int,
+        val authorId: String,
+        val postId: String? = null,
+    ) :
         MainMenuRoute {
         @Serializable
         enum class Type {

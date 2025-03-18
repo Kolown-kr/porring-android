@@ -21,7 +21,7 @@ fun NavController.navigateTheirDetail(navOptions: NavOptions) {
 
 fun NavGraphBuilder.theirNavGraph(
     popBackStack: () -> Unit,
-    navigateToDetail: (String) -> Unit,
+    navigateToDetail: (String, String) -> Unit,
     padding: PaddingValues,
 ) {
     composable<MainMenuRoute.Their> { navBackStackEntry ->

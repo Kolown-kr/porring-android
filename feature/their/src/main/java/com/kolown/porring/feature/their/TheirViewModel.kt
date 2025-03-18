@@ -1,17 +1,22 @@
 package com.kolown.porring.feature.their
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.PostType
+import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -23,11 +28,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TheirViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
 ) : ViewModel() {
     private val _followerName = MutableStateFlow("")
     val followerName = _followerName.asStateFlow()
+
+    private val _pageState = MutableStateFlow(PageState())
+    private val pageState = _pageState.asStateFlow()
+
+    private val _userPosts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
+    val userPosts = _userPosts.asStateFlow()
 
     private var _firstPage = 0
     val firstPage get() = _firstPage
@@ -61,14 +73,27 @@ class TheirViewModel @Inject constructor(
 
     }.cachedIn(viewModelScope)
 
+    init {
+        val authorId = savedStateHandle.get<String>("authorId") ?: ""
+        viewModelScope.launch {
+            postRepository.clearPagingItems()
+            postRepository.getPagingItemPosts(
+                postType = PostType.USER_GALLERY,
+                postId = null,
+                authorId = authorId,
+                pageState = pageState
+            ).collectLatest(_userPosts::emit)
+        }
+    }
+
     fun setPage(page: Int) {
         _firstPage = page
     }
 
     fun onClickItem(post: PostContentModel) {
         viewModelScope.launch {
-            postRepository.clearPagingItems()
-            postRepository.insertPagingItem(post)
+//            postRepository.clearPagingItems()
+//            postRepository.insertPagingItem(post)
         }
     }
 

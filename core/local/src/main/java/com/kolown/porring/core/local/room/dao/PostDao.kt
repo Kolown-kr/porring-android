@@ -35,24 +35,24 @@ interface PostDao {
         clearPagingItems()
     }
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPostDefaultInfo(postDefaultInfo: List<PostDefaultInfo>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOtherUserPostInfo(otherUserPostInfo: List<OtherUserPostInfo>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHomeItemPost(homeItemPost: List<HomeItemPost>)
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPagingItemPost(pagingItemPost: List<PagingItemPost>)
 
     @Transaction
     @Query(
         """
         SELECT 
-            homeItems.home_item_id AS homeItemId,
+            homeItems.post_id AS homeItemId,
             homeItems.post_id AS postId,
         
             post.image_url AS imageUrl,
@@ -75,7 +75,7 @@ interface PostDao {
     @Query(
         """
         SELECT
-            pagingItems.paging_item_id AS pagingItemId,
+            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,
@@ -92,7 +92,7 @@ interface PostDao {
         LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
         ORDER BY
             CASE WHEN :useRegisterAt = 1 THEN post.register_at END DESC,
-            pagingItems.paging_item_id ASC
+            pagingItems.post_id ASC
     """
     )
     fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>
@@ -101,7 +101,7 @@ interface PostDao {
     @Query(
         """
             SELECT
-            pagingItems.paging_item_id AS pagingItemId,
+            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,
@@ -125,7 +125,7 @@ interface PostDao {
     @Query(
         """
             SELECT
-            pagingItems.paging_item_id AS pagingItemId,
+            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,

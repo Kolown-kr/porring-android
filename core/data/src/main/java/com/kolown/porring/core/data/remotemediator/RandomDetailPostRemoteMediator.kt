@@ -10,7 +10,9 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.local.LocalPostDataSource
 import com.kolown.porring.core.local.room.dao.ItemType
+import com.kolown.porring.core.local.room.dao.RemoteKeyDao
 import com.kolown.porring.core.local.room.dto.PostData
+import com.kolown.porring.core.local.room.entity.RemoteKey
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
@@ -18,7 +20,6 @@ import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -35,126 +36,104 @@ import java.io.IOException
 import javax.inject.Named
 
 @OptIn(ExperimentalPagingApi::class)
-class UserPostRemoteMediator @AssistedInject constructor(
-    @Assisted private val postItem: PostContentModel,
+class RandomDetailPostRemoteMediator @AssistedInject constructor(
     @Assisted private val pageState: StateFlow<PageState>,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
+    private val remoteKeyDao: RemoteKeyDao,
 ) : RemoteMediator<Int, PostData>() {
     private var isLoading = false
+    private val currentUserId = googleAuthDataSource.getUserId()
+    private var randomType = "ABCDE".random().toString()
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, PostData>,
+        state: PagingState<Int, PostData>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
                 val pageSize = state.config.pageSize.toLong()
 
-                if (loadType == LoadType.REFRESH) onRefresh(pageSize)
+                if (loadType == LoadType.REFRESH) {
+                    val initialKey = (0..Long.MAX_VALUE).random()
+
+                    remoteKeyDao.clearRemoteKeys()
+                    getPosts(initialKey, pageSize)
+                }
+
+                if (loadType == LoadType.PREPEND) return@withContext MediatorResult.Success(
+                    endOfPaginationReached = true
+                )
 
                 pageState.collectLatest { pageState ->
-                    if (isLoading.not() && pageState.currentPage < pageSize) {
+                    if (isLoading.not() && pageState.pageCount - state.config.pageSize - 1 < pageState.currentPage) {
                         isLoading = true
                         launch {
                             try {
-                                onPrepend(pageSize)
-                            } finally {
-                                isLoading = false
-                            }
-                        }
-                    }
+                                val nextKey = remoteKeyDao.remoteKeysById("posts")?.nextKey ?: 0
 
-                    if (isLoading.not() && pageState.pageCount - pageSize - 1 < pageState.currentPage) {
-                        isLoading = true
-                        launch {
-                            try {
-                                onAppend(pageSize)
+                                getPosts(nextKey, pageSize)
                             } finally {
                                 isLoading = false
                             }
                         }
                     }
                 }
+
                 return@withContext MediatorResult.Success(endOfPaginationReached = true)
             }
         } catch (e: Exception) {
-            Log.e("UserPostRemoteMediator: fatal", "error: $e")
-            return MediatorResult.Error(e)
+            Log.e("PostRemoteMediator: fatal", "error: $e")
+            MediatorResult.Error(e)
         }
     }
 
-    private suspend fun onRefresh(pageSize: Long) {
-        val result = coroutineScope {
-            val prev = async {
-                Firebase.firestore.collection("post")
-                    .whereEqualTo("authorId", postItem.authorId)
-                    .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .endBefore(postItem.registerAt)
-                    .limitToLast(pageSize)
+    private suspend fun getPosts(key: Long, pageSize: Long) {
+        val query: suspend (Long, Long) -> Query = { seed, pageSize ->
+            Firebase.firestore.collection("post")
+                .whereNotEqualTo("authorId", currentUserId)
+                .whereGreaterThan("random$randomType", seed)
+                .orderBy("random$randomType", Query.Direction.ASCENDING)
+                .orderBy("postId")
+                .limit(pageSize)
+        }
+        val results = coroutineScope {
+            val posts = async {
+                query(key, pageSize)
                     .get()
                     .await()
-                    .toObjects(PostDto::class.java)
-                    .map { it.toPostModel() }
-                    .getPostContent()
+                    .toObjects(com.kolown.porring.core.network.model.PostDto::class.java)
+                    .map { it.toPostModel(randomType) }
+            }.await()
+
+            if (posts.size < pageSize) {
+                val additions = async {
+                    query(0, pageSize - posts.size)
+                        .get()
+                        .await()
+                        .toObjects(com.kolown.porring.core.network.model.PostDto::class.java)
+                        .map { it.toPostModel(randomType) }
+                }.await()
+
+                posts + additions
+            } else {
+                posts
             }
-            val next = async {
-                Firebase.firestore.collection("post")
-                    .whereEqualTo("authorId", postItem.authorId)
-                    .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .startAfter(postItem.registerAt)
-                    .limit(pageSize)
-                    .get()
-                    .await()
-                    .toObjects(PostDto::class.java)
-                    .map { it.toPostModel() }
-                    .getPostContent()
-            }
-            prev.await() + next.await()
         }
 
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
-    }
-
-    private suspend fun onPrepend(pageSize: Long) {
-        val firstItem = localPostDataSource.getFirstPageItem()
-
-        val result = Firebase.firestore.collection("post")
-            .whereEqualTo("authorId", postItem.authorId)
-            .orderBy("registerAt", Query.Direction.DESCENDING)
-            .endBefore(firstItem.registerAt)
-            .limitToLast(pageSize)
-            .get()
-            .await()
-            .toObjects(PostDto::class.java)
-            .map { it.toPostModel() }
-            .getPostContent()
-
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
-    }
-
-    private suspend fun onAppend(pageSize: Long) {
-        val lastItem = localPostDataSource.getLastPageItem()
-
-        val result = Firebase.firestore.collection("post")
-            .whereEqualTo("authorId", postItem.authorId)
-            .orderBy("registerAt", Query.Direction.DESCENDING)
-            .startAfter(lastItem.registerAt)
-            .limit(pageSize)
-            .get()
-            .await()
-            .toObjects(PostDto::class.java)
-            .map { it.toPostModel() }
-            .getPostContent()
-
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(results.getPostContent(), ItemType.PAGING_ITEM)
+        remoteKeyDao.insertOrReplace(
+            RemoteKey(
+                prevKey = key,
+                nextKey = results.last().random + 1
+            )
+        )
     }
 
     private suspend fun List<PostModel>.getPostContent(): List<PostContentModel> {
-        val currentUserId = googleAuthDataSource.getUserId()
         val posts = this
         val (tags, reactions, isFollowers) = coroutineScope {
             val tagsDeferred = async {

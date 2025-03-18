@@ -28,7 +28,6 @@ import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBa
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.ui.component.ErrorScreen
-import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import kotlinx.coroutines.delay
@@ -40,9 +39,10 @@ internal fun TheirRoute(
     padding: PaddingValues = PaddingValues(),
     viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
-    navigateToDetail: (String) -> Unit = {},
+    navigateToDetail: (String, String) -> Unit = { _, _ -> },
 ) {
-    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
+//    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
+    val pagingItems = viewModel.userPosts.collectAsLazyPagingItems()
     val followerName by viewModel.followerName.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
     var showErrorScreen by remember { mutableStateOf(false) }
@@ -56,6 +56,7 @@ internal fun TheirRoute(
     }
 
     val onRefresh: () -> Unit = {
+        // TODO: 리프레시 동작 구현해야함
         isRefreshing = true
         pagingItems.refresh()
     }
@@ -96,7 +97,7 @@ internal fun TheirRoute(
         popBackStack = popBackStack,
         navigateToDetail = {
             viewModel.onClickItem(it)
-            navigateToDetail(it.postId)
+            navigateToDetail(it.authorId, it.postId)
         },
         scaleFraction = scaleFraction,
         updateShowErrorScreen = { showErrorScreen = it }
@@ -150,8 +151,19 @@ private fun TheirScreen(
             }
 
             pagingItems.loadState.refresh is LoadState.Loading -> {
-                updateShowErrorScreen(false)
-                LoadingScreen()
+//                updateShowErrorScreen(false)
+//                LoadingScreen()
+                CompositionLocalProvider(
+                    LocalOverscrollConfiguration provides null
+                ) {
+                    StateLazyGrid(
+                        listState = listState,
+                        longClickEnabled = false,
+                        pagingItems = pagingItems,
+                        navigateToDetail = navigateToDetail,
+                        setPage = setPage
+                    )
+                }
             }
 
             pagingItems.loadState.refresh is LoadState.NotLoading -> {
