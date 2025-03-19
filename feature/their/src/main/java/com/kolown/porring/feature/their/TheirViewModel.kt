@@ -39,7 +39,7 @@ class TheirViewModel @Inject constructor(
     private val pageState = _pageState.asStateFlow()
 
     private val _userPosts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val userPosts = _userPosts.asStateFlow()
+    val userPosts = _userPosts.asStateFlow().cachedIn(viewModelScope)
 
     private var _firstPage = 0
     val firstPage get() = _firstPage

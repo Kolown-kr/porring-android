@@ -21,10 +21,12 @@ import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Named
 
@@ -42,10 +44,12 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
         state: PagingState<Int, PostData>
     ): MediatorResult {
         return try {
-            when (loadType) {
-                LoadType.REFRESH -> onRefresh(state.config.pageSize.toLong())
-                LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
-                LoadType.APPEND -> onAppend(state.config.pageSize.toLong())
+            withContext(Dispatchers.IO) {
+                when (loadType) {
+                    LoadType.REFRESH -> onRefresh(state.config.pageSize.toLong())
+                    LoadType.PREPEND -> MediatorResult.Success(endOfPaginationReached = true)
+                    LoadType.APPEND -> onAppend(state.config.pageSize.toLong())
+                }
             }
         } catch (e: Exception) {
             Log.e("GallryPostRemoteMediator: fatal", "error: $e")
@@ -55,7 +59,6 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
     }
 
     private suspend fun onRefresh(pageSize: Long): MediatorResult {
-
         val posts = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
             .orderBy("registerAt", Query.Direction.DESCENDING)
@@ -73,6 +76,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
     private suspend fun onAppend(pageSize: Long): MediatorResult {
         val lastItem = localPostDataSource.getLastPageItem()
+        Log.i("PagingTest: UserGalleryPostRemoteMediator", "onAppend")
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
@@ -84,6 +88,8 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
             .toObjects(PostDto::class.java)
             .map { it.toPostModel() }
             .getPostContent()
+
+        Log.e("PagingTest: UserGalleryPostRemoteMediator", "result: $result")
 
         localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
 

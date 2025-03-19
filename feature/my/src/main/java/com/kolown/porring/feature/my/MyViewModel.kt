@@ -27,7 +27,7 @@ class MyViewModel @Inject constructor(
     authRepository: AuthRepository
 ) : ViewModel() {
     private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val posts = _posts.asStateFlow()
+    val posts = _posts.asStateFlow().cachedIn(viewModelScope)
 
     private var _firstPage = 0
     val firstPage get() = _firstPage
