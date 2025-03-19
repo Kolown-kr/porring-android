@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,6 +65,8 @@ import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 import com.kolown.porring.core.ui.component.toImage
 import com.kolown.porring.feature.detail.component.FullScreenEffect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
 internal fun DetailRoute(
@@ -83,11 +86,14 @@ internal fun DetailRoute(
     val snackBarBridge = LocalSnackBarBridge.current
 
     LaunchedEffect(Unit) {
-        pagerState.scrollToPage(posts.itemSnapshotList.items.indexOfFirst { it.postId == postId }
-            ?: order)
+        snapshotFlow { posts.itemSnapshotList.items }
+            .filter { it.isNotEmpty() }
+            .first()
+            .let { items ->
+                val index = items.indexOfFirst { it.postId == postId }
+                pagerState.scrollToPage(if (index >= 0) index else order)
+            }
     }
-
-
 
     LaunchedEffect(pagerState.currentPage) {
         val state = PageState(pagerState.currentPage, pagerState.pageCount)

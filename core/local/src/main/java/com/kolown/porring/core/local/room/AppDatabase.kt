@@ -20,7 +20,7 @@ import com.kolown.porring.core.local.room.util.Converter
         OtherUserPostInfo::class,
         RemoteKey::class,
     ],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(Converter::class)

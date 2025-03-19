@@ -14,4 +14,5 @@ data class HomeItemPost(
 data class PagingItemPost(
     @PrimaryKey
     @ColumnInfo("post_id") val postId: String,
+    @ColumnInfo("sort_order") val sortOrder: Int,
 )

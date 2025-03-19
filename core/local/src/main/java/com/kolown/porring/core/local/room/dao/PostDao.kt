@@ -23,7 +23,17 @@ interface PostDao {
         insertOtherUserPostInfo(posts.map { it.toOtherUserPostInfo() })
         when (itemType) {
             ItemType.HOME_ITEM -> insertHomeItemPost(posts.map { HomeItemPost(postId = it.postId) })
-            ItemType.PAGING_ITEM -> insertPagingItemPost(posts.map { PagingItemPost(postId = it.postId) })
+            ItemType.PAGING_ITEM -> {
+                var currentMax = getMaxSortOrder()
+
+                val new = posts.map {
+                    val new = ++currentMax
+
+                    PagingItemPost(postId = it.postId, sortOrder = new)
+                }
+
+                insertPagingItemPost(new)
+            }
         }
     }
 
@@ -45,8 +55,11 @@ interface PostDao {
     suspend fun insertHomeItemPost(homeItemPost: List<HomeItemPost>)
 
     @Transaction
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPagingItemPost(pagingItemPost: List<PagingItemPost>)
+
+    @Query("SELECT COALESCE(MAX(sort_order), 0) FROM paging_items")
+    suspend fun getMaxSortOrder(): Int
 
     @Transaction
     @Query(
@@ -92,7 +105,7 @@ interface PostDao {
         LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
         ORDER BY
             CASE WHEN :useRegisterAt = 1 THEN post.register_at END DESC,
-            pagingItems.post_id ASC
+            pagingItems.sort_order ASC
     """
     )
     fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
@@ -36,7 +37,7 @@ internal class DetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val posts = _posts.asStateFlow()
+    val posts = _posts.asStateFlow().cachedIn(viewModelScope)
 
     private val _pageState = MutableStateFlow(PageState())
     private val pageState = _pageState.asStateFlow()
