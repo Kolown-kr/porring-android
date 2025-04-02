@@ -145,7 +145,7 @@ private fun MyScreen(
     isRefreshing: Boolean = false,
     showErrorScreen: Boolean = false,
     padding: PaddingValues = PaddingValues(),
-    refreshState: PullToRefreshState = rememberPullToRefreshState(),
+    refreshState: PullToRefreshState,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     onRefresh: () -> Unit = {},
     setPage: (Int) -> Unit = {},

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -120,29 +121,40 @@ internal class DetailViewModel @Inject constructor(
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-        if (post.isFollower) {
-            followRepository.unFollowUser(post.authorId)
-            _posts.update {
-                _posts.value.replaceIf(
-                    predicate = { it.authorId == post.authorId },
-                    replacement = { it.copy(isFollower = false) }
-                )
-            }
-        } else {
-            _followEvent.emit(post)
-        }
+//        if (post.isFollower) {
+//            followRepository.unFollowUser(post.authorId)
+//            _posts.update {
+//                _posts.value.replaceIf(
+//                    predicate = { it.authorId == post.authorId },
+//                    replacement = { it.copy(isFollower = false) }
+//                )
+//            }
+//        } else {
+        _followEvent.emit(post)
+//        }
+    }
+
+    fun cancelFollow(authorId: String) = viewModelScope.launch {
+        postRepository.updateFollowState(authorId, false)
+        followRepository.unFollowUser(authorId).launchIn(viewModelScope)
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-        followRepository.followUser(authorId, name)
-        _posts.update {
-            _posts.value.replaceIf(
-                predicate = { it.authorId == authorId },
-                replacement = { it.copy(isFollower = true) }
-            )
-        }
+        postRepository.updateFollowState(authorId, true)
+        followRepository.followUser(authorId, name).launchIn(viewModelScope)
     }
+
+//    fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
+//        if (checkedLogIn().not()) return@launch
+//        followRepository.followUser(authorId, name)
+//        _posts.update {
+//            _posts.value.replaceIf(
+//                predicate = { it.authorId == authorId },
+//                replacement = { it.copy(isFollower = true) }
+//            )
+//        }
+//    }
 
     private inline fun <T : Any> PagingData<T>.replaceIf(
         crossinline predicate: (T) -> Boolean,

@@ -62,6 +62,7 @@ import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
+import com.kolown.porring.core.ui.component.toImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -275,8 +276,8 @@ private fun HomeContent(
 
             EventRow(
                 post = post,
-                isFavorite = post.myReaction != null,
                 isFollowed = post.isFollower,
+                activatedReaction = post.myReaction,
                 onReactionClick = { onReactionClick(post.postId, it) },
                 onGalleryClick = onGalleryClick,
                 onFollowClick = onFollowClick
@@ -290,7 +291,6 @@ private fun HomeContent(
 @Composable
 private fun EventRow(
     post: PostContentModel = PostContentModel.EMPTY,
-    isFavorite: Boolean = false,
     isFollowed: Boolean = false,
     activatedReaction: Reactions? = null,
     onReactionClick: (Reactions) -> Unit = {},
@@ -308,8 +308,8 @@ private fun EventRow(
             onClick = { isExpand = true }
         ) {
             Icon(
-                imageVector = if (isFavorite) {
-                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_selected)
+                imageVector = if (activatedReaction != null) {
+                    ImageVector.vectorResource(activatedReaction.toImage())
                 } else {
                     ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected)
                 },
