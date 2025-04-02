@@ -36,6 +36,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -50,7 +51,6 @@ import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
-import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
@@ -58,6 +58,7 @@ import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
@@ -114,10 +115,21 @@ internal fun DetailRoute(
     }
 
     followPost?.let { post ->
-        FollowDialog(
-            onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
-            onClickCancel = { followPost = null }
-        )
+        if (post.isFollower) {
+            BetaPorringAlertDialog(
+                title = "팔로우 취소",
+                description = "팔로우를 취소하시겠습니까?",
+                dismissText = "취소",
+                confirmText = "확인",
+                onConfirm = { viewModel.cancelFollow(post.authorId) },
+                onDismissRequest = { followPost = null }
+            )
+        } else {
+            FollowDialog(
+                onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
+                onClickCancel = { followPost = null }
+            )
+        }
     }
 
     reelsModePostUrl?.let { postUrl ->
@@ -262,6 +274,7 @@ private fun DetailContent(
             EventRow(
                 isFollowed = post.isFollower,
                 galleryVisible = galleryVisible,
+                activatedReaction = post.myReaction,
                 onReactionClick = { onReactionClick(post.postId, it) },
                 onGalleryClick = { onGalleryClick(post.authorId) },
                 onFollowClick = { onFollowClick(post) }
