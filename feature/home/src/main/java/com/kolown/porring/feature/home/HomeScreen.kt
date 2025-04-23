@@ -104,25 +104,11 @@ internal fun HomeRoute(
     }
 
     LaunchedEffect(uiState) {
-        when (uiState) {
-            is UiState.Loading -> {
-                isShowErrorScreen = false
-            }
+        isRefreshing = false
 
-            is UiState.Failure -> {
-                isRefreshing = false
-                isShowErrorScreen = true
-            }
-
-            is UiState.Success -> {
-                isRefreshing = false
-                isShowErrorScreen = false
-            }
-
-            else -> {
-                isRefreshing = false
-                isShowErrorScreen = false
-            }
+        isShowErrorScreen = when (uiState) {
+            is UiState.Failure -> true
+            else -> false
         }
     }
 
