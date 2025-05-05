@@ -15,10 +15,6 @@ fun NavController.navigateTheir(authorId: String, navOptions: NavOptions? = null
     navigate(MainMenuRoute.Their(authorId), navOptions)
 }
 
-fun NavController.navigateTheirDetail(navOptions: NavOptions) {
-    navigate(Route.DetailTheir, navOptions)
-}
-
 fun NavGraphBuilder.theirNavGraph(
     popBackStack: () -> Unit,
     navigateToDetail: (String, String) -> Unit,

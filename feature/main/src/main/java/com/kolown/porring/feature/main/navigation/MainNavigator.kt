@@ -20,11 +20,9 @@ import com.kolown.porring.feature.imageedit.navigation.navigateImageEdit
 import com.kolown.porring.feature.join.navigation.navigateToJoin
 import com.kolown.porring.feature.login.navigation.navigateLogin
 import com.kolown.porring.feature.my.navigation.navigateMy
-import com.kolown.porring.feature.my.navigation.navigateMyDetail
 import com.kolown.porring.feature.search.navigation.navigateSearch
 import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.their.navigation.navigateTheir
-import com.kolown.porring.feature.their.navigation.navigateTheirDetail
 import com.kolown.porring.feature.upload.navigation.navigateUpload
 
 internal class MainNavigator(
@@ -93,10 +91,6 @@ internal class MainNavigator(
         0,
         navOptions = singleTopOptions
     )
-
-    fun navigateToDetailMy() = navController.navigateMyDetail(navOptions = singleTopOptions)
-
-    fun navigateToDetailTheir() = navController.navigateTheirDetail(navOptions = singleTopOptions)
 
     fun popBackStack() {
         navController.previousBackStackEntry?.let {

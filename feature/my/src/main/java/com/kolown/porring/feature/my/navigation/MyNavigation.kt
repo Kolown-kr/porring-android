@@ -14,10 +14,6 @@ fun NavController.navigateMy(navOptions: NavOptions) {
     navigate(MainMenuRoute.My, navOptions)
 }
 
-fun NavController.navigateMyDetail(navOptions: NavOptions) {
-    navigate(Route.DetailMy, navOptions)
-}
-
 fun NavGraphBuilder.myNavGraph(
     padding: PaddingValues,
     navigateToLogin: () -> Unit,
