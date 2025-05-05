@@ -168,7 +168,7 @@ private fun DetailScreen(
     onFollowClick: (PostContentModel) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundDark)
