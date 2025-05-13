@@ -1,6 +1,8 @@
 package com.kolown.porring.core.network.model
 
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.toReactions
 import com.kolown.porring.core.network.Util.randomValue
 
 data class PostDto(
@@ -9,6 +11,9 @@ data class PostDto(
     val imageUrl: String = "",
     val registerAt: String = "",
     val description: String = "",
+    val tags: List<String> = emptyList(),
+    val reactions: List<Int> = emptyList(),
+    val myReaction: Int? = null,
     val randomA: Long = randomValue(),
     val randomB: Long = randomValue(),
     val randomC: Long = randomValue(),
@@ -16,13 +21,18 @@ data class PostDto(
     val randomE: Long = randomValue(),
 )
 
-fun PostDto.toPostModel(seed: String = "A"): PostModel {
+fun PostDto.toPostModel(
+    seed: String = "A"
+): PostModel {
     return PostModel(
         postId = this.postId,
         authorId = this.authorId,
         imageUrl = this.imageUrl,
         registerAt = this.registerAt,
         description = this.description,
+        tags = this.tags,
+        reactions = this.reactions.map { it.toReactions() ?: Reactions.LOVE },
+        myReaction = this.myReaction?.toReactions(),
         random = when (seed) {
             "A" -> randomA
             "B" -> randomB

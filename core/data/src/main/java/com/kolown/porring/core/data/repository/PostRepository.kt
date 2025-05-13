@@ -256,39 +256,17 @@ class PostRepositoryImpl @Inject constructor(
             Log.e("fatal: postRepository", it.toString())
             throw IOException("게시물 불러오기 실패")
         }
-        val (tags, reactions, isFollowers) = coroutineScope {
-            val tagsDeferred = async {
-                posts.map {
-                    async {
-                        tagDataSource.getPostTag(it.postId).getOrElse {
-                            throw IOException("태그 불러오기 실패")
-                        }
+        val isFollowers = coroutineScope {
+            posts.map {
+                async {
+                    followDataSource.getIsFollower(
+                        userId = currentUserId,
+                        followerId = it.authorId
+                    ).getOrElse {
+                        throw IOException("팔로우 확인 실패")
                     }
-                }.awaitAll()
-            }
-            val reactionsDeferred = async {
-                posts.map {
-                    async {
-                        reactionDataSource.getReactionByPostId(it.postId).getOrElse {
-                            throw IOException("리액션 불러오기 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-            val followDeferred = async {
-                posts.map {
-                    async {
-                        followDataSource.getIsFollower(
-                            userId = currentUserId,
-                            followerId = it.authorId
-                        ).getOrElse {
-                            throw IOException("팔로우 확인 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-
-            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
+                }
+            }.awaitAll()
         }
 
         val postContentModels = posts.mapIndexed { index, postModel ->
@@ -298,10 +276,10 @@ class PostRepositoryImpl @Inject constructor(
                 imageUrl = postModel.imageUrl,
                 registerAt = postModel.registerAt,
                 description = postModel.description,
-                tags = tags[index].map { it.tagName },
+                tags = postModel.tags,
                 isFollower = isFollowers[index],
-                reactions = reactions[index].mapNotNull { it.reaction },
-                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
+                reactions = postModel.reactions,
+                myReaction = postModel.myReaction
             )
         }
 
