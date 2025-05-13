@@ -6,6 +6,9 @@ import com.google.firebase.firestore.Query
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -113,38 +116,63 @@ class PostDataSourceImpl @Inject constructor(
             val randomValue = (0..Long.MAX_VALUE).random()
             val queryDirection =
                 listOf(Query.Direction.ASCENDING, Query.Direction.DESCENDING).random()
+
             val query = postCollection
                 .whereNotEqualTo("authorId", uid)
                 .whereGreaterThan("random${this.randomType}", randomValue)
                 .orderBy("random${this.randomType}", queryDirection)
                 .limit(count.toLong())
-            val result = query
-                .get()
-                .await()
-                .map { querySnapshot ->
-                    querySnapshot
-                        .toObject(PostDto::class.java)
-                        .toPostModel(this.randomType)
-                }
 
-            if (result.size < count) {
-                val remainingCount = count - result.size
-                val fallbackQuery = postCollection
-                    .whereNotEqualTo("authorId", uid)
-                    .whereGreaterThan("random${this.randomType}", 0)
-                    .orderBy("random${this.randomType}", queryDirection)
-                    .limit(remainingCount.toLong())
-                    .get()
-                    .await()
-                    .map { querySnapshot ->
-                        querySnapshot
-                            .toObject(PostDto::class.java)
-                            .toPostModel(this.randomType)
+            val initialPosts = query.get().await()
+            val resultPosts = if (initialPosts.size() < count) {
+                val remainingCount = count - initialPosts.size()
+                val fallbackQuery = when (queryDirection) {
+                    Query.Direction.ASCENDING -> {
+                        postCollection
+                            .whereNotEqualTo("authorId", uid)
+                            .whereGreaterThan("random${this.randomType}", 0)
+                            .orderBy("random${this.randomType}", queryDirection)
+                            .limit(remainingCount.toLong())
                     }
 
-                result + fallbackQuery
+                    Query.Direction.DESCENDING -> {
+                        postCollection
+                            .whereNotEqualTo("authorId", uid)
+                            .whereLessThan("random${this.randomType}", Long.MAX_VALUE)
+                            .orderBy("random${this.randomType}", queryDirection)
+                            .limit(remainingCount.toLong())
+                    }
+                }.get().await()
+
+                initialPosts + fallbackQuery
             } else {
-                result
+                initialPosts
+            }
+
+            coroutineScope {
+                resultPosts.map { querySnapshot ->
+                    async {
+                        val reactionQuery = postCollection
+                            .document(querySnapshot.id)
+                            .collection("reactions")
+                            .get()
+                            .await()
+                        val reactions = reactionQuery
+                            .mapNotNull { it.getLong("reaction")?.toInt() }
+                            .distinct()
+                        val myReaction = reactionQuery
+                            .find { it.id == uid }
+                            ?.getLong("reaction")
+                            ?.toInt()
+
+                        querySnapshot.toObject(PostDto::class.java)
+                            .copy(
+                                reactions = reactions,
+                                myReaction = myReaction
+                            )
+                            .toPostModel(randomType)
+                    }
+                }.awaitAll()
             }
         }
     }

@@ -6,5 +6,8 @@ data class PostModel(
     val imageUrl: String,
     val registerAt: String,
     val description: String,
+    val tags: List<String>,
+    val reactions: List<Reactions>,
+    val myReaction: Reactions?,
     val random: Long = 0L
 )
