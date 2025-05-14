@@ -1,7 +1,5 @@
 package com.kolown.porring.core.data.di
 
-import com.kolown.porring.core.data.datasource.fake.FakeGalleryDataSource
-import com.kolown.porring.core.data.datasource.fake.GalleryDataSource
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.AuthDataSourceImpl
 import com.kolown.porring.core.network.FollowDataSource
@@ -19,18 +17,10 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Named
-import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
 abstract class DataSourceModule {
-
-    @Fake
-    @Singleton
-    @Binds
-    abstract fun bindFakeGalleryDataSource(
-        galleryDataSource: FakeGalleryDataSource,
-    ): GalleryDataSource
 
     @Binds
     abstract fun bindImageDataSource(
@@ -64,5 +54,4 @@ abstract class DataSourceModule {
     abstract fun bindUploadDataSource(
         followDataSource: FollowDataSourceImpl,
     ): FollowDataSource
-
 }
