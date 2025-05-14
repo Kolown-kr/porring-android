@@ -32,9 +32,7 @@ android {
 
 dependencies {
     implementation(projects.feature.main)
-    implementation(projects.core.data)
     implementation(projects.core.local)
-    implementation(projects.core.network)
 
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.firebase.crashlytics)
