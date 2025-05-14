@@ -1,4 +1,4 @@
-package com.kolown.porring.core.local.room.dto
+package com.kolown.porring.core.local.dto
 
 data class PostData(
     val postId: String,

@@ -1,4 +1,4 @@
-package com.kolown.porring.core.local.room.dao
+package com.kolown.porring.core.local.dao
 
 import androidx.paging.PagingSource
 import androidx.room.Dao
@@ -6,13 +6,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.kolown.porring.core.local.room.dto.PostData
-import com.kolown.porring.core.local.room.entity.HomeItemPost
-import com.kolown.porring.core.local.room.entity.OtherUserPostInfo
-import com.kolown.porring.core.local.room.entity.PagingItemPost
-import com.kolown.porring.core.local.room.entity.PostDefaultInfo
-import com.kolown.porring.core.local.toOtherUserPostInfo
-import com.kolown.porring.core.local.toPostDefaultInfo
+import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
+import com.kolown.porring.core.local.entity.HomeItemPostEntity
+import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
+import com.kolown.porring.core.local.entity.PagingItemPostEntity
+import com.kolown.porring.core.local.mapper.toOtherUserPostInfo
+import com.kolown.porring.core.local.mapper.toPostDefaultInfo
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,14 +22,14 @@ interface PostDao {
         insertPostDefaultInfo(posts.map { it.toPostDefaultInfo() })
         insertOtherUserPostInfo(posts.map { it.toOtherUserPostInfo() })
         when (itemType) {
-            ItemType.HOME_ITEM -> insertHomeItemPost(posts.map { HomeItemPost(postId = it.postId) })
+            ItemType.HOME_ITEM -> insertHomeItemPost(posts.map { HomeItemPostEntity(postId = it.postId) })
             ItemType.PAGING_ITEM -> {
                 var currentMax = getMaxSortOrder()
 
                 val new = posts.map {
                     val new = ++currentMax
 
-                    PagingItemPost(postId = it.postId, sortOrder = new)
+                    PagingItemPostEntity(postId = it.postId, sortOrder = new)
                 }
 
                 insertPagingItemPost(new)
@@ -46,17 +46,17 @@ interface PostDao {
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPostDefaultInfo(postDefaultInfo: List<PostDefaultInfo>)
+    suspend fun insertPostDefaultInfo(defaultPostInfoEntity: List<DefaultPostInfoEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOtherUserPostInfo(otherUserPostInfo: List<OtherUserPostInfo>)
+    suspend fun insertOtherUserPostInfo(otherUserPostInfoEntity: List<OtherUserPostInfoEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHomeItemPost(homeItemPost: List<HomeItemPost>)
+    suspend fun insertHomeItemPost(homeItemPostEntity: List<HomeItemPostEntity>)
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertPagingItemPost(pagingItemPost: List<PagingItemPost>)
+    suspend fun insertPagingItemPost(pagingItemPostEntity: List<PagingItemPostEntity>)
 
     @Query("SELECT COALESCE(MAX(sort_order), 0) FROM paging_items")
     suspend fun getMaxSortOrder(): Int

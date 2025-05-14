@@ -1,9 +1,11 @@
-package com.kolown.porring.core.local
+package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
-import com.kolown.porring.core.local.room.dao.ItemType
-import com.kolown.porring.core.local.room.dao.PostDao
-import com.kolown.porring.core.local.room.dto.PostData
+import com.kolown.porring.core.local.dao.ItemType
+import com.kolown.porring.core.local.dao.PostDao
+import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.local.mapper.toPostContentModel
+import com.kolown.porring.core.local.mapper.toPostData
 import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

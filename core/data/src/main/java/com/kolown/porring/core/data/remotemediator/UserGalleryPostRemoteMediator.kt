@@ -8,9 +8,9 @@ import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.kolown.porring.core.local.LocalPostDataSource
-import com.kolown.porring.core.local.room.dao.ItemType
-import com.kolown.porring.core.local.room.dto.PostData
+import com.kolown.porring.core.local.dao.ItemType
+import com.kolown.porring.core.local.datasource.LocalPostDataSource
+import com.kolown.porring.core.local.dto.PostData
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.AuthDataSource

@@ -2,7 +2,7 @@ package com.kolown.porring.core.local.di
 
 import android.content.Context
 import androidx.room.Room
-import com.kolown.porring.core.local.room.AppDatabase
+import com.kolown.porring.core.local.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

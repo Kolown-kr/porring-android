@@ -1,8 +1,8 @@
-package com.kolown.porring.core.local
+package com.kolown.porring.core.local.mapper
 
-import com.kolown.porring.core.local.room.dto.PostData
-import com.kolown.porring.core.local.room.entity.OtherUserPostInfo
-import com.kolown.porring.core.local.room.entity.PostDefaultInfo
+import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
+import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.toReactions
 
@@ -18,14 +18,14 @@ internal fun PostContentModel.toPostData() = PostData(
     myReaction = myReaction?.value,
 )
 
-internal fun PostData.toOtherUserPostInfo() = OtherUserPostInfo(
+internal fun PostData.toOtherUserPostInfo() = OtherUserPostInfoEntity(
     postId = postId,
     authorId = authorId,
     isFollower = isFollower,
     myReaction = myReaction,
 )
 
-internal fun PostData.toPostDefaultInfo() = PostDefaultInfo(
+internal fun PostData.toPostDefaultInfo() = DefaultPostInfoEntity(
     postId = postId,
     imageUrl = imageUrl,
     registerAt = registerAt,
