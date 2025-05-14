@@ -1,4 +1,4 @@
-package com.kolown.porring.core.local.room.util
+package com.kolown.porring.core.local.util
 
 import androidx.room.TypeConverter
 

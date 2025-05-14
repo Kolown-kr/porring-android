@@ -16,9 +16,9 @@ import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFacto
 import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETAIL_PER_PAGE
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
-import com.kolown.porring.core.local.LocalPostDataSource
-import com.kolown.porring.core.local.room.dao.ItemType
-import com.kolown.porring.core.local.toPostContentModel
+import com.kolown.porring.core.local.dao.ItemType
+import com.kolown.porring.core.local.datasource.LocalPostDataSource
+import com.kolown.porring.core.local.mapper.toPostContentModel
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions

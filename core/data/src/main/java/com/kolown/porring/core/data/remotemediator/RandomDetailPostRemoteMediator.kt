@@ -8,11 +8,11 @@ import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.kolown.porring.core.local.LocalPostDataSource
-import com.kolown.porring.core.local.room.dao.ItemType
-import com.kolown.porring.core.local.room.dao.RemoteKeyDao
-import com.kolown.porring.core.local.room.dto.PostData
-import com.kolown.porring.core.local.room.entity.RemoteKey
+import com.kolown.porring.core.local.dao.ItemType
+import com.kolown.porring.core.local.dao.RemoteKeyDao
+import com.kolown.porring.core.local.datasource.LocalPostDataSource
+import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.local.entity.RemoteKeyEntity
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
@@ -126,7 +126,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(results.getPostContent(), ItemType.PAGING_ITEM)
         remoteKeyDao.insertOrReplace(
-            RemoteKey(
+            RemoteKeyEntity(
                 prevKey = key,
                 nextKey = results.last().random + 1
             )
