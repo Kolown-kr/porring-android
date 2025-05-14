@@ -7,21 +7,22 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETAIL_PER_PAGE
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
-import com.kolown.porring.core.local.dao.ItemType
-import com.kolown.porring.core.local.datasource.LocalPostDataSource
-import com.kolown.porring.core.local.mapper.toPostContentModel
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.toReactions
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ImageDataSource
@@ -278,14 +279,17 @@ class PostRepositoryImpl @Inject constructor(
                 description = postModel.description,
                 tags = postModel.tags,
                 isFollower = isFollowers[index],
-                reactions = postModel.reactions,
-                myReaction = postModel.myReaction
+                reactions = postModel.reactions.map { it.toReactions() ?: Reactions.LOVE },
+                myReaction = postModel.myReaction?.toReactions()
             )
         }
 
         localPostDataSource.clearHomeItems()
         delay(100)
-        localPostDataSource.insertItems(postContentModels, ItemType.HOME_ITEM)
+        localPostDataSource.insertItems(
+            postContentModels,
+            com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
+        )
     }
 
     override fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
@@ -401,7 +405,10 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertPagingItem(item: PostContentModel) {
-        localPostDataSource.insertItems(listOf(item), ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            listOf(item),
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
     }
 
     private suspend fun <T> retryWithLimit(

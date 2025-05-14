@@ -2,12 +2,12 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
-import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -72,7 +72,7 @@ class RandomPagingDataSource @Inject constructor(
                 Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
             }
 
-             LoadResult.Page(
+            LoadResult.Page(
                 data = posts.mapIndexed { index, postModel ->
                     PostContentModel(
                         postId = postModel.postId,

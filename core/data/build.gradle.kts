@@ -7,6 +7,11 @@ plugins {
 setNamespace("core.data")
 
 dependencies {
+    implementation(projects.core.dataApi)
+    implementation(projects.core.model)
+    implementation(projects.core.datastore)
+    implementation(projects.core.network)
+
     implementation(libs.exifinterface)
     implementation(libs.androidx.credentials)
     implementation(libs.google.android.googleid)
@@ -15,9 +20,5 @@ dependencies {
     //paging
     implementation(libs.androidx.paging.runtime)
 
-    api(projects.core.model)
-    implementation(projects.core.datastore)
-    implementation(projects.core.network)
-    implementation(projects.core.local)
 }
 

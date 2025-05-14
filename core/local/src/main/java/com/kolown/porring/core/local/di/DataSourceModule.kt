@@ -1,7 +1,7 @@
 package com.kolown.porring.core.local.di
 
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.local.datasource.HomePostDataSourceImpl
-import com.kolown.porring.core.local.datasource.LocalPostDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

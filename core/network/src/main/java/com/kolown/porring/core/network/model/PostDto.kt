@@ -1,8 +1,6 @@
 package com.kolown.porring.core.network.model
 
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.Reactions
-import com.kolown.porring.core.model.toReactions
 import com.kolown.porring.core.network.Util.randomValue
 
 data class PostDto(
@@ -31,8 +29,8 @@ fun PostDto.toPostModel(
         registerAt = this.registerAt,
         description = this.description,
         tags = this.tags,
-        reactions = this.reactions.map { it.toReactions() ?: Reactions.LOVE },
-        myReaction = this.myReaction?.toReactions(),
+        reactions = this.reactions,
+        myReaction = this.myReaction,
         random = when (seed) {
             "A" -> randomA
             "B" -> randomB

@@ -8,9 +8,9 @@ import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.kolown.porring.core.local.dao.ItemType
-import com.kolown.porring.core.local.datasource.LocalPostDataSource
-import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
@@ -44,12 +44,12 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, PostData>() {
+) : RemoteMediator<Int, com.kolown.porring.core.data.model.LocalPostDto>() {
     private var isLoading = false
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, PostData>,
+        state: PagingState<Int, com.kolown.porring.core.data.model.LocalPostDto>,
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
@@ -103,7 +103,10 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             .map { it.toPostModel() }
             .getPostContent()
 
-        localPostDataSource.insertItems(posts, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            posts,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
     }
 
     private suspend fun onDetailRefresh(pageSize: Long, postItem: PostContentModel?) {
@@ -135,7 +138,10 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             prev.await() + next.await()
         }
 
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            result,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
     }
 
     private suspend fun onPrepend(pageSize: Long) {
@@ -152,7 +158,10 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             .map { it.toPostModel() }
             .getPostContent()
 
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            result,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
     }
 
     private suspend fun onAppend(pageSize: Long) {
@@ -169,7 +178,10 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             .map { it.toPostModel() }
             .getPostContent()
 
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            result,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
     }
 
     private suspend fun List<PostModel>.getPostContent(): List<PostContentModel> {

@@ -8,9 +8,9 @@ import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.kolown.porring.core.local.dao.ItemType
-import com.kolown.porring.core.local.datasource.LocalPostDataSource
-import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.AuthDataSource
@@ -38,10 +38,10 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, PostData>() {
+) : RemoteMediator<Int, com.kolown.porring.core.data.model.LocalPostDto>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, PostData>
+        state: PagingState<Int, com.kolown.porring.core.data.model.LocalPostDto>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
@@ -69,7 +69,10 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
             .map { it.toPostModel() }
             .getPostContent()
 
-        localPostDataSource.insertItems(posts, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            posts,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
 
         return MediatorResult.Success(endOfPaginationReached = posts.isEmpty())
     }
@@ -89,9 +92,10 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
             .map { it.toPostModel() }
             .getPostContent()
 
-        Log.e("PagingTest: UserGalleryPostRemoteMediator", "result: $result")
-
-        localPostDataSource.insertItems(result, ItemType.PAGING_ITEM)
+        localPostDataSource.insertItems(
+            result,
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+        )
 
         return MediatorResult.Success(endOfPaginationReached = result.isEmpty())
     }
