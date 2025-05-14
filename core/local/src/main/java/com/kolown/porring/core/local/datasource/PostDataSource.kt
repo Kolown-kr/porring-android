@@ -1,34 +1,23 @@
 package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
-import com.kolown.porring.core.local.dao.ItemType
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.local.dao.PostDao
-import com.kolown.porring.core.local.dto.PostData
-import com.kolown.porring.core.local.mapper.toPostContentModel
-import com.kolown.porring.core.local.mapper.toPostData
+import com.kolown.porring.core.local.mapper.toModel
 import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-interface LocalPostDataSource {
-    suspend fun insertItems(items: List<PostContentModel>, itemType: ItemType)
-    fun getItems(): Flow<List<PostContentModel>>
-    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>
-    suspend fun getItemById(postId: String): PostContentModel?
-    suspend fun clearHomeItems()
-    suspend fun updateReaction(postId: String, reaction: Int)
-    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
-    suspend fun clearPagingItems()
-    suspend fun getFirstPageItem(): PostData
-    suspend fun getLastPageItem(): PostData
-}
-
 class HomePostDataSourceImpl @Inject constructor(
     private val postDao: PostDao,
 ) : LocalPostDataSource {
-    override suspend fun insertItems(items: List<PostContentModel>, itemType: ItemType) {
-        postDao.insertItems(items.map { it.toPostData() }, itemType)
+    override suspend fun insertItems(
+        items: List<PostContentModel>,
+        localItemType: com.kolown.porring.core.data.model.LocalItemType
+    ) {
+        postDao.insertItems(items.map { it.toModel() }, localItemType)
     }
 
     override suspend fun getFirstPageItem() = postDao.getFirstPageItem()
@@ -39,7 +28,7 @@ class HomePostDataSourceImpl @Inject constructor(
         return postDao.getItems().map { items -> items.map { it.toPostContentModel() } }
     }
 
-    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, PostData> =
+    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, com.kolown.porring.core.data.model.LocalPostDto> =
         postDao.getPagingItems(useRegisterAt)
 
     override suspend fun updateReaction(postId: String, reaction: Int) {

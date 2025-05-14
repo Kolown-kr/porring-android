@@ -8,11 +8,9 @@ import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.kolown.porring.core.local.dao.ItemType
-import com.kolown.porring.core.local.dao.RemoteKeyDao
-import com.kolown.porring.core.local.datasource.LocalPostDataSource
-import com.kolown.porring.core.local.dto.PostData
-import com.kolown.porring.core.local.entity.RemoteKeyEntity
+import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
@@ -43,25 +41,23 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-    private val remoteKeyDao: RemoteKeyDao,
-) : RemoteMediator<Int, PostData>() {
+) : RemoteMediator<Int, com.kolown.porring.core.data.model.LocalPostDto>() {
     private var isLoading = false
+    private var nextKey = 0L
     private val currentUserId = googleAuthDataSource.getUserId()
     private var randomType = "ABCDE".random().toString()
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, PostData>
+        state: PagingState<Int, com.kolown.porring.core.data.model.LocalPostDto>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
                 val pageSize = state.config.pageSize.toLong()
 
                 if (loadType == LoadType.REFRESH) {
-                    val initialKey = (0..Long.MAX_VALUE).random()
-
-                    remoteKeyDao.clearRemoteKeys()
-                    getPosts(initialKey, pageSize)
+                    nextKey = (0..Long.MAX_VALUE).random()
+                    getPosts(nextKey, pageSize)
                 }
 
                 if (loadType == LoadType.PREPEND) return@withContext MediatorResult.Success(
@@ -73,8 +69,6 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
                         isLoading = true
                         launch {
                             try {
-                                val nextKey = remoteKeyDao.remoteKeysById("posts")?.nextKey ?: 0
-
                                 getPosts(nextKey, pageSize)
                             } finally {
                                 isLoading = false
@@ -124,13 +118,14 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
             }
         }
 
-        localPostDataSource.insertItems(results.getPostContent(), ItemType.PAGING_ITEM)
-        remoteKeyDao.insertOrReplace(
-            RemoteKeyEntity(
-                prevKey = key,
-                nextKey = results.last().random + 1
-            )
+        localPostDataSource.insertItems(
+            results.getPostContent(),
+            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
         )
+
+        val currentLastKey = results.lastOrNull()?.random ?: nextKey
+
+        nextKey = currentLastKey + 1
     }
 
     private suspend fun List<PostModel>.getPostContent(): List<PostContentModel> {

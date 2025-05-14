@@ -8,6 +8,9 @@ plugins {
 setNamespace("core.local")
 
 dependencies {
+    implementation(projects.core.model)
+    implementation(projects.core.dataApi)
+
     implementation(libs.androidx.room)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
@@ -15,6 +18,4 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.runtime.ktx)
-
-    implementation(projects.core.model)
 }

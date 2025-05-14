@@ -5,25 +5,36 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
-import com.kolown.porring.core.local.dto.PostData
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
 import com.kolown.porring.core.local.entity.HomeItemPostEntity
 import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
 import com.kolown.porring.core.local.entity.PagingItemPostEntity
 import com.kolown.porring.core.local.mapper.toOtherUserPostInfo
 import com.kolown.porring.core.local.mapper.toPostDefaultInfo
+import com.kolown.porring.core.model.PostModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
     @Transaction
-    suspend fun insertItems(posts: List<PostData>, itemType: ItemType) {
+    suspend fun insertItems(
+        posts: List<PostModel>,
+        localItemType: LocalItemType
+    ) {
         insertPostDefaultInfo(posts.map { it.toPostDefaultInfo() })
         insertOtherUserPostInfo(posts.map { it.toOtherUserPostInfo() })
-        when (itemType) {
-            ItemType.HOME_ITEM -> insertHomeItemPost(posts.map { HomeItemPostEntity(postId = it.postId) })
-            ItemType.PAGING_ITEM -> {
+        when (localItemType) {
+            LocalItemType.HOME_ITEM -> insertHomeItemPost(posts.map {
+                HomeItemPostEntity(
+                    postId = it.postId
+                )
+            })
+
+            LocalItemType.PAGING_ITEM -> {
                 var currentMax = getMaxSortOrder()
 
                 val new = posts.map {
@@ -62,6 +73,7 @@ interface PostDao {
     suspend fun getMaxSortOrder(): Int
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT 
@@ -82,9 +94,10 @@ interface PostDao {
         LEFT JOIN other_user_post_info AS other ON homeItems.post_id = other.post_id
     """
     )
-    fun getItems(): Flow<List<PostData>>
+    fun getItems(): Flow<List<LocalPostDto>>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT
@@ -108,9 +121,10 @@ interface PostDao {
             pagingItems.sort_order ASC
     """
     )
-    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, PostData>
+    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, LocalPostDto>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
             SELECT
@@ -132,9 +146,10 @@ interface PostDao {
             ORDER BY register_at DESC LIMIT 1
         """
     )
-    fun getFirstPageItem(): PostData
+    fun getFirstPageItem(): LocalPostDto
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
             SELECT
@@ -156,9 +171,10 @@ interface PostDao {
             ORDER BY register_at ASC LIMIT 1
         """
     )
-    fun getLastPageItem(): PostData
+    fun getLastPageItem(): LocalPostDto
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT 
@@ -176,7 +192,7 @@ interface PostDao {
         WHERE post.post_id = :postId
     """
     )
-    suspend fun getItemById(postId: String): PostData?
+    suspend fun getItemById(postId: String): LocalPostDto?
 
     @Query("UPDATE other_user_post_info SET my_reaction = :reaction WHERE post_id = :postId")
     suspend fun updateMyReaction(postId: String, reaction: Int?)
@@ -199,9 +215,4 @@ interface PostDao {
     @Query("DELETE FROM paging_items")
     suspend fun clearPagingItems()
 
-}
-
-enum class ItemType {
-    HOME_ITEM,
-    PAGING_ITEM,
 }
