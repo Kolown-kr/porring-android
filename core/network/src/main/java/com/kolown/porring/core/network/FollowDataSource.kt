@@ -5,7 +5,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import com.kolown.porring.core.model.FollowerModel
+import com.kolown.porring.core.model.Follower
 import com.kolown.porring.core.network.model.FollowerDto
 import com.kolown.porring.core.network.model.toFollowerModel
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +29,7 @@ interface FollowDataSource {
         userId: String,
         key: String?,
         perPage: Long
-    ): Result<List<FollowerModel>>
+    ): Result<List<Follower>>
 }
 
 class FollowDataSourceImpl @Inject constructor(
@@ -68,7 +68,7 @@ class FollowDataSourceImpl @Inject constructor(
         userId: String,
         key: String?,
         perPage: Long
-    ): Result<List<FollowerModel>> {
+    ): Result<List<Follower>> {
         return kotlin.runCatching {
             val followerIds = followCollection
                 .whereEqualTo("userId", userId)

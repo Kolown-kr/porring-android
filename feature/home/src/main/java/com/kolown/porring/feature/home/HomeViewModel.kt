@@ -78,13 +78,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {
-        postRepository.updateFollowState(authorId, false)
+//        postRepository.updateFollowState(authorId, false)
         followRepository.unFollowUser(authorId).launchIn(viewModelScope)
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-        postRepository.updateFollowState(authorId, true)
+//        postRepository.updateFollowState(authorId, true)
         followRepository.followUser(authorId, name).launchIn(viewModelScope)
     }
 

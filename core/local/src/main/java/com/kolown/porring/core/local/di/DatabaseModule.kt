@@ -26,4 +26,7 @@ class DatabaseModule {
 
     @Provides
     fun providePostDao(database: AppDatabase) = database.postDao()
+
+    @Provides
+    fun provideFollowerDao(database: AppDatabase) = database.followerDao()
 }

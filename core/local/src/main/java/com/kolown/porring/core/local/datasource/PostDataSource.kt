@@ -2,6 +2,8 @@ package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.local.dao.PostDao
 import com.kolown.porring.core.local.mapper.toModel
@@ -15,7 +17,7 @@ class HomePostDataSourceImpl @Inject constructor(
 ) : LocalPostDataSource {
     override suspend fun insertItems(
         items: List<PostContentModel>,
-        localItemType: com.kolown.porring.core.data.model.LocalItemType
+        localItemType: LocalItemType
     ) {
         postDao.insertItems(items.map { it.toModel() }, localItemType)
     }
@@ -28,7 +30,7 @@ class HomePostDataSourceImpl @Inject constructor(
         return postDao.getItems().map { items -> items.map { it.toPostContentModel() } }
     }
 
-    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, com.kolown.porring.core.data.model.LocalPostDto> =
+    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, LocalPostDto> =
         postDao.getPagingItems(useRegisterAt)
 
     override suspend fun updateReaction(postId: String, reaction: Int) {
@@ -44,7 +46,7 @@ class HomePostDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
-        postDao.updateFollowState(authorId, isFollow)
+//        postDao.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun getItemById(postId: String): PostContentModel? {

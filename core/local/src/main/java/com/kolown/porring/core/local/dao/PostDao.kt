@@ -5,7 +5,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import com.kolown.porring.core.data.model.LocalItemType
 import com.kolown.porring.core.data.model.LocalPostDto
@@ -73,35 +72,9 @@ interface PostDao {
     suspend fun getMaxSortOrder(): Int
 
     @Transaction
-    @RewriteQueriesToDropUnusedColumns
-    @Query(
-        """
-        SELECT 
-            homeItems.post_id AS homeItemId,
-            homeItems.post_id AS postId,
-        
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-        
-            other.author_id AS authorId,
-            other.is_follower AS isFollower,
-            other.my_reaction AS myReaction
-        FROM home_items AS homeItems
-        LEFT JOIN post_default_info AS post ON homeItems.post_id = post.post_id
-        LEFT JOIN other_user_post_info AS other ON homeItems.post_id = other.post_id
-    """
-    )
-    fun getItems(): Flow<List<LocalPostDto>>
-
-    @Transaction
-    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT
-            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,
@@ -111,8 +84,14 @@ interface PostDao {
             post.reactions AS reactions,
 
             other.author_id AS authorId,
-            other.is_follower AS isFollower,
-            other.my_reaction AS myReaction
+            other.my_reaction AS myReaction,
+            
+            EXISTS (
+                SELECT 1
+                FROM follower AS follower
+                WHERE follower.follower_id = other.author_id
+            ) AS isFollower
+            
         FROM paging_items AS pagingItems
         LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
         LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
@@ -124,11 +103,37 @@ interface PostDao {
     fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, LocalPostDto>
 
     @Transaction
-    @RewriteQueriesToDropUnusedColumns
+    @Query(
+        """
+        SELECT 
+            homeItems.post_id AS postId,
+        
+            post.image_url AS imageUrl,
+            post.register_at AS registerAt,
+            post.description AS description,
+            post.tags AS tags,
+            post.reactions AS reactions,
+        
+            other.author_id AS authorId,
+            other.my_reaction AS myReaction,
+            
+            EXISTS (
+                SELECT 1
+                FROM follower AS follower
+                WHERE follower.follower_id = other.author_id
+            ) AS isFollower
+            
+        FROM home_items AS homeItems
+        LEFT JOIN post_default_info AS post ON homeItems.post_id = post.post_id
+        LEFT JOIN other_user_post_info AS other ON homeItems.post_id = other.post_id
+    """
+    )
+    fun getItems(): Flow<List<LocalPostDto>>
+
+    @Transaction
     @Query(
         """
             SELECT
-            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,
@@ -138,8 +143,14 @@ interface PostDao {
             post.reactions AS reactions,
 
             other.author_id AS authorId,
-            other.is_follower AS isFollower,
-            other.my_reaction AS myReaction
+            other.my_reaction AS myReaction,
+            
+            EXISTS (
+                SELECT 1
+                FROM follower AS follower
+                WHERE follower.follower_id = other.author_id
+            ) AS isFollower
+            
             FROM paging_items AS pagingItems
             LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
             LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
@@ -149,11 +160,9 @@ interface PostDao {
     fun getFirstPageItem(): LocalPostDto
 
     @Transaction
-    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
             SELECT
-            pagingItems.post_id AS pagingItemId,
             pagingItems.post_id AS postId,
 
             post.image_url AS imageUrl,
@@ -163,8 +172,14 @@ interface PostDao {
             post.reactions AS reactions,
 
             other.author_id AS authorId,
-            other.is_follower AS isFollower,
-            other.my_reaction AS myReaction
+            other.my_reaction AS myReaction,
+            
+            EXISTS (
+                SELECT 1
+                FROM follower AS follower
+                WHERE follower.follower_id = other.author_id
+            ) AS isFollower
+            
             FROM paging_items AS pagingItems
             LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
             LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
@@ -174,19 +189,25 @@ interface PostDao {
     fun getLastPageItem(): LocalPostDto
 
     @Transaction
-    @RewriteQueriesToDropUnusedColumns
     @Query(
         """
         SELECT 
             post.post_id AS postId,
-            other.author_id AS authorId,
             post.image_url AS imageUrl,
             post.register_at AS registerAt,
             post.description AS description,
             post.tags AS tags,
-            other.is_follower AS isFollower,
             post.reactions AS reactions,
-            other.my_reaction AS myReaction
+            
+            other.author_id AS authorId,
+            other.my_reaction AS myReaction,
+            
+            EXISTS (
+                SELECT 1
+                FROM follower AS follower
+                WHERE follower.follower_id = other.author_id
+            ) AS isFollower
+            
         FROM post_default_info AS post
         LEFT JOIN other_user_post_info AS other ON post.post_id = other.post_id
         WHERE post.post_id = :postId
@@ -199,9 +220,6 @@ interface PostDao {
 
     @Query("UPDATE post_default_info SET reactions = :reactions WHERE post_id = :postId")
     suspend fun updateReactions(postId: String, reactions: List<Int>)
-
-    @Query("UPDATE other_user_post_info SET is_follower = :isFollow WHERE author_id = :authorId")
-    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
 
     @Query("DELETE FROM home_items")
     suspend fun clearHomeItems()

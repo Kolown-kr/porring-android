@@ -3,7 +3,9 @@ package com.kolown.porring.core.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
 import com.kolown.porring.core.data.datasource.paging.FollowerGalleryThumbnailPagingDataSource
+import com.kolown.porring.core.model.Follower
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
@@ -24,6 +26,8 @@ class FollowRepositoryImpl @Inject constructor(
     private val followDataSource: FollowDataSource,
     private val followerDataSource: FollowDataSource,
     private val postDataSource: PostDataSource,
+    @Named("local_follow_datasource")
+    private val localFollowDataSource: LocalFollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
 ) : FollowRepository {
 
@@ -39,6 +43,15 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
+        localFollowDataSource.insertFollowers(
+            listOf(
+                Follower(
+                    followerId = followerId,
+                    followerName = followerName
+                )
+            )
+        )
+
         followDataSource.uploadFollow(
             userId = currentUserId,
             followerId = followerId,
@@ -53,6 +66,7 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
+        localFollowDataSource.deleteFollower(followerId)
         followDataSource.removeFollow(
             userId = currentUserId,
             followerId = followerId
