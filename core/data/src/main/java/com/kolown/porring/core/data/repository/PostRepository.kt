@@ -12,7 +12,8 @@ import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
-import com.kolown.porring.core.data.model.LocalItemType
+import com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
+import com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
 import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFactory
@@ -54,7 +55,6 @@ interface PostRepository {
     suspend fun deletePost(postId: String): Flow<Boolean>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
-    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
     suspend fun insertPagingItem(item: PostContentModel)
     suspend fun clearPagingItems()
     fun getPagingItemPosts(
@@ -288,7 +288,7 @@ class PostRepositoryImpl @Inject constructor(
         delay(100)
         localPostDataSource.insertItems(
             postContentModels,
-            com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
+            HOME_ITEM
         )
     }
 
@@ -305,10 +305,6 @@ class PostRepositoryImpl @Inject constructor(
                 )
             }
         ).flow
-    }
-
-    override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
-        localPostDataSource.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit> {
@@ -407,7 +403,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun insertPagingItem(item: PostContentModel) {
         localPostDataSource.insertItems(
             listOf(item),
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            PAGING_ITEM
         )
     }
 

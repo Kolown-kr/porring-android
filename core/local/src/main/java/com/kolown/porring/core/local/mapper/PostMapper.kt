@@ -4,7 +4,6 @@ import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
 import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.toReactions
 
 internal fun PostContentModel.toModel() = PostModel(
     postId = postId,
@@ -21,7 +20,6 @@ internal fun PostContentModel.toModel() = PostModel(
 internal fun PostModel.toOtherUserPostInfo() = OtherUserPostInfoEntity(
     postId = postId,
     authorId = authorId,
-    isFollower = isFollower,
     myReaction = myReaction,
 )
 

@@ -22,7 +22,6 @@ data class OtherUserPostInfoEntity(
     @PrimaryKey
     val postId: String,
     @ColumnInfo("author_id") val authorId: String,
-    @ColumnInfo("is_follower") val isFollower: Boolean,
     @ColumnInfo("my_reaction") val myReaction: Int?
 )
 
