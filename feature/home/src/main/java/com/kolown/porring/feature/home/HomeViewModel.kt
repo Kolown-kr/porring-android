@@ -74,17 +74,17 @@ class HomeViewModel @Inject constructor(
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
+
         _followEvent.emit(post)
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {
-//        postRepository.updateFollowState(authorId, false)
         followRepository.unFollowUser(authorId).launchIn(viewModelScope)
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-//        postRepository.updateFollowState(authorId, true)
+
         followRepository.followUser(authorId, name).launchIn(viewModelScope)
     }
 
@@ -110,39 +110,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             postRepository.clearPagingItems()
             postRepository.insertPagingItem(post)
-        }
-    }
-
-    private fun PostContentModel.toggleSingleReaction(reaction: Reactions): PostContentModel {
-        val updatedReactions = reactions.toMutableList().apply {
-            if (myReaction == reaction) {
-                remove(reaction)
-            } else {
-                myReaction?.let { remove(it) }
-                add(reaction)
-            }
-        }
-
-        val updatedMyReaction = if (myReaction == reaction) null else reaction
-
-        return copy(
-            myReaction = updatedMyReaction,
-            reactions = updatedReactions
-        )
-    }
-
-    private fun <T : Any> UiState<List<T>>.replaceIf(
-        predicate: (T) -> Boolean,
-        replacement: (T) -> T
-    ): UiState<List<T>> {
-        return when (this) {
-            is UiState.Success -> UiState.Success(
-                data.map { item ->
-                    if (predicate(item)) replacement(item) else item
-                }
-            )
-
-            else -> this
         }
     }
 }

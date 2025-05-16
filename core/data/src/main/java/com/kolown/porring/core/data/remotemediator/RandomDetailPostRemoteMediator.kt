@@ -36,7 +36,7 @@ import javax.inject.Named
 class RandomDetailPostRemoteMediator @AssistedInject constructor(
     @Assisted private val pageState: StateFlow<PageState>,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
+    private val localPostDataSource: LocalPostDataSource,
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
