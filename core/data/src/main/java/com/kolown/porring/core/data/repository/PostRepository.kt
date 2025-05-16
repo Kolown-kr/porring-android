@@ -71,7 +71,7 @@ class PostRepositoryImpl @Inject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
+    private val localPostDataSource: LocalPostDataSource,
     private val followDataSource: FollowDataSource,
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
     private val userDetailRemoteMediatorFactory: UserDetailRemoteMediatorFactory,

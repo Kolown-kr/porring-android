@@ -6,10 +6,10 @@ import androidx.paging.PagingData
 import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
 import com.kolown.porring.core.data.datasource.paging.FollowerGalleryThumbnailPagingDataSource
 import com.kolown.porring.core.model.Follower
+import com.kolown.porring.core.model.FollowerThumbnail
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
-import com.kolown.porring.core.model.FollowerThumbnail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -26,7 +26,6 @@ class FollowRepositoryImpl @Inject constructor(
     private val followDataSource: FollowDataSource,
     private val followerDataSource: FollowDataSource,
     private val postDataSource: PostDataSource,
-    @Named("local_follow_datasource")
     private val localFollowDataSource: LocalFollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
 ) : FollowRepository {

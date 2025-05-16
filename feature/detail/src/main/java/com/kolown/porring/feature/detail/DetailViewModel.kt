@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
@@ -92,7 +91,6 @@ internal class DetailViewModel @Inject constructor(
                         .collectLatest(_posts::emit)
                 }
             }
-
         }
     }
 
@@ -111,53 +109,21 @@ internal class DetailViewModel @Inject constructor(
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
         postRepository.reactPost(postId, reaction)
-//        _posts.update {
-//            _posts.value.replaceIf(
-//                predicate = { it.postId == postId },
-//                replacement = { it.copy(myReaction = reaction) }
-//            )
-//        }
     }
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-//        if (post.isFollower) {
-//            followRepository.unFollowUser(post.authorId)
-//            _posts.update {
-//                _posts.value.replaceIf(
-//                    predicate = { it.authorId == post.authorId },
-//                    replacement = { it.copy(isFollower = false) }
-//                )
-//            }
-//        } else {
+
         _followEvent.emit(post)
-//        }
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {
-//        postRepository.updateFollowState(authorId, false)
         followRepository.unFollowUser(authorId).launchIn(viewModelScope)
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
-//        postRepository.updateFollowState(authorId, true)
+
         followRepository.followUser(authorId, name).launchIn(viewModelScope)
     }
-
-//    fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
-//        if (checkedLogIn().not()) return@launch
-//        followRepository.followUser(authorId, name)
-//        _posts.update {
-//            _posts.value.replaceIf(
-//                predicate = { it.authorId == authorId },
-//                replacement = { it.copy(isFollower = true) }
-//            )
-//        }
-//    }
-
-    private inline fun <T : Any> PagingData<T>.replaceIf(
-        crossinline predicate: (T) -> Boolean,
-        crossinline replacement: (T) -> T,
-    ): PagingData<T> = map { if (predicate(it)) replacement(it) else it }
 }

@@ -9,8 +9,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
-import com.kolown.porring.core.data.model.LocalItemType
-import com.kolown.porring.core.data.model.LocalPostDto
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.network.AuthDataSource
@@ -34,7 +32,7 @@ import javax.inject.Named
 class UserGalleryPostRemoteMediator @AssistedInject constructor(
     @Assisted("author_id") private val authorId: String,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
+    private val localPostDataSource: LocalPostDataSource,
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,

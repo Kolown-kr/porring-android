@@ -40,16 +40,16 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
     @Assisted("post_id") private val postId: String?,
     @Assisted private val pageState: StateFlow<PageState>,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    @Named("local_post_datasource") private val localPostDataSource: LocalPostDataSource,
+    private val localPostDataSource: LocalPostDataSource,
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, com.kolown.porring.core.data.model.LocalPostDto>() {
+) : RemoteMediator<Int, LocalPostDto>() {
     private var isLoading = false
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, com.kolown.porring.core.data.model.LocalPostDto>,
+        state: PagingState<Int, LocalPostDto>,
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
@@ -105,7 +105,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             posts,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            LocalItemType.PAGING_ITEM
         )
     }
 
@@ -140,7 +140,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            LocalItemType.PAGING_ITEM
         )
     }
 
@@ -160,7 +160,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            LocalItemType.PAGING_ITEM
         )
     }
 
@@ -180,7 +180,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            LocalItemType.PAGING_ITEM
         )
     }
 
