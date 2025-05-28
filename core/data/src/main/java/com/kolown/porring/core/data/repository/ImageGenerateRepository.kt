@@ -14,6 +14,7 @@ import com.kolown.porring.core.data.utils.Constants.IMAGE_RATIO
 import com.kolown.porring.core.data.utils.Constants.IMAGE_SHORT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -79,42 +80,58 @@ class ImageGenerateRepositoryImpl(
         cropHeight: Float,
         imageWidth: Float,
         imageHeight: Float
-    ): String? = withContext(Dispatchers.IO) {
+    ): String? {
         val originalBitmap = decodeSampledBitmapFromUri(
             uri = Uri.parse(imageUri),
             resizeNeeded = false,
             rotateNeeded = true
-        ) ?: return@withContext null
-        val croppedBitmap =
-            cropBitmap(originalBitmap, scale, offsetX, offsetY, cropWidth, cropHeight, imageWidth, imageHeight)
+        ) ?: return null
 
-        saveBitmapToCache(croppedBitmap)?.toString()
+        val croppedBitmap =
+            cropBitmap(
+                originalBitmap,
+                scale,
+                offsetX,
+                offsetY,
+                cropWidth,
+                cropHeight,
+                imageWidth,
+                imageHeight
+            )
+
+        return saveBitmapToCache(croppedBitmap)?.toString()
     }
 
     override suspend fun decodeSampledBitmapFromUri(
         uri: Uri,
         resizeNeeded: Boolean,
         rotateNeeded: Boolean
-    ): Bitmap? = withContext(Dispatchers.IO) {
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
+    ): Bitmap? {
+        val byteArray = withContext(Dispatchers.IO) {
+            applicationContext.contentResolver.openInputStream(uri)?.use {
+                it.readBytes()
+            }
+        } ?: return null
 
-        applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream, null, options)
-        }
-        if (resizeNeeded) {
-            options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
-        }
-        options.inJustDecodeBounds = false
+        return withContext(Dispatchers.Default) {
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 
-        applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
-            BitmapFactory.decodeStream(inputStream, null, options)
-        }?.let { originalBitmap ->
+            if (resizeNeeded) {
+                options.inSampleSize = calculateInSampleSize(options.outWidth, options.outHeight)
+            }
+            options.inJustDecodeBounds = false
+
+            val decodedBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
+                ?: return@withContext null
+
             if (rotateNeeded) {
-                rotateBitmap(originalBitmap, uri)
+                val exifOrientation = ExifInterface(ByteArrayInputStream(byteArray))
+                    .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+                rotateBitmap(decodedBitmap, exifOrientation)
             } else {
-                originalBitmap
+                decodedBitmap
             }
         }
     }
@@ -128,9 +145,8 @@ class ImageGenerateRepositoryImpl(
         Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
     }
 
-    private suspend fun rotateBitmap(originalBitmap: Bitmap, uri: Uri): Bitmap =
+    private suspend fun rotateBitmap(originalBitmap: Bitmap, orientation: Int): Bitmap =
         withContext(Dispatchers.Default) {
-            val orientation = getExifOrientation(uri)
             val matrix = getRotationMatrix(orientation)
 
             Bitmap.createBitmap(
@@ -143,20 +159,6 @@ class ImageGenerateRepositoryImpl(
                 true
             )
         }
-
-    private suspend fun getExifOrientation(uri: Uri): Int = withContext(Dispatchers.IO) {
-        try {
-            applicationContext.contentResolver.openInputStream(uri)?.use { inputStream ->
-                ExifInterface(inputStream).getAttributeInt(
-                    ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.ORIENTATION_NORMAL
-                )
-            } ?: ExifInterface.ORIENTATION_NORMAL
-        } catch (e: IOException) {
-            Log.e("Exif 오류", e.message.toString())
-            ExifInterface.ORIENTATION_NORMAL
-        }
-    }
 
     private fun getRotationMatrix(orientation: Int): Matrix {
         val angle = when (orientation) {
@@ -191,8 +193,10 @@ class ImageGenerateRepositoryImpl(
         val adjustedOffsetX = offsetX * widthRatio / scale
         val adjustedOffsetY = offsetY * heightRatio / scale
 
-        val left = ((originalWidth - cropWidth) / 2 - adjustedOffsetX).coerceIn(0f, originalWidth).toInt()
-        val top = ((originalHeight - cropHeight) / 2 - adjustedOffsetY).coerceIn(0f, originalHeight).toInt()
+        val left =
+            ((originalWidth - cropWidth) / 2 - adjustedOffsetX).coerceIn(0f, originalWidth).toInt()
+        val top = ((originalHeight - cropHeight) / 2 - adjustedOffsetY).coerceIn(0f, originalHeight)
+            .toInt()
         val right = (left + cropWidth).coerceIn(0f, originalWidth).toInt()
         val bottom = (top + cropHeight).coerceIn(0f, originalHeight).toInt()
 
