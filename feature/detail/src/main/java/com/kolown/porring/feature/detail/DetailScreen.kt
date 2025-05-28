@@ -419,19 +419,9 @@ private fun ReelsScreen(
             .fillMaxSize()
             .background(BackgroundDark)
     ) {
-        PorringTopAppBar(
-            trailingIcon = {
-                PorringIconButton(
-                    icon = Icons.Default.Close,
-                    onClick = onDismiss,
-                    contentDescription = stringResource(R.string.string_end_mode),
-                    color = Color.White
-                )
-            }
-        )
-
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .align(Alignment.Center)
                 .onSizeChanged { boxSize = it }
                 .clipToBounds()
@@ -455,6 +445,7 @@ private fun ReelsScreen(
         ) {
             CoilImage(
                 modifier = Modifier
+                    .align(Alignment.Center)
                     .onSizeChanged { imageSize = it }
                     .graphicsLayer(
                         scaleX = scale,
@@ -467,6 +458,17 @@ private fun ReelsScreen(
                 isRipple = false
             )
         }
+
+        PorringTopAppBar(
+            trailingIcon = {
+                PorringIconButton(
+                    icon = Icons.Default.Close,
+                    onClick = onDismiss,
+                    contentDescription = stringResource(R.string.string_end_mode),
+                    color = Color.White
+                )
+            }
+        )
     }
 }
 
