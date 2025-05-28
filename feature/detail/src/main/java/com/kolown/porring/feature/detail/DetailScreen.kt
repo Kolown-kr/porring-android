@@ -105,6 +105,7 @@ internal fun DetailRoute(
     val snackBarBridge = LocalSnackBarBridge.current
 
     val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
+    var currentImageRatio by remember { mutableFloatStateOf(4f / 5f) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { posts.itemSnapshotList.items }
@@ -157,6 +158,7 @@ internal fun DetailRoute(
         BackHandler(onBack = { reelsModePostUrl = null })
         ReelsScreen(
             postUrl = reelsModePostUrl ?: "",
+            imageRatio = currentImageRatio,
             onDismiss = { reelsModePostUrl = null }
         )
     } else {
@@ -167,7 +169,10 @@ internal fun DetailRoute(
             imageRatioMap = imageRatioMap,
             eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
             galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
-            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
+            onUpdateRatio = { page, newRatio ->
+                imageRatioMap[page] = newRatio
+                currentImageRatio = newRatio
+            },
             onShowReelsMode = { reelsModePostUrl = it },
             onReactionClick = viewModel::onReactionClick,
             onGalleryClick = navigateToTheir,
@@ -398,6 +403,7 @@ private fun EventRow(
 @Composable
 private fun ReelsScreen(
     postUrl: String = "",
+    imageRatio: Float = 4f / 5f,
     onDismiss: () -> Unit = {},
 ) {
     var scale by remember { mutableFloatStateOf(1f) }
@@ -457,6 +463,7 @@ private fun ReelsScreen(
                         translationY = offset.y
                     ),
                 imageUrl = postUrl,
+                imageRatio = imageRatio,
                 isRipple = false
             )
         }
