@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -103,6 +104,8 @@ internal fun DetailRoute(
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
+    val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
+
     LaunchedEffect(Unit) {
         snapshotFlow { posts.itemSnapshotList.items }
             .filter { it.isNotEmpty() }
@@ -161,8 +164,10 @@ internal fun DetailRoute(
             posts = posts,
             pagerState = pagerState,
             padding = padding,
+            imageRatioMap = imageRatioMap,
             eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
             galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
+            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
             onShowReelsMode = { reelsModePostUrl = it },
             onReactionClick = viewModel::onReactionClick,
             onGalleryClick = navigateToTheir,
@@ -177,8 +182,10 @@ private fun DetailScreen(
     posts: LazyPagingItems<PostContentModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
+    imageRatioMap: Map<Int, Float> = mapOf(),
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
+    onUpdateRatio: (Int, Float) -> Unit = { _, _ -> },
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
@@ -216,6 +223,8 @@ private fun DetailScreen(
                 post = post,
                 eventRowVisible = eventRowVisible,
                 galleryVisible = galleryVisible,
+                imageRatio = imageRatioMap[page] ?: (4f / 5f),
+                onUpdateRatio = { onUpdateRatio(page, it) },
                 onShowReelsMode = onShowReelsMode,
                 onReactionClick = onReactionClick,
                 onGalleryClick = onGalleryClick,
@@ -230,6 +239,8 @@ private fun DetailContent(
     post: PostContentModel = PostContentModel.EMPTY,
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
+    imageRatio: Float = 4f / 5f,
+    onUpdateRatio: (Float) -> Unit = {},
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
@@ -241,13 +252,16 @@ private fun DetailContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(4 / 5f)
+                .aspectRatio(4 / 5f),
+            contentAlignment = Alignment.Center
         ) {
             CoilImage(
                 modifier = Modifier
                     .fillMaxWidth(),
-                onClick = { onShowReelsMode(post.imageUrl) },
                 imageUrl = post.imageUrl,
+                imageRatio = imageRatio,
+                onClick = { onShowReelsMode(post.imageUrl) },
+                updateImageRatio = onUpdateRatio
             )
         }
 
