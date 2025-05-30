@@ -1,16 +1,9 @@
 package com.kolown.porring.feature.detail
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,7 +20,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,24 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Gray
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -105,7 +86,6 @@ internal fun DetailRoute(
     val snackBarBridge = LocalSnackBarBridge.current
 
     val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
-    var currentImageRatio by remember { mutableFloatStateOf(4f / 5f) }
 
     LaunchedEffect(Unit) {
         snapshotFlow { posts.itemSnapshotList.items }
@@ -156,9 +136,9 @@ internal fun DetailRoute(
     if (reelsModePostUrl != null) {
         FullScreenEffect()
         BackHandler(onBack = { reelsModePostUrl = null })
-        ReelsScreen(
+        FocusScreen(
             postUrl = reelsModePostUrl ?: "",
-            imageRatio = currentImageRatio,
+            imageRatio = imageRatioMap[pagerState.currentPage] ?: (4f / 5f),
             onDismiss = { reelsModePostUrl = null }
         )
     } else {
@@ -169,10 +149,7 @@ internal fun DetailRoute(
             imageRatioMap = imageRatioMap,
             eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
             galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
-            onUpdateRatio = { page, newRatio ->
-                imageRatioMap[page] = newRatio
-                currentImageRatio = newRatio
-            },
+            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
             onShowReelsMode = { reelsModePostUrl = it },
             onReactionClick = viewModel::onReactionClick,
             onGalleryClick = navigateToTheir,
@@ -224,6 +201,7 @@ private fun DetailScreen(
             beyondViewportPageCount = 3,
         ) { page: Int ->
             val post = posts[page] ?: return@HorizontalPager
+
             DetailContent(
                 post = post,
                 eventRowVisible = eventRowVisible,
@@ -400,87 +378,8 @@ private fun EventRow(
     }
 }
 
-@Composable
-private fun ReelsScreen(
-    postUrl: String = "",
-    imageRatio: Float = 4f / 5f,
-    onDismiss: () -> Unit = {},
-) {
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
-    var boxSize by remember { mutableStateOf(IntSize.Zero) }
-    var imageSize by remember { mutableStateOf(IntSize.Zero) }
-
-    val minScale = 1f
-    val maxScale = 2f
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BackgroundDark)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center)
-                .onSizeChanged { boxSize = it }
-                .clipToBounds()
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        scale = (scale * zoom).coerceIn(minScale, maxScale)
-
-                        val scaledImageWidth = imageSize.width * scale
-                        val scaledImageHeight = imageSize.height * scale
-
-                        val maxOffsetX = ((scaledImageWidth - boxSize.width) / 2f).coerceAtLeast(0f)
-                        val maxOffsetY =
-                            ((scaledImageHeight - boxSize.height) / 2f).coerceAtLeast(0f)
-
-                        offset = Offset(
-                            x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
-                            y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
-                        )
-                    }
-                }
-        ) {
-            CoilImage(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .onSizeChanged { imageSize = it }
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x,
-                        translationY = offset.y
-                    ),
-                imageUrl = postUrl,
-                imageRatio = imageRatio,
-                isRipple = false
-            )
-        }
-
-        PorringTopAppBar(
-            trailingIcon = {
-                PorringIconButton(
-                    icon = Icons.Default.Close,
-                    onClick = onDismiss,
-                    contentDescription = stringResource(R.string.string_end_mode),
-                    color = Color.White
-                )
-            }
-        )
-    }
-}
-
-
 @Preview(showBackground = true, backgroundColor = 0x000000)
 @Composable
 private fun DetailScreenPreview() {
     DetailContent()
-}
-
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-private fun ReelsScreenPreview() {
-    ReelsScreen()
 }
