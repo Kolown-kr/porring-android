@@ -9,7 +9,6 @@ import com.kolown.porring.core.model.Follower
 import com.kolown.porring.core.network.model.FollowerDto
 import com.kolown.porring.core.network.model.toFollowerModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.io.IOException
@@ -19,8 +18,7 @@ interface FollowDataSource {
     suspend fun getIsFollower(userId: String, followerId: String): Result<Boolean>
     suspend fun uploadFollow(
         userId: String,
-        followerId: String,
-        followerName: String
+        follower: Follower
     ): Flow<Boolean>
 
     suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
@@ -36,6 +34,7 @@ class FollowDataSourceImpl @Inject constructor(
     firestore: FirebaseFirestore
 ) : FollowDataSource {
     private val followCollection = firestore.collection("follow")
+    private val userCollection = firestore.collection("user")
 
     override suspend fun getIsFollower(userId: String, followerId: String): Result<Boolean> {
         return runCatching {
@@ -83,46 +82,34 @@ class FollowDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadFollow(
-        userId: String,
-        followerId: String,
-        followerName: String
-    ): Flow<Boolean> = flow {
-        val uploadData = mapOf(
-            "userId" to userId,
-            "followerId" to followerId,
-            "followerName" to followerName
-        )
-
-        followCollection
-            .add(uploadData)
+    override suspend fun uploadFollow(userId: String, follower: Follower): Flow<Boolean> = flow {
+        userCollection
+            .document(userId)
+            .collection("followers")
+            .document(follower.followerId)
+            .set(mapOf("followerName" to follower.followerName))
             .await()
-            .let {
-                it.update("followId", "follow-${it.id}")
-            }
             .runCatching {
                 emit(true)
-            }.onFailure { e ->
+            }.onFailure { _ ->
                 emit(false)
             }
     }
 
     override suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean> = flow {
-        val prevFollow = followCollection.contains(userId, followerId).getOrElse {
-            throw IOException("팔로우 취소 에러")
-        }
+        val followersCollection = userCollection
+            .document(userId)
+            .collection("followers")
 
-        if (prevFollow.isEmpty) {
-            throw IOException("팔로우 관계가 없습니다.")
-        }
+        val followerDoc = followersCollection.document(followerId)
+        val docResult = followerDoc.get().await()
 
-        prevFollow.forEach { document ->
-            document.reference.delete().await()
+        if (docResult.exists().not()) {
+            emit(false)
+        } else {
+            followerDoc.delete().await()
+            emit(true)
         }
-
-        emit(true)
-    }.catch { e ->
-        emit(false)
     }
 
     private suspend fun CollectionReference.contains(

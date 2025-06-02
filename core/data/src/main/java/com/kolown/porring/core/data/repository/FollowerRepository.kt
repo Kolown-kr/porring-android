@@ -53,8 +53,10 @@ class FollowRepositoryImpl @Inject constructor(
 
         followDataSource.uploadFollow(
             userId = currentUserId,
-            followerId = followerId,
-            followerName = followerName
+            follower = Follower(
+                followerId = followerId,
+                followerName = followerName
+            )
         ).collect { success ->
             emit(success)
         }
