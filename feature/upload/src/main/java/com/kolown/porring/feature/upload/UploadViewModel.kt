@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kolown.porring.core.data.repository.ImageGenerateRepository
+import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.upload.navigation.UploadType
@@ -25,6 +26,7 @@ import kotlin.reflect.typeOf
 @HiltViewModel
 class UploadViewModel @Inject constructor(
     private val repository: ImageGenerateRepository,
+    private val postRepository: PostRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _description = MutableStateFlow("")
@@ -93,6 +95,14 @@ class UploadViewModel @Inject constructor(
                 _webPUri.value = repository.saveBitmapToCache(it, Bitmap.CompressFormat.WEBP, 80)
             }
         }
+    }
+
+    fun uploadPost() {
+        postRepository.uploadPost(
+            fileUri = webPUri.value!!,
+            description = description.value,
+            tags = categoryItems.value
+        )
     }
 
     private fun setUploadData() {

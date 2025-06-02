@@ -34,6 +34,7 @@ import com.kolown.porring.core.ui.component.showSnackBarWithData
 import com.kolown.porring.feature.main.component.MainBottomBar
 import com.kolown.porring.feature.main.component.MainNavHost
 import com.kolown.porring.feature.main.component.PorringAlertDialog
+import com.kolown.porring.feature.main.model.SnackBarNavigation
 import com.kolown.porring.feature.main.navigation.MainMenu
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
@@ -77,7 +78,23 @@ internal fun MainScreen(
                     }
                 }
 
-                is SnackBarEvent.Message -> Unit
+                is SnackBarEvent.Message -> {
+                    if (result == SnackbarResult.ActionPerformed) {
+                        it.onAction?.invoke()
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.navigationRequest.collect { nav ->
+            when (nav) {
+                SnackBarNavigation.ToGallery -> navigator.navigate(MainMenu.MY)
+                is SnackBarNavigation.ToUpload -> navigator.navigateToUpload(
+                    nav.uploadModel.imgUri,
+                    nav.uploadModel
+                )
             }
         }
     }
