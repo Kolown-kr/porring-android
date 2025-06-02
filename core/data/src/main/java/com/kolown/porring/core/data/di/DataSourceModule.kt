@@ -32,7 +32,6 @@ abstract class DataSourceModule {
         postDataSource: PostDataSourceImpl,
     ): PostDataSource
 
-
     @Binds
     abstract fun bindTagDataSource(
         tagDataSource: TagDataSourceImpl,
@@ -48,7 +47,6 @@ abstract class DataSourceModule {
     abstract fun bindsAuthDatsSource(
         authDataSource: AuthDataSourceImpl,
     ): AuthDataSource
-
 
     @Binds
     abstract fun bindUploadDataSource(

@@ -4,13 +4,17 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
+import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
 import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.model.UploadFeedBack
+import com.kolown.porring.feature.main.model.SnackBarNavigation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,6 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    postRepository: PostRepository,
     authRepository: AuthRepository,
     private val remoteConfigRepository: RemoteConfigRepository
 ) : ViewModel() {
@@ -36,7 +41,40 @@ class MainViewModel @Inject constructor(
     )
     val snackBarFlow = _snackBarFlow.asSharedFlow()
 
+    private val _navigationRequest = MutableSharedFlow<SnackBarNavigation>()
+    val navigationRequest: SharedFlow<SnackBarNavigation> = _navigationRequest.asSharedFlow()
+
     val loginState = authRepository.checkUserLoggedIn()
+
+    init {
+        viewModelScope.launch {
+            postRepository.getUploadFeedBack().collect { feedback ->
+                val event = when (feedback) {
+                    UploadFeedBack.Uploading -> SnackBarEvent.Message(
+                        "업로드 중입니다.",
+                        null
+                    )
+                    UploadFeedBack.Success -> SnackBarEvent.Message(
+                        "업로드 완료되었습니다.",
+                        "갤러리에서 확인하기"
+                    ) {
+                        viewModelScope.launch {
+                            _navigationRequest.emit(SnackBarNavigation.ToGallery)
+                        }
+                    }
+                    is UploadFeedBack.Error -> SnackBarEvent.Message(
+                        "업로드에 실패했습니다.",
+                        "업로드로 이동하기"
+                    ) {
+                        viewModelScope.launch {
+                            _navigationRequest.emit(SnackBarNavigation.ToUpload(feedback.uploadModel))
+                        }
+                    }
+                }
+                _snackBarFlow.emit(event)
+            }
+        }
+    }
 
     fun getVersionName() {
         viewModelScope.launch {

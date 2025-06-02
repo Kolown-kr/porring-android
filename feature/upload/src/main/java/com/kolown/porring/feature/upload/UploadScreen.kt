@@ -118,7 +118,7 @@ internal fun UploadRoute(
             imgUri
         },
         categoryItems = categoryItems,
-        uploadPost = { },
+        uploadPost = viewModel::uploadPost,
         addCategory = viewModel::addCategory,
         navigateToHome = navigateToHome,
         removeCategory = viewModel::removeCategory,

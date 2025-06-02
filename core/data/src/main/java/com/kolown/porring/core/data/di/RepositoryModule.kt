@@ -45,6 +45,7 @@ class ProvideRepositoryModule{
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
     @Binds
+    @Singleton
     abstract fun providePostRepository(
         postRepository: PostRepositoryImpl,
     ): PostRepository

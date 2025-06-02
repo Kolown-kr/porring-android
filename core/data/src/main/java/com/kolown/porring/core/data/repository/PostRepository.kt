@@ -23,6 +23,8 @@ import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALL
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.UploadFeedBack
+import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.model.toReactions
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
@@ -30,13 +32,16 @@ import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -46,7 +51,8 @@ import javax.inject.Inject
 import javax.inject.Named
 
 interface PostRepository {
-    suspend fun uploadPost(fileUri: Uri, description: String, tags: List<String>): Result<Unit>
+    fun getUploadFeedBack(): Flow<UploadFeedBack>
+    fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
     fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>>
     suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit>
     suspend fun removePostReaction(postId: String, reaction: Reactions): Result<Unit>
@@ -77,6 +83,9 @@ class PostRepositoryImpl @Inject constructor(
     private val userDetailRemoteMediatorFactory: UserDetailRemoteMediatorFactory,
     private val userGalleryRemoteMediatorFactory: UserGalleryPostRemoteMediatorFactory,
 ) : PostRepository {
+    private val _uploadFeedBack = MutableSharedFlow<UploadFeedBack>()
+    override fun getUploadFeedBack(): Flow<UploadFeedBack> = _uploadFeedBack.asSharedFlow()
+
     override fun getUserPosts(userId: String?): Flow<PagingData<PostContentModel>> {
         val authorId = googleAuthDataSource.getUserId()
         val initialKey = if (userId == null) {
@@ -103,13 +112,15 @@ class PostRepositoryImpl @Inject constructor(
         ).flow
     }
 
-    override suspend fun uploadPost(
+    override fun uploadPost(
         fileUri: Uri,
         description: String,
         tags: List<String>,
-    ): Result<Unit> {
-        return runCatching {
-            coroutineScope {
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                _uploadFeedBack.emit(UploadFeedBack.Uploading)
+
                 val authorId = googleAuthDataSource.getUserId()
 
                 val postIdDeferred = async {
@@ -144,6 +155,17 @@ class PostRepositoryImpl @Inject constructor(
                         }
                     }.getOrThrow()
                 }
+                _uploadFeedBack.emit(UploadFeedBack.Success)
+            } catch (e: Exception) {
+                _uploadFeedBack.emit(
+                    UploadFeedBack.Error(
+                        UploadModel(
+                            fileUri.toString(),
+                            description,
+                            tags
+                        )
+                    )
+                )
             }
         }
     }
