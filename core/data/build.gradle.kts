@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.core.model)
     implementation(projects.core.datastore)
     implementation(projects.core.network)
+    implementation(projects.core.common)
 
     implementation(libs.exifinterface)
     implementation(libs.androidx.credentials)
