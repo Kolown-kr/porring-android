@@ -31,8 +31,6 @@ class CameraScreenViewModel @Inject constructor(
             )
             _uri.value = imageGenerateRepository.saveBitmapToCache(bitmap!!)
         }
-//        TODO 이미지 편집 화면 나오면 그냥 uri 넘겨도 됨.(어차피 이미지 편집 화면에서 크롭할 예정)
-//        _uri.value = uri
     }
 
     fun saveBitmapToCache(bitmap: Bitmap) {

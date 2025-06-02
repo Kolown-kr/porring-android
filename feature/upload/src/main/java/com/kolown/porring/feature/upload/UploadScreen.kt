@@ -67,14 +67,12 @@ internal fun UploadRoute(
     padding: PaddingValues,
     navigateToHome: () -> Unit,
 ) {
-    val description by viewModel.description.collectAsStateWithLifecycle()
-    val categoryItems by viewModel.categoryItems.collectAsStateWithLifecycle()
-    val webPUri by viewModel.webPUri.collectAsStateWithLifecycle()
+    val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
     val uploadEnable by viewModel.uploadEnable.collectAsStateWithLifecycle()
 
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
-    val previousSize = remember { mutableIntStateOf(categoryItems.size) }
+    val previousSize = remember { mutableIntStateOf(uploadState.categoryItems.size) }
 
     val scrollState = rememberScrollState()
     var imeHeightState by remember { mutableIntStateOf(0) }
@@ -96,28 +94,24 @@ internal fun UploadRoute(
         scrollState.scrollTo(imeHeight)
     }
 
-    LaunchedEffect(categoryItems.size) {
-        if (categoryItems.size > previousSize.intValue) {
+    LaunchedEffect(uploadState.categoryItems.size) {
+        if (uploadState.categoryItems.size > previousSize.intValue) {
             focusRequester.requestFocus()
         }
-        previousSize.intValue = categoryItems.size
+        previousSize.intValue = uploadState.categoryItems.size
     }
 
     UploadScreen(
         imeHeightState = imeHeightState,
-        description = description,
+        description = uploadState.description,
         uploadEnable = uploadEnable,
         isDescriptionMax = isDescriptionMax,
         padding = padding,
         scrollState = scrollState,
         focusManager = focusManager,
         focusRequester = focusRequester,
-        imgUri = if (imgUri == "") {
-            webPUri.toString()
-        } else {
-            imgUri
-        },
-        categoryItems = categoryItems,
+        imgUri = imgUri.ifBlank { uploadState.imgUri },
+        categoryItems = uploadState.categoryItems,
         uploadPost = viewModel::uploadPost,
         addCategory = viewModel::addCategory,
         navigateToHome = navigateToHome,

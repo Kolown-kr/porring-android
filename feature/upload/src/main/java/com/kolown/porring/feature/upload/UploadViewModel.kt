@@ -2,12 +2,12 @@ package com.kolown.porring.feature.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.kolown.porring.core.common.retry
 import com.kolown.porring.core.data.repository.ImageGenerateRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.UploadModel
@@ -17,9 +17,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 import kotlin.reflect.typeOf
 
@@ -29,86 +31,77 @@ class UploadViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val _description = MutableStateFlow("")
-    val description = _description.asStateFlow()
+    private val _uploadState = MutableStateFlow(UploadModel())
+    val uploadState = _uploadState.asStateFlow()
 
-    private val _categoryItems = MutableStateFlow<List<String>>(emptyList())
-    val categoryItems = _categoryItems.asStateFlow()
-
-    private val _webPUri = MutableStateFlow<Uri?>(null)
-    val webPUri = _webPUri.asStateFlow()
-
-    private val typeMap = mapOf(
-        typeOf<UploadModel>() to UploadType,
-    )
-
-    init {
-        setUploadData()
-    }
-
-    val uploadEnable = combine(
-        _description, _categoryItems, _webPUri
-    ) { description, categoryItems, webPUri ->
-        description.isNotEmpty() && categoryItems.none { it.isBlank() } && webPUri != null
+    val uploadEnable = uploadState.map { state ->
+        state.description.isNotBlank() && state.categoryItems.isNotEmpty() && state.imgUri.isNotBlank()
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
 
+    init {
+        _uploadState.value = extractUploadModel()
+    }
+
     fun changeDescription(description: String) {
-        _description.value = description
+        _uploadState.update { it.copy(description = description) }
     }
 
     fun addCategory() {
-        _categoryItems.value += ""
+        _uploadState.update { it.copy(categoryItems = it.categoryItems + "") }
+    }
+
+    fun removeCategory(name: String) {
+        _uploadState.update { model ->
+            model.copy(categoryItems = model.categoryItems.filterNot { it == name })
+        }
     }
 
     fun changeCategoryName(index: Int, name: String) {
-        val newList = _categoryItems.value.toMutableList()
-
-        newList[index] = name
-        _categoryItems.value = newList
-    }
-
-    fun removeCategory(category: String) {
-        _categoryItems.value = _categoryItems.value.filterNot { it == category }
+        _uploadState.update { state ->
+            val newCategories = state.categoryItems.toMutableList().apply {
+                if (index in indices) this[index] = name
+            }
+            state.copy(categoryItems = newCategories)
+        }
     }
 
     fun getUriWebP(uri: String) {
         viewModelScope.launch {
-            var retries = 0
-            val maxRetries = 3
-            var bitmap: Bitmap? = null
-
-            while (retries < maxRetries) {
-                bitmap = repository.decodeSampledBitmapFromUri(
+            val bitmap = retry(times = 3) {
+                repository.decodeSampledBitmapFromUri(
                     uri = Uri.parse(uri),
-                    resizeNeeded = false,
-                    rotateNeeded = false
-                )
-                if (bitmap != null) break
-                retries++
+                    resizeNeeded = true,
+                    rotateNeeded = true
+                ) ?: throw IOException("Decode Failed")
             }
 
-            bitmap?.let {
-                _webPUri.value = repository.saveBitmapToCache(it, Bitmap.CompressFormat.WEBP, 80)
+            val webPUri = repository.saveBitmapToCache(
+                bitmap,
+                Bitmap.CompressFormat.WEBP,
+                80
+            ) ?: return@launch
+
+            _uploadState.update {
+                it.copy(
+                    imgUri = webPUri.toString()
+                )
             }
         }
     }
 
     fun uploadPost() {
         postRepository.uploadPost(
-            fileUri = webPUri.value!!,
-            description = description.value,
-            tags = categoryItems.value
+            fileUri = uploadState.value.imgUri.toUri(),
+            description = uploadState.value.description,
+            tags = uploadState.value.categoryItems
         )
     }
 
-    private fun setUploadData() {
-        val uploadModel = savedStateHandle.toRoute<Route.Upload>(typeMap).uploadModel
-        _description.value = uploadModel.description
-        _categoryItems.value = uploadModel.categoryItems
-        _webPUri.value = uploadModel.imgUri.toUri()
+    private fun extractUploadModel(): UploadModel {
+        return savedStateHandle.toRoute<Route.Upload>(mapOf(typeOf<UploadModel>() to UploadType)).uploadModel
     }
 }
