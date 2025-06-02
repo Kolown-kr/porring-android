@@ -21,6 +21,7 @@ interface FollowDataSource {
         follower: Follower
     ): Flow<Boolean>
 
+    suspend fun fetchFollows(userId: String): List<Follower>
     suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
     suspend fun getFollowerName(userId: String, followerId: String): Flow<String>
     suspend fun getFollowerList(
@@ -109,6 +110,25 @@ class FollowDataSourceImpl @Inject constructor(
         } else {
             followerDoc.delete().await()
             emit(true)
+        }
+    }
+
+    override suspend fun fetchFollows(userId: String): List<Follower> {
+        val followers = userCollection
+            .document(userId)
+            .collection("followers")
+            .get()
+            .await()
+
+        return if (followers.isEmpty) {
+            emptyList()
+        } else {
+            followers.map {
+                Follower(
+                    followerId = it.id,
+                    followerName = it.getString("followerName") ?: "NULL"
+                )
+            }
         }
     }
 
