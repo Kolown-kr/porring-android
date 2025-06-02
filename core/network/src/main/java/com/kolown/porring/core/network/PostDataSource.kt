@@ -31,7 +31,7 @@ interface PostDataSource {
     ): Result<List<PostModel>>
 
     suspend fun deletePost(postId: String): Result<Unit>
-    suspend fun getUserFollowerPost(uid: String, perPage: Long): Result<List<PostModel>>
+    suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
     fun resetLastVisible()
 }
 
@@ -71,11 +71,14 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserFollowerPost(uid: String, perPage: Long): Result<List<PostModel>> {
+    override suspend fun fetchPostWithAuthorId(
+        authorId: String,
+        limit: Long
+    ): Result<List<PostModel>> {
         return runCatching {
             postCollection
-                .whereEqualTo("authorId", uid)
-                .limit(perPage)
+                .whereEqualTo("authorId", authorId)
+                .limit(limit)
                 .orderBy("registerAt", Query.Direction.DESCENDING)
                 .get()
                 .await()

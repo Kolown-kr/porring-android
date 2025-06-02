@@ -1,5 +1,6 @@
 package com.kolown.porring.core.local.datasource
 
+import androidx.paging.PagingSource
 import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
 import com.kolown.porring.core.local.dao.FollowerDao
 import com.kolown.porring.core.local.mapper.toEntity
@@ -13,8 +14,8 @@ class DefaultLocalFollowDataSource @Inject constructor(
         followerDao.insertFollowers(followers.map { it.toEntity() })
     }
 
-    override suspend fun getFollowers(): List<Follower> {
-        TODO("Not yet implemented")
+    override fun getFollowers(): PagingSource<Int, Follower> {
+        return followerDao.getFollowers()
     }
 
     override suspend fun clearFollowers() {
