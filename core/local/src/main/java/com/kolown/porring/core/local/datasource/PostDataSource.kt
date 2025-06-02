@@ -17,9 +17,9 @@ class HomePostDataSourceImpl @Inject constructor(
 ) : LocalPostDataSource {
     override suspend fun insertItems(
         items: List<PostContentModel>,
-        localItemType: LocalItemType
+        itemType: LocalItemType
     ) {
-        postDao.insertItems(items.map { it.toModel() }, localItemType)
+        postDao.insertItems(items.map { it.toModel() }, itemType)
     }
 
     override suspend fun getFirstPageItem() = postDao.getFirstPageItem()
@@ -43,10 +43,6 @@ class HomePostDataSourceImpl @Inject constructor(
 
         postDao.updateReactions(postId, reactions.toList())
         postDao.updateMyReaction(postId, myReaction)
-    }
-
-    override suspend fun updateFollowState(authorId: String, isFollow: Boolean) {
-//        postDao.updateFollowState(authorId, isFollow)
     }
 
     override suspend fun getItemById(postId: String): PostContentModel? {
