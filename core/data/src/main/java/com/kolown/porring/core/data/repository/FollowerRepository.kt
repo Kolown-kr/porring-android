@@ -3,15 +3,18 @@ package com.kolown.porring.core.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
-import com.kolown.porring.core.data.datasource.paging.FollowerGalleryThumbnailPagingDataSource
 import com.kolown.porring.core.model.Follower
-import com.kolown.porring.core.model.FollowerThumbnail
+import com.kolown.porring.core.model.FollowerWithThumbnail
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -21,7 +24,7 @@ interface FollowRepository {
     suspend fun fetchFollows()
     suspend fun clearFollowCache()
     fun followUser(followerId: String, followerName: String): Flow<Boolean>
-    fun getFollowerDataSourcePagingFlow(): Flow<PagingData<FollowerThumbnail>>
+    suspend fun getFollowsWithPaging(): Flow<PagingData<FollowerWithThumbnail>>
 }
 
 class FollowRepositoryImpl @Inject constructor(
@@ -88,26 +91,29 @@ class FollowRepositoryImpl @Inject constructor(
         localFollowDataSource.clearFollowers()
     }
 
-    override fun getFollowerDataSourcePagingFlow(): Flow<PagingData<FollowerThumbnail>> {
-        val currentUserId = googleAuthDataSource.getUserId()
+    override suspend fun getFollowsWithPaging(): Flow<PagingData<FollowerWithThumbnail>> =
+        withContext(Dispatchers.IO) {
+            return@withContext Pager(
+                config = PagingConfig(
+                    pageSize = FOLLOWER_PER_PAGE,
+                    enablePlaceholders = false,
+                ),
+                pagingSourceFactory = { localFollowDataSource.getFollowers() }
+            ).flow.map { pagingData ->
+                pagingData.map { follow ->
+                    val posts =
+                        postDataSource.fetchPostWithAuthorId(follow.followerId, 4).getOrThrow()
 
-        return Pager(
-            config = PagingConfig(
-                pageSize = FOLLOWER_PER_PAGE,
-                enablePlaceholders = false,
-            ),
-            pagingSourceFactory = {
-                FollowerGalleryThumbnailPagingDataSource(
-                    followDataSource,
-                    postDataSource,
-                    currentUserId
-                )
+                    FollowerWithThumbnail(
+                        id = follow.followerId,
+                        followerName = follow.followerName,
+                        thumbnails = posts.map { it.imageUrl }
+                    )
+                }
             }
-        ).flow
-    }
+        }
 
     companion object {
         const val FOLLOWER_PER_PAGE = 5
     }
-
 }

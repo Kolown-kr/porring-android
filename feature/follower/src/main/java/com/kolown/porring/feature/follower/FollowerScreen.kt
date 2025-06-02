@@ -30,15 +30,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.ui.component.RestrictedLoginContent
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
-import com.kolown.porring.core.model.FollowerThumbnail
+import com.kolown.porring.core.model.FollowerWithThumbnail
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
-import com.kolown.porring.feature.follower.component.PageItemFooter
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
+import com.kolown.porring.core.ui.component.RestrictedLoginContent
+import com.kolown.porring.feature.follower.component.PageItemFooter
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +53,7 @@ internal fun FollowerRoute(
     val loginState by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val pagerState = rememberLazyListState()
 
-    var followerThumbnail by remember { mutableStateOf<FollowerThumbnail?>(null) }
+    var followerWithThumbnail by remember { mutableStateOf<FollowerWithThumbnail?>(null) }
     var showErrorScreen by remember { mutableStateOf(false) }
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -69,10 +69,6 @@ internal fun FollowerRoute(
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.init()
-    }
-
     LaunchedEffect(pagingItems.loadState.refresh) {
         isRefreshing = false
         if (pagingItems.loadState.refresh == LoadState.Loading) {
@@ -83,11 +79,11 @@ internal fun FollowerRoute(
         }
     }
 
-    followerThumbnail?.let {
+    followerWithThumbnail?.let {
         FollowDialog(
             isAddFollow = false,
-            onClickConfirm = {  },
-            onClickCancel = { followerThumbnail = null }
+            onClickConfirm = { },
+            onClickCancel = { followerWithThumbnail = null }
         )
     }
 
@@ -102,7 +98,7 @@ internal fun FollowerRoute(
             onRefresh = onRefresh,
             scaleFraction = scaleFraction,
             navigateToTheir = navigateToTheir,
-            updateFollowerThumbnail = { followerThumbnail = it }
+            updateFollowerThumbnail = { followerWithThumbnail = it }
         )
     } else {
         RestrictedLoginContent(
@@ -114,16 +110,16 @@ internal fun FollowerRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FollowerScreen(
-    pagingItems: LazyPagingItems<FollowerThumbnail>,
+    pagingItems: LazyPagingItems<FollowerWithThumbnail>,
     padding: PaddingValues = PaddingValues(),
     isRefreshing: Boolean = false,
     showErrorScreen: Boolean = false,
     pagerState: LazyListState = rememberLazyListState(),
-    refreshState: PullToRefreshState  = rememberPullToRefreshState(),
+    refreshState: PullToRefreshState = rememberPullToRefreshState(),
     onRefresh: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     navigateToTheir: (String) -> Unit = {},
-    updateFollowerThumbnail: (FollowerThumbnail) -> Unit = {}
+    updateFollowerThumbnail: (FollowerWithThumbnail) -> Unit = {}
 ) {
     PullToRefreshColumn(
         padding = padding,
@@ -160,7 +156,7 @@ private fun FollowerScreen(
                     items(pagingItems.itemCount) { index ->
                         pagingItems[index]?.let {
                             FollowContent(
-                                followerThumbnail = it,
+                                followerWithThumbnail = it,
                                 navigateToTheir = { navigateToTheir(it.id) },
                                 updateFollowerThumbnail = updateFollowerThumbnail
                             )

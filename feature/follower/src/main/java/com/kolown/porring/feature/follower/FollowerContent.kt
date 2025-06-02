@@ -19,31 +19,25 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.ui.component.CoilImage
-import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.Surface
-import com.kolown.porring.core.model.FollowerThumbnail
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.FollowerWithThumbnail
+import com.kolown.porring.core.ui.component.CoilImage
 
 @Composable
 internal fun FollowContent(
-    followerThumbnail: FollowerThumbnail,
+    followerWithThumbnail: FollowerWithThumbnail,
     navigateToTheir: () -> Unit = {},
-    updateFollowerThumbnail: (FollowerThumbnail) -> Unit = {}
+    updateFollowerThumbnail: (FollowerWithThumbnail) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -69,12 +63,12 @@ internal fun FollowContent(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = followerThumbnail.followerName,
+                text = followerWithThumbnail.followerName,
                 color = Primary,
                 style = MaterialTheme.typography.titleLarge
             )
             Box(
-                modifier = Modifier.clickable { updateFollowerThumbnail(followerThumbnail) }
+                modifier = Modifier.clickable { updateFollowerThumbnail(followerWithThumbnail) }
             ) {
                 Text(
                     text = stringResource(R.string.string_edit),
@@ -94,7 +88,7 @@ internal fun FollowContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
-            items(followerThumbnail.posts) { imageUrl ->
+            items(followerWithThumbnail.thumbnails) { imageUrl ->
                 Card(
                     modifier = Modifier
                         .size(100.dp)
@@ -123,5 +117,5 @@ internal fun FollowContent(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFollowContent() {
-    FollowContent(FollowerThumbnail.dummy)
+    FollowContent(FollowerWithThumbnail.dummy)
 }

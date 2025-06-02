@@ -1,5 +1,6 @@
 package com.kolown.porring.core.local.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -20,7 +21,7 @@ interface FollowerDao {
         FROM follower 
     """
     )
-    suspend fun getFollowers(): List<Follower>
+    fun getFollowers(): PagingSource<Int, Follower>
 
     @Query("DELETE FROM follower")
     suspend fun clearFollowers()
