@@ -18,13 +18,14 @@ import javax.inject.Named
 interface FollowRepository {
     suspend fun getFollowerName(followerId: String): Flow<String>
     suspend fun unFollowUser(followerId: String): Flow<Boolean>
+    suspend fun fetchFollows()
+    suspend fun clearFollowCache()
     fun followUser(followerId: String, followerName: String): Flow<Boolean>
     fun getFollowerDataSourcePagingFlow(): Flow<PagingData<FollowerThumbnail>>
 }
 
 class FollowRepositoryImpl @Inject constructor(
     private val followDataSource: FollowDataSource,
-    private val followerDataSource: FollowDataSource,
     private val postDataSource: PostDataSource,
     private val localFollowDataSource: LocalFollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
@@ -76,6 +77,17 @@ class FollowRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun fetchFollows() {
+        val userId = googleAuthDataSource.getUserId()
+        val follows = followDataSource.fetchFollows(userId)
+
+        localFollowDataSource.insertFollowers(follows)
+    }
+
+    override suspend fun clearFollowCache() {
+        localFollowDataSource.clearFollowers()
+    }
+
     override fun getFollowerDataSourcePagingFlow(): Flow<PagingData<FollowerThumbnail>> {
         val currentUserId = googleAuthDataSource.getUserId()
 
@@ -86,7 +98,7 @@ class FollowRepositoryImpl @Inject constructor(
             ),
             pagingSourceFactory = {
                 FollowerGalleryThumbnailPagingDataSource(
-                    followerDataSource,
+                    followDataSource,
                     postDataSource,
                     currentUserId
                 )
