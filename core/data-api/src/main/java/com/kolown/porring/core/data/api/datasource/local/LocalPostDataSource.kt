@@ -13,7 +13,6 @@ interface LocalPostDataSource {
     suspend fun getItemById(postId: String): PostContentModel?
     suspend fun clearHomeItems()
     suspend fun updateReaction(postId: String, reaction: Int)
-    suspend fun updateFollowState(authorId: String, isFollow: Boolean)
     suspend fun clearPagingItems()
     suspend fun getFirstPageItem(): LocalPostDto
     suspend fun getLastPageItem(): LocalPostDto
