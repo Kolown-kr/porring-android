@@ -5,6 +5,7 @@ import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
 import com.kolown.porring.core.local.dao.FollowerDao
 import com.kolown.porring.core.local.mapper.toEntity
 import com.kolown.porring.core.model.Follower
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultLocalFollowDataSource @Inject constructor(
@@ -16,6 +17,10 @@ class DefaultLocalFollowDataSource @Inject constructor(
 
     override fun getFollowers(): PagingSource<Int, Follower> {
         return followerDao.getFollowers()
+    }
+
+    override fun getFollowerName(followerId: String): Flow<String?> {
+        return followerDao.getFollowerName(followerId)
     }
 
     override suspend fun clearFollowers() {

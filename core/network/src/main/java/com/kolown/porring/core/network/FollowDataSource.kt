@@ -23,7 +23,6 @@ interface FollowDataSource {
 
     suspend fun fetchFollows(userId: String): List<Follower>
     suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
-    suspend fun getFollowerName(userId: String, followerId: String): Flow<String>
     suspend fun getFollowerList(
         userId: String,
         key: String?,
@@ -47,21 +46,6 @@ class FollowDataSourceImpl @Inject constructor(
         }.onFailure {
             Log.e("GetFollower", "getIsFollower: $it")
         }
-    }
-
-    override suspend fun getFollowerName(userId: String, followerId: String): Flow<String> = flow {
-
-        val prevFollow = followCollection.contains(userId, followerId).getOrElse {
-            throw IOException("팔로우 확인 에러")
-        }
-
-        if (prevFollow.isEmpty) {
-            throw IOException("팔로우 관계가 없습니다.")
-        }
-
-        val name = prevFollow.first().data["followerName"].toString()
-
-        emit(name)
     }
 
     override suspend fun getFollowerList(
