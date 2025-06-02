@@ -35,25 +35,18 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TheirRoute(
-    followerId: String,
     padding: PaddingValues = PaddingValues(),
     viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
     navigateToDetail: (String, String) -> Unit = { _, _ -> },
 ) {
-//    val pagingItems = viewModel.galleryFlow.collectAsLazyPagingItems()
-    val pagingItems = viewModel.userPosts.collectAsLazyPagingItems()
-    val followerName by viewModel.followerName.collectAsStateWithLifecycle()
+    val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var isRefreshing by remember { mutableStateOf(false) }
     var showErrorScreen by remember { mutableStateOf(false) }
     val listState = rememberLazyStaggeredGridState()
     val refreshState = rememberPullToRefreshState()
-
-    val title = if (followerName.isBlank()) {
-        stringResource(R.string.string_empty)
-    } else {
-        stringResource(R.string.string_others_gallery_name, followerName)
-    }
 
     val onRefresh: () -> Unit = {
         // TODO: 리프레시 동작 구현해야함
@@ -66,13 +59,10 @@ internal fun TheirRoute(
         else LinearOutSlowInEasing.transform(refreshState.distanceFraction).coerceIn(0f, 1f)
     }
 
-    LaunchedEffect(followerId) {
-        viewModel.setFollowerName(followerId)
-    }
     LaunchedEffect(pagingItems.loadState) {
         isRefreshing = false
     }
-    LaunchedEffect(pagingItems) {
+    LaunchedEffect(pagingItems.loadState.refresh) {
         listState.scrollToItem(0)
     }
     LaunchedEffect(pagingItems.loadState.refresh) {
@@ -86,19 +76,15 @@ internal fun TheirRoute(
 
     TheirScreen(
         pagingItems = pagingItems,
-        title = title,
+        title = uiState.title,
         isRefreshing = isRefreshing,
         showErrorScreen = false,
         padding = padding,
         refreshState = refreshState,
         listState = listState,
         onRefresh = onRefresh,
-        setPage = viewModel::setPage,
         popBackStack = popBackStack,
-        navigateToDetail = {
-            viewModel.onClickItem(it)
-            navigateToDetail(it.authorId, it.postId)
-        },
+        navigateToDetail = { navigateToDetail(it.authorId, it.postId) },
         scaleFraction = scaleFraction,
         updateShowErrorScreen = { showErrorScreen = it }
     )

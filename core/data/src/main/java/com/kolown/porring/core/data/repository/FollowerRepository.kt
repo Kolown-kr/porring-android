@@ -19,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 interface FollowRepository {
-    suspend fun getFollowerName(followerId: String): Flow<String>
+    suspend fun getFollowerName(followerId: String): Flow<String?>
     suspend fun unFollowUser(followerId: String): Flow<Boolean>
     suspend fun fetchFollows()
     suspend fun clearFollowCache()
@@ -34,10 +34,8 @@ class FollowRepositoryImpl @Inject constructor(
     @Named("google") private val googleAuthDataSource: AuthDataSource,
 ) : FollowRepository {
 
-    override suspend fun getFollowerName(followerId: String): Flow<String> {
-        val currentUserId = googleAuthDataSource.getUserId()
-
-        return followDataSource.getFollowerName(currentUserId, followerId)
+    override suspend fun getFollowerName(followerId: String): Flow<String?> {
+        return localFollowDataSource.getFollowerName(followerId)
     }
 
     override fun followUser(

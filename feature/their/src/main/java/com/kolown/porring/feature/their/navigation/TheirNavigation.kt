@@ -6,7 +6,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.their.TheirRoute
@@ -21,10 +20,7 @@ fun NavGraphBuilder.theirNavGraph(
     padding: PaddingValues,
 ) {
     composable<MainMenuRoute.Their> { navBackStackEntry ->
-        val followerId = navBackStackEntry.toRoute<MainMenuRoute.Their>().authorId
-
         TheirRoute(
-            followerId = followerId,
             padding = padding,
             viewModel = hiltViewModel(),
             navigateToDetail = navigateToDetail,

@@ -5,26 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class TheirUiState(
+    val title: String = "",
+)
 
 @HiltViewModel
 class TheirViewModel @Inject constructor(
@@ -32,123 +28,41 @@ class TheirViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
 ) : ViewModel() {
-    private val _followerName = MutableStateFlow("")
-    val followerName = _followerName.asStateFlow()
+    private val _pagingItems = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
+    val pagingItems = _pagingItems.asStateFlow().cachedIn(viewModelScope)
 
-    private val _pageState = MutableStateFlow(PageState())
-    private val pageState = _pageState.asStateFlow()
-
-    private val _userPosts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val userPosts = _userPosts.asStateFlow().cachedIn(viewModelScope)
-
-    private var _firstPage = 0
-    val firstPage get() = _firstPage
-
-    private val reactionStateFlow = MutableStateFlow<Map<String, ReactionState>>(emptyMap())
-
-    private val _userId = MutableStateFlow("")
-    val galleryFlow = _userId.flatMapLatest { userId ->
-        val pagingFlow = postRepository.getUserPosts(userId).cachedIn(viewModelScope)
-
-        val combineFlow = combine(
-            pagingFlow, reactionStateFlow
-        ) { paging, reaction ->
-            paging.map { item ->
-                reaction[item.postId]?.let { reactionState ->
-                    val (myReaction, reactions) = if (reactionState.prev == null) {
-                        reactionState.current to item.reactions + reactionState.current
-                    } else {
-                        if (reactionState.prev == reactionState.current) {
-                            null to item.reactions - reactionState.current
-                        } else {
-                            reactionState.current to item.reactions + reactionState.current - reactionState.prev
-                        }
-                    }
-                    item.copy(reactions = reactions, myReaction = myReaction)
-                } ?: item.copy()
-            }
-        }.cachedIn(viewModelScope)
-
-        combineFlow
-
-    }.cachedIn(viewModelScope)
+    private val _uiState = MutableStateFlow(TheirUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         val authorId = savedStateHandle.get<String>("authorId") ?: ""
+
+        setFollowerName(authorId)
+        getPosts(authorId)
+    }
+
+    private fun getPosts(authorId: String) {
         viewModelScope.launch {
             postRepository.clearPagingItems()
             postRepository.getPagingItemPosts(
                 postType = PostType.USER_GALLERY,
                 postId = null,
                 authorId = authorId,
-                pageState = pageState
-            ).collectLatest(_userPosts::emit)
+                pageState = MutableStateFlow(PageState())
+            ).collectLatest(_pagingItems::emit)
         }
     }
 
-    fun setPage(page: Int) {
-        _firstPage = page
-    }
-
-    fun onClickItem(post: PostContentModel) {
-        viewModelScope.launch {
-//            postRepository.clearPagingItems()
-//            postRepository.insertPagingItem(post)
-        }
-    }
-
-    fun setFollowerName(followerId: String) {
-        _userId.update { followerId }
+    private fun setFollowerName(followerId: String) {
         viewModelScope.launch {
             followRepository.getFollowerName(followerId)
-                .onStart {
-                    _followerName.update { "" }
-                }
-                .onEach { name ->
-                    _followerName.update {
-                        if (name == "") {
-                            "Anonymous"
-                        } else {
-                            name
-                        }
+                .collect { name ->
+                    val followerName = name ?: "Annonymous"
+
+                    _uiState.update { uiState ->
+                        uiState.copy(title = "${followerName}'s Gallery")
                     }
                 }
-                .catch { e ->
-                    _followerName.update { "Anonymous" }
-                }
-                .launchIn(viewModelScope)
-        }
-    }
-
-    fun selectReaction(imageItem: PostContentModel, reaction: Reactions) {
-        val currentReaction = imageItem.myReaction
-
-        viewModelScope.launch {
-            if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId, reaction)
-            } else {
-                postRepository.reactPost(
-                    postId = imageItem.postId, reaction = reaction
-                )
-            }
-        }
-        updateReactionState(imageItem.postId, currentReaction, reaction)
-    }
-
-    private fun updateReactionState(
-        postId: String,
-        prevReaction: Reactions?,
-        currentReaction: Reactions,
-    ) {
-        reactionStateFlow.update { reactionState ->
-            val newState = reactionState.toMutableMap()
-            newState[postId] = ReactionState(prev = prevReaction, current = currentReaction)
-            newState
         }
     }
 }
-
-data class ReactionState(
-    val prev: Reactions? = null,
-    val current: Reactions = Reactions.LOVE,
-)

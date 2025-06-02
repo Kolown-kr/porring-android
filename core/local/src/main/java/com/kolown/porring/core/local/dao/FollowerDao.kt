@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.kolown.porring.core.local.entity.FollowerEntity
 import com.kolown.porring.core.model.Follower
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FollowerDao {
@@ -22,6 +23,9 @@ interface FollowerDao {
     """
     )
     fun getFollowers(): PagingSource<Int, Follower>
+
+    @Query("SELECT name FROM follower WHERE follower_id = :followerId")
+    fun getFollowerName(followerId: String): Flow<String?>
 
     @Query("DELETE FROM follower")
     suspend fun clearFollowers()
