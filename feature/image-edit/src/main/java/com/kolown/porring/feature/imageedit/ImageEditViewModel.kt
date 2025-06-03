@@ -1,5 +1,6 @@
 package com.kolown.porring.feature.imageedit
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -39,10 +40,5 @@ class ImageEditViewModel @Inject constructor(
 
             _imageUri.value = editedUri
         }
-    }
-
-    fun getBoundedOffset(scale: Float, offset: Float, boxSize: Float, imageSize: Float): Float {
-        val maxOffset = maxOf(((imageSize * scale) - boxSize) / 2, 0f)
-        return offset.coerceIn(-maxOffset, maxOffset)
     }
 }
