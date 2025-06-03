@@ -3,22 +3,16 @@ package com.kolown.porring.core.data.repository
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.net.Uri
-import android.util.Log
-import android.util.Size
 import androidx.exifinterface.media.ExifInterface
 import com.kolown.porring.core.data.utils.Constants.IMAGE_LONG
-import com.kolown.porring.core.data.utils.Constants.IMAGE_RATIO
 import com.kolown.porring.core.data.utils.Constants.IMAGE_SHORT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
-import kotlin.math.min
 
 interface ImageGenerateRepository {
     suspend fun saveBitmapToCache(
@@ -84,7 +78,7 @@ class ImageGenerateRepositoryImpl(
         val originalBitmap = decodeSampledBitmapFromUri(
             uri = Uri.parse(imageUri),
             resizeNeeded = false,
-            rotateNeeded = true
+            rotateNeeded = false
         ) ?: return null
 
         val croppedBitmap =
@@ -127,7 +121,10 @@ class ImageGenerateRepositoryImpl(
 
             if (rotateNeeded) {
                 val exifOrientation = ExifInterface(ByteArrayInputStream(byteArray))
-                    .getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                    .getAttributeInt(
+                        ExifInterface.TAG_ORIENTATION,
+                        ExifInterface.ORIENTATION_NORMAL
+                    )
 
                 rotateBitmap(decodedBitmap, exifOrientation)
             } else {

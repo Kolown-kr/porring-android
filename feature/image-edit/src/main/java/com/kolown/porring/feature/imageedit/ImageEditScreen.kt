@@ -6,7 +6,6 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -74,8 +73,8 @@ internal fun ImageEditRoute(
     val editedUri by viewModel.imageUri.collectAsStateWithLifecycle()
 
     var cropRatio by remember { mutableStateOf(CropRatio.PORTRAIT) }
-    val boxSize = remember { mutableStateOf(Size.Zero) }
-    val imageSize = remember { mutableStateOf(Size.Zero) }
+    var boxSize by remember { mutableStateOf(Size.Zero) }
+    var imageSize by remember { mutableStateOf(Size.Zero) }
     var minScale by remember { mutableFloatStateOf(1f) }
 
     val scale = remember { Animatable(1f) }
@@ -96,8 +95,8 @@ internal fun ImageEditRoute(
         padding = padding,
         imgUri = imgUri,
         minScale = minScale,
-        boxSize = boxSize.value,
-        imageSize = imageSize.value,
+        boxSize = boxSize,
+        imageSize = imageSize,
         cropRatio = cropRatio,
         coroutineScope = coroutineScope,
         scale = scale,
@@ -109,16 +108,15 @@ internal fun ImageEditRoute(
                 scale.value,
                 offsetX.value,
                 offsetY.value,
-                boxSize.value,
-                imageSize.value
+                boxSize,
+                imageSize
             )
         },
         navigateToHome = navigateToHome,
-        updateBoxSize = { boxSize.value = it },
-        updateImageSize = { imageSize.value = it },
+        updateBoxSize = { boxSize = it },
+        updateImageSize = { imageSize = it },
         updateMinScale = { minScale = it },
         updateCropRatio = { cropRatio = it },
-        getBoundedOffset = viewModel::getBoundedOffset
     )
 }
 
@@ -139,8 +137,7 @@ private fun ImageEditScreen(
     updateBoxSize: (Size) -> Unit = { },
     updateImageSize: (Size) -> Unit = { },
     updateMinScale: (Float) -> Unit = { },
-    updateCropRatio: (CropRatio) -> Unit = { },
-    getBoundedOffset: (Float, Float, Float, Float) -> Float = { _, _, _, _ -> 0f }
+    updateCropRatio: (CropRatio) -> Unit = { }
 ) {
     Column(
         modifier = Modifier
@@ -179,7 +176,7 @@ private fun ImageEditScreen(
                         }
                     }
                 }
-                .pointerInput(minScale) {
+                .pointerInput(boxSize, imageSize, minScale) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
@@ -216,42 +213,30 @@ private fun ImageEditScreen(
                                         )
                                     }
 
-                                    val boundedX = getBoundedOffset(
+                                    val boundedOffset = getBoundedOffset(
                                         scale.value,
-                                        offsetX.value,
-                                        boxSize.width,
-                                        imageSize.width
-                                    )
-                                    val boundedY = getBoundedOffset(
-                                        scale.value,
-                                        offsetY.value,
-                                        boxSize.height,
-                                        imageSize.height
+                                        boxSize,
+                                        imageSize,
+                                        Offset(offsetX.value, offsetY.value)
                                     )
 
-                                    val offsetXJob = if (boundedX != offsetX.value) {
-                                        async {
-                                            offsetX.animateTo(
-                                                boundedX,
-                                                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
-                                            )
-                                        }
-                                    } else null
+                                    val offsetXJob = async {
+                                        offsetX.animateTo(
+                                            boundedOffset.x,
+                                            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
+                                        )
+                                    }
 
-                                    val offsetYJob = if (boundedY != offsetY.value) {
-                                        async {
-                                            offsetY.animateTo(
-                                                boundedY,
-                                                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
-                                            )
-                                        }
-                                    } else null
+                                    val offsetYJob = async {
+                                        offsetY.animateTo(
+                                            boundedOffset.y,
+                                            animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
+                                        )
+                                    }
 
                                     awaitAll(
-                                        *(listOfNotNull(
-                                            offsetXJob,
-                                            offsetYJob
-                                        ).toTypedArray())
+                                        offsetXJob,
+                                        offsetYJob
                                     )
                                 }
                             }
@@ -272,18 +257,7 @@ private fun ImageEditScreen(
                         translationY = offsetY.value
                     ),
                 model = imgUri,
-                contentDescription = "Selected Image",
-                onSuccess = {
-                    coroutineScope.launch {
-                        val imgWidth = it.result.image.width.toFloat()
-                        val imgHeight = it.result.image.height.toFloat()
-
-                        val computedMinScale = calcMinScale(boxSize, Size(imgWidth, imgHeight))
-
-                        updateMinScale(computedMinScale)
-                        scale.snapTo(computedMinScale)
-                    }
-                }
+                contentDescription = "Selected Image"
             )
 
             GridBox(
@@ -318,7 +292,8 @@ private fun GridBox(
             .fillMaxHeight()
             .aspectRatio(cropRatio.ratio)
             .onSizeChanged { size ->
-                updateBoxSize(Size(size.width.toFloat(), size.height.toFloat()))
+                updateBoxSize(size.toSize())
+
                 coroutineScope.launch {
                     val computedMinScale = calcMinScale(size.toSize(), imageSize)
 
@@ -384,6 +359,24 @@ private fun calcMinScale(boxSize: Size, imageSize: Size): Float {
     val (boxW, boxH) = boxSize
     val (imgW, imgH) = imageSize
     return if ((imgW / imgH) > (boxW / boxH)) boxH / imgH else boxW / imgW
+}
+
+private fun getBoundedOffset(
+    scale: Float,
+    boxSize: Size,
+    imageSize: Size,
+    currentOffset: Offset
+): Offset {
+    val scaledWidth = imageSize.width * scale
+    val scaledHeight = imageSize.height * scale
+
+    val maxOffsetX = ((scaledWidth - boxSize.width) / 2f).coerceAtLeast(0f)
+    val maxOffsetY = ((scaledHeight - boxSize.height) / 2f).coerceAtLeast(0f)
+
+    return Offset(
+        currentOffset.x.coerceIn(-maxOffsetX, maxOffsetX),
+        currentOffset.y.coerceIn(-maxOffsetY, maxOffsetY)
+    )
 }
 
 enum class CropRatio(val ratio: Float) { PORTRAIT(4f / 5f), LANDSCAPE(5f / 4f) }
