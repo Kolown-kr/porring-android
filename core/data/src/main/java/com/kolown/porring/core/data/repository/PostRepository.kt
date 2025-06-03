@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
 import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
@@ -355,19 +356,12 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {
-        return Pager(
-            config = PagingConfig(pageSize = SEARCH_PER_PAGE, enablePlaceholders = false),
-            pagingSourceFactory = {
-                SearchPagingSource(
-                    postDataSource = postDataSource,
-                    reactionDataSource = reactionDataSource,
-                    tagId = tagId,
-                    tagDataSource = tagDataSource,
-                    followerDataSource = followDataSource,
-                    googleAuthDataSource = googleAuthDataSource
-                )
-            }
-        ).flow
+        return createPager(
+            pageSize = SEARCH_PER_PAGE,
+            keySelector = { it.postId }
+        ) { startKey, perPage ->
+            fetchPostContentModelsByTagId(tagId, startKey, perPage)
+        }
     }
 
     override suspend fun deletePost(postId: String): Flow<Boolean> = flow {
@@ -444,6 +438,69 @@ class PostRepositoryImpl @Inject constructor(
             }
         }
         return runCatching { block() }
+    }
+
+    private suspend fun fetchPostContentModelsByTagId(
+        tagId: String,
+        startKey: String?,
+        perPage: Int
+    ): Result<List<PostContentModel>> = runCatching {
+        val currentUserId = googleAuthDataSource.getUserId()
+
+        val postIds = tagDataSource.getPostTagByTagId(tagId).getOrElse {
+            throw IOException("포스트 ID 가져오기 실패")
+        }
+
+        val posts = postDataSource.getPostBySearch(
+            currentUserId = currentUserId,
+            postIds = postIds,
+            key = startKey,
+            perPage = perPage.toLong()
+        ).getOrElse {
+            throw IOException("포스트 가져오기 실패")
+        }
+
+        val (tags, reactions, isFollowers) = coroutineScope {
+            val tagsDeferred = async {
+                posts.map {
+                    async {
+                        tagDataSource.getPostTag(it.postId).getOrElse { emptyList() }
+                    }
+                }.awaitAll()
+            }
+
+            val reactionsDeferred = async {
+                posts.map {
+                    async {
+                        reactionDataSource.getReactionByPostId(it.postId).getOrElse { emptyList() }
+                    }
+                }.awaitAll()
+            }
+
+            val followDeferred = async {
+                posts.map {
+                    async {
+                        followDataSource.getIsFollower(currentUserId, it.authorId).getOrElse { false }
+                    }
+                }.awaitAll()
+            }
+
+            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
+        }
+
+        posts.mapIndexed { index, postModel ->
+            PostContentModel(
+                postId = postModel.postId,
+                authorId = postModel.authorId,
+                imageUrl = postModel.imageUrl,
+                registerAt = postModel.registerAt,
+                description = postModel.description,
+                tags = tags[index].map { it.tagName },
+                isFollower = isFollowers[index],
+                reactions = reactions[index].mapNotNull { it.reaction },
+                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
+            )
+        }
     }
 
     companion object {
