@@ -96,14 +96,7 @@ class HomeViewModel @Inject constructor(
 
     private fun reactPost(postId: String, reaction: Reactions) =
         viewModelScope.launch {
-            val item = (_uiState.value as? UiState.Success<List<PostContentModel>>)?.data
-                ?.find { it.postId == postId } ?: return@launch
-
-            if (item.myReaction == reaction) {
-                postRepository.removePostReaction(postId, reaction)
-            } else {
-                postRepository.reactPost(postId, reaction)
-            }
+            postRepository.updatePostReaction(postId, reaction)
         }
 
     fun onClickItem(post: PostContentModel) {

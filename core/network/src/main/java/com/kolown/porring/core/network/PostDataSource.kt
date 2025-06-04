@@ -35,7 +35,7 @@ interface PostDataSource {
     suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
     fun resetLastVisible()
     fun setPostReaction(userId: String, postId: String, reaction: Reactions)
-    fun deletePostReaction(userId: String, postId: String)
+    fun deletePostReaction(postId: String, userId: String)
 }
 
 class PostDataSourceImpl @Inject constructor(

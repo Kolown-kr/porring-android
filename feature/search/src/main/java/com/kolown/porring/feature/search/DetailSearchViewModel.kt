@@ -41,13 +41,7 @@ class DetailSearchViewModel @Inject constructor(
         val currentReaction = imageItem.myReaction
 
         viewModelScope.launch {
-            if (currentReaction == reaction) {
-                postRepository.removePostReaction(imageItem.postId, reaction)
-            } else {
-                postRepository.reactPost(
-                    postId = imageItem.postId, reaction = reaction
-                )
-            }
+            postRepository.updatePostReaction(imageItem.postId, reaction)
         }
         updateReactionState(imageItem.postId, currentReaction, reaction)
     }

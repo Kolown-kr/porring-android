@@ -109,9 +109,9 @@ internal class DetailViewModel @Inject constructor(
         return true
     }
 
+
     fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
-        if (checkedLogIn().not()) return@launch
-        postRepository.reactPost(postId, reaction)
+        postRepository.updatePostReaction(postId, reaction)
     }
 
     fun onFollowClick(post: PostContentModel) = viewModelScope.launch {

@@ -49,8 +49,6 @@ import javax.inject.Named
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
-    suspend fun setPostReaction(postId: String, reaction: Reactions): Result<Unit>
-    suspend fun deletePostReaction(postId: String, reaction: Reactions): Result<Unit>
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
     suspend fun deletePost(postId: String): Flow<Boolean>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
@@ -63,6 +61,8 @@ interface PostRepository {
         authorId: String? = null,
         postId: String? = null
     ): Flow<PagingData<PostContentModel>>
+
+    suspend fun updatePostReaction(postId: String, reaction: Reactions)
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -272,11 +272,21 @@ class PostRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun setPostReaction(postId: String, reaction: Reactions): Result<Unit> {
+    override suspend fun updatePostReaction(postId: String, reaction: Reactions) {
+        val myReaction = localPostDataSource.getMyReaction(postId)
+
+        if (myReaction == reaction.value) {
+            deletePostReaction(postId, reaction)
+        } else {
+            setPostReaction(postId, reaction)
+        }
+    }
+
+    private suspend fun setPostReaction(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
-            localPostDataSource.updateReaction(postId, reaction.value)
+            localPostDataSource.setPostReaction(postId, reaction.value)
             postDataSource.setPostReaction(
                 userId = currentUserId,
                 postId = postId,
@@ -285,12 +295,12 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePostReaction(postId: String, reaction: Reactions): Result<Unit> {
+    private suspend fun deletePostReaction(postId: String): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
-            localPostDataSource.updateReaction(postId, reaction.value)
-            postDataSource.deletePostReaction(postId, currentUserId)
+            localPostDataSource.deletePostReaction(postId)
+            postDataSource.deletePostReaction(postId = postId, userId = currentUserId)
         }
     }
 

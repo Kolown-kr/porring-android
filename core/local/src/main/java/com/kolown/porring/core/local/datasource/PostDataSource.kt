@@ -33,16 +33,32 @@ class HomePostDataSourceImpl @Inject constructor(
     override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, LocalPostDto> =
         postDao.getPagingItems(useRegisterAt)
 
-    override suspend fun updateReaction(postId: String, reaction: Int) {
+    override suspend fun getMyReaction(postId: String): Int? {
+        val post = postDao.getItemById(postId) ?: return null
+
+        return post.myReaction
+    }
+
+    override suspend fun setPostReaction(postId: String, reaction: Int) {
         val post = postDao.getItemById(postId) ?: return
-        val myReaction = if (post.myReaction == reaction) null else reaction
+        val myReaction = post.myReaction
+        val reactions = post.reactions.toMutableList()
+
+        myReaction?.let { reactions.remove(it) }
+        reactions.add(0, reaction)
+
+        postDao.updateReactions(postId, reactions.toList())
+        postDao.updateMyReaction(postId, reaction)
+    }
+
+    override suspend fun deletePostReaction(postId: String) {
+        val post = postDao.getItemById(postId) ?: return
         val reactions = post.reactions.toMutableList()
 
         reactions.remove(post.myReaction)
-        if (myReaction != null) reactions.add(0, reaction)
 
         postDao.updateReactions(postId, reactions.toList())
-        postDao.updateMyReaction(postId, myReaction)
+        postDao.updateMyReaction(postId, null)
     }
 
     override suspend fun getItemById(postId: String): PostContentModel? {
