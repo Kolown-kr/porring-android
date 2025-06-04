@@ -33,6 +33,22 @@ class HomePostDataSourceImpl @Inject constructor(
     override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, LocalPostDto> =
         postDao.getPagingItems(useRegisterAt)
 
+    override suspend fun getItemById(postId: String): PostContentModel? {
+        return postDao.getItemById(postId)?.toPostContentModel()
+    }
+
+    override suspend fun clearHomeItems() {
+        postDao.clearHomeItems()
+    }
+
+    override suspend fun clearPagingItems() {
+        postDao.clearPagingItems()
+    }
+
+    override suspend fun deleteMyPost(postId: String) {
+        postDao.deleteMyPost(postId)
+    }
+
     override suspend fun getMyReaction(postId: String): Int? {
         val post = postDao.getItemById(postId) ?: return null
 
@@ -59,17 +75,5 @@ class HomePostDataSourceImpl @Inject constructor(
 
         postDao.updateReactions(postId, reactions.toList())
         postDao.updateMyReaction(postId, null)
-    }
-
-    override suspend fun getItemById(postId: String): PostContentModel? {
-        return postDao.getItemById(postId)?.toPostContentModel()
-    }
-
-    override suspend fun clearHomeItems() {
-        postDao.clearHomeItems()
-    }
-
-    override suspend fun clearPagingItems() {
-        postDao.clearPagingItems()
     }
 }

@@ -3,7 +3,6 @@ package com.kolown.porring.feature.my
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
@@ -13,8 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +23,7 @@ class MyViewModel @Inject constructor(
     authRepository: AuthRepository
 ) : ViewModel() {
     private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val posts = _posts.asStateFlow().cachedIn(viewModelScope)
+    val posts = _posts.asStateFlow()
 
     private var _firstPage = 0
     val firstPage get() = _firstPage
@@ -71,10 +68,7 @@ class MyViewModel @Inject constructor(
     fun deletePost(postId: String) {
         viewModelScope.launch {
             postRepository.deletePost(postId)
-                .onEach {
-                    _isDeleteSuccess.update { !it }
-                }
-                .launchIn(viewModelScope)
+                .collect { result -> _isDeleteSuccess.update { result.isSuccess } }
         }
     }
 }

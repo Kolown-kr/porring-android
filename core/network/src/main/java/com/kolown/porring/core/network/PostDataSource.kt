@@ -3,6 +3,7 @@ package com.kolown.porring.core.network
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.kolown.porring.core.common.safeFlow
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.network.model.PostDto
@@ -10,6 +11,7 @@ import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -31,11 +33,11 @@ interface PostDataSource {
         perPage: Long
     ): Result<List<PostModel>>
 
-    suspend fun deletePost(postId: String): Result<Unit>
     suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
     fun resetLastVisible()
     fun setPostReaction(userId: String, postId: String, reaction: Reactions)
     fun deletePostReaction(postId: String, userId: String)
+    suspend fun deletePost(postId: String): Flow<Result<Unit>>
 }
 
 class PostDataSourceImpl @Inject constructor(
@@ -225,13 +227,6 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePost(postId: String): Result<Unit> {
-        return runCatching {
-            val documentId = postId.substringAfter("-")
-            postCollection.document(documentId).delete().await()
-        }
-    }
-
     override fun setPostReaction(userId: String, postId: String, reaction: Reactions) {
         val id = postId.substringAfter("-")
         val reactionsCollection = postCollection.document(id).collection("reactions")
@@ -244,5 +239,14 @@ class PostDataSourceImpl @Inject constructor(
         val reactionsCollection = postCollection.document(id).collection("reactions")
 
         reactionsCollection.document(userId).delete()
+    }
+
+    override suspend fun deletePost(postId: String): Flow<Result<Unit>> = safeFlow(
+        onError = { e -> Result.failure(e) }
+    ) {
+        val documentId = postId.substringAfter("-")
+
+        postCollection.document(documentId).delete().await()
+        emit(Result.success(Unit))
     }
 }

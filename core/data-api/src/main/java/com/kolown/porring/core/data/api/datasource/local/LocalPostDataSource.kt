@@ -16,6 +16,8 @@ interface LocalPostDataSource {
     suspend fun getFirstPageItem(): LocalPostDto
     suspend fun getLastPageItem(): LocalPostDto
 
+    suspend fun deleteMyPost(postId: String)
+
     suspend fun getMyReaction(postId: String): Int?
     suspend fun setPostReaction(postId: String, reaction: Int)
     suspend fun deletePostReaction(postId: String)

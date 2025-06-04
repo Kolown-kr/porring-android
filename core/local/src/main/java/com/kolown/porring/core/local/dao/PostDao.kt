@@ -233,4 +233,14 @@ interface PostDao {
     @Query("DELETE FROM paging_items")
     suspend fun clearPagingItems()
 
+    @Transaction
+    suspend fun deleteMyPost(postId: String) {
+        deletePagingItem(postId)
+    }
+
+    @Query("DELETE FROM paging_items WHERE post_id = :postId")
+    suspend fun deletePagingItem(postId: String)
+
+    @Query("DELETE FROM post_default_info WHERE post_id = :postId")
+    suspend fun deletePostDefaultInfo(postId: String)
 }

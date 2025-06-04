@@ -14,6 +14,8 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.common)
+    
     // firebase
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.google.firebase.firestore)

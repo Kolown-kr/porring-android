@@ -31,14 +31,11 @@ import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,7 +47,7 @@ interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
-    suspend fun deletePost(postId: String): Flow<Boolean>
+    suspend fun deletePost(postId: String): Flow<Result<Unit>>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
     suspend fun insertPagingItem(item: PostContentModel)
@@ -276,7 +273,7 @@ class PostRepositoryImpl @Inject constructor(
         val myReaction = localPostDataSource.getMyReaction(postId)
 
         if (myReaction == reaction.value) {
-            deletePostReaction(postId, reaction)
+            deletePostReaction(postId)
         } else {
             setPostReaction(postId, reaction)
         }
@@ -313,44 +310,10 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePost(postId: String): Flow<Boolean> = flow {
-        coroutineScope {
-            val deletePostTagDeferred = async {
-                retryWithLimit {
-                    tagDataSource.deletePostTag(postId).getOrElse {
-                        throw IOException("포스트 태그 삭제 실패")
-                    }
-                }
-            }
-            val deleteReactionDeferred = async {
-                retryWithLimit {
-                    reactionDataSource.deletePostReaction(postId).getOrElse {
-                        throw IOException("리액션 삭제 실패")
-                    }
-                }
-            }
-            val deletePostDeferred = async {
-                retryWithLimit {
-                    postDataSource.deletePost(postId).getOrElse {
-                        throw IOException("게시물 삭제 실패")
-                    }
-                }
-            }
+    override suspend fun deletePost(postId: String): Flow<Result<Unit>> {
+        localPostDataSource.deleteMyPost(postId)
 
-            val results = awaitAll(
-                deletePostTagDeferred,
-                deleteReactionDeferred,
-                deletePostDeferred
-            )
-
-            val allSuccess = results.all { it.isSuccess }
-
-            if (allSuccess) {
-                emit(true)
-            } else {
-                throw IOException("하나 이상의 작업이 실패하였습니다.")
-            }
-        }
+        return postDataSource.deletePost(postId)
     }
 
     private suspend fun updateImageUrl(postId: String, fileUri: Uri): Result<Unit> {
