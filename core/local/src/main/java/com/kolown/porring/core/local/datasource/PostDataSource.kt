@@ -2,11 +2,14 @@ package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
-import com.kolown.porring.core.data.model.LocalItemType
-import com.kolown.porring.core.data.model.LocalPostDto
+import com.kolown.porring.core.data.model.MyPostDto
+import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.PostsUsageType
 import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.local.dao.PostDao
+import com.kolown.porring.core.local.mapper.toEntity
 import com.kolown.porring.core.local.mapper.toModel
+import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,7 +20,7 @@ class HomePostDataSourceImpl @Inject constructor(
 ) : LocalPostDataSource {
     override suspend fun insertItems(
         items: List<PostContentModel>,
-        itemType: LocalItemType
+        itemType: PostsUsageType
     ) {
         postDao.insertItems(items.map { it.toModel() }, itemType)
     }
@@ -27,11 +30,11 @@ class HomePostDataSourceImpl @Inject constructor(
     override suspend fun getLastPageItem() = postDao.getLastPageItem()
 
     override fun getItems(): Flow<List<PostContentModel>> {
-        return postDao.getItems().map { items -> items.map { it.toPostContentModel() } }
+        return postDao.getHomePosts().map { items -> items.map { it.toPostContentModel() } }
     }
 
-    override fun getPagingItems(useRegisterAt: Boolean): PagingSource<Int, LocalPostDto> =
-        postDao.getPagingItems(useRegisterAt)
+    override fun getPagingItems(): PagingSource<Int, OtherPostDto> =
+        postDao.getPagingPosts()
 
     override suspend fun getItemById(postId: String): PostContentModel? {
         return postDao.getItemById(postId)?.toPostContentModel()
@@ -43,10 +46,6 @@ class HomePostDataSourceImpl @Inject constructor(
 
     override suspend fun clearPagingItems() {
         postDao.clearPagingItems()
-    }
-
-    override suspend fun deleteMyPost(postId: String) {
-        postDao.deleteMyPost(postId)
     }
 
     override suspend fun getMyReaction(postId: String): Int? {
@@ -75,5 +74,17 @@ class HomePostDataSourceImpl @Inject constructor(
 
         postDao.updateReactions(postId, reactions.toList())
         postDao.updateMyReaction(postId, null)
+    }
+
+    override fun getMyPosts(): PagingSource<Int, MyPostDto> {
+        return postDao.getMyPosts()
+    }
+
+    override suspend fun insertMyPost(posts: List<MyPost>) {
+        postDao.insertMyPost(posts.map { it.toEntity() })
+    }
+
+    override suspend fun deleteMyPost(postId: String) {
+        postDao.deleteMyPost(postId)
     }
 }

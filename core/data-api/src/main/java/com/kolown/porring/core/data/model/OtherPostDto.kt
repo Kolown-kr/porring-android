@@ -3,7 +3,7 @@ package com.kolown.porring.core.data.model
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.toReactions
 
-data class LocalPostDto(
+data class OtherPostDto(
     val postId: String,
     val authorId: String,
     val imageUrl: String,
@@ -15,7 +15,7 @@ data class LocalPostDto(
     val myReaction: Int? = null,
 )
 
-fun LocalPostDto.toPostContentModel() = PostContentModel(
+fun OtherPostDto.toPostContentModel() = PostContentModel(
     postId = this.postId,
     authorId = this.authorId,
     imageUrl = this.imageUrl,

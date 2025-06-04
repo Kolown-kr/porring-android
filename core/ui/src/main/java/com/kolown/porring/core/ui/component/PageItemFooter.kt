@@ -20,7 +20,7 @@ import androidx.paging.LoadState
 import com.kolown.porring.core.ui.R
 
 @Composable
-internal fun PageItemFooter(
+fun PageItemFooter(
     modifier: Modifier = Modifier,
     loadState: LoadState,
     onRetryClicked: () -> Unit,

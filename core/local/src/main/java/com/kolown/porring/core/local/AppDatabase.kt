@@ -5,22 +5,22 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.kolown.porring.core.local.dao.FollowerDao
 import com.kolown.porring.core.local.dao.PostDao
-import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
 import com.kolown.porring.core.local.entity.FollowerEntity
-import com.kolown.porring.core.local.entity.HomeItemPostEntity
-import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
-import com.kolown.porring.core.local.entity.PagingItemPostEntity
+import com.kolown.porring.core.local.entity.HomePostKeyEntity
+import com.kolown.porring.core.local.entity.MyPostEntity
+import com.kolown.porring.core.local.entity.OtherPostEntity
+import com.kolown.porring.core.local.entity.PagingPostKeyEntity
 import com.kolown.porring.core.local.util.Converter
 
 @Database(
     entities = [
-        HomeItemPostEntity::class,
-        PagingItemPostEntity::class,
-        DefaultPostInfoEntity::class,
-        OtherUserPostInfoEntity::class,
+        HomePostKeyEntity::class,
+        PagingPostKeyEntity::class,
+        OtherPostEntity::class,
+        MyPostEntity::class,
         FollowerEntity::class,
     ],
-    version = 16,
+    version = 17,
     exportSchema = true,
 )
 @TypeConverters(Converter::class)

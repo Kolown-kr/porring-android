@@ -6,142 +6,143 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.kolown.porring.core.data.model.LocalItemType
-import com.kolown.porring.core.data.model.LocalPostDto
-import com.kolown.porring.core.local.entity.DefaultPostInfoEntity
-import com.kolown.porring.core.local.entity.HomeItemPostEntity
-import com.kolown.porring.core.local.entity.OtherUserPostInfoEntity
-import com.kolown.porring.core.local.entity.PagingItemPostEntity
-import com.kolown.porring.core.local.mapper.toOtherUserPostInfo
-import com.kolown.porring.core.local.mapper.toPostDefaultInfo
+import com.kolown.porring.core.data.model.MyPostDto
+import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.PostsUsageType
+import com.kolown.porring.core.local.entity.HomePostKeyEntity
+import com.kolown.porring.core.local.entity.MyPostEntity
+import com.kolown.porring.core.local.entity.OtherPostEntity
+import com.kolown.porring.core.local.entity.PagingPostKeyEntity
+import com.kolown.porring.core.local.mapper.toEntity
 import com.kolown.porring.core.model.PostModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PostDao {
+    // OtherPost 연관 쿼리 =========================================================================
+    // INSERT
     @Transaction
     suspend fun insertItems(
         posts: List<PostModel>,
-        localItemType: LocalItemType
+        postsUsageType: PostsUsageType
     ) {
-        insertPostDefaultInfo(posts.map { it.toPostDefaultInfo() })
-        insertOtherUserPostInfo(posts.map { it.toOtherUserPostInfo() })
-        when (localItemType) {
-            LocalItemType.HOME_ITEM -> insertHomeItemPost(posts.map {
-                HomeItemPostEntity(
-                    postId = it.postId
-                )
-            })
+        val otherPostsEntity = posts.map { it.toEntity() }
 
-            LocalItemType.PAGING_ITEM -> {
+        insertOtherPostInfo(otherPostsEntity)
+        insertUsageKey(posts, postsUsageType)
+
+    }
+
+    private suspend fun insertUsageKey(
+        posts: List<PostModel>,
+        usageType: PostsUsageType
+    ) {
+        when (usageType) {
+            PostsUsageType.HOME -> {
+                val homePostKeyEntities = posts.map { HomePostKeyEntity(postId = it.postId) }
+
+                insertHomePostKeys(homePostKeyEntities)
+            }
+
+            PostsUsageType.PAGING -> {
                 var currentMax = getMaxSortOrder()
 
-                val new = posts.map {
-                    val new = ++currentMax
+                val pagingPostKeyEntities = posts.map {
+                    val newOrder = ++currentMax
 
-                    PagingItemPostEntity(postId = it.postId, sortOrder = new)
+                    PagingPostKeyEntity(postId = it.postId, sortOrder = newOrder)
                 }
 
-                insertPagingItemPost(new)
+                insertPagingPostKeys(pagingPostKeyEntities)
             }
         }
     }
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOtherPostInfo(otherPostEntity: List<OtherPostEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHomePostKeys(homePostKeyEntity: List<HomePostKeyEntity>)
+
+    @Transaction
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertPagingPostKeys(pagingPostKeyEntity: List<PagingPostKeyEntity>)
+
+    @Query("SELECT COALESCE(MAX(sort_order), 0) FROM paging_post_keys")
+    suspend fun getMaxSortOrder(): Int
+
+    // GET
+    @Transaction
+    @Query(
+        """
+            SELECT
+                home.post_id AS postId,
+                
+                other.author_id AS authorId,
+                other.image_url AS imageUrl,
+                other.register_at AS registerAt,
+                other.description AS description,
+                other.tags AS tags,
+                other.reactions AS reactions,
+                other.my_reaction AS myReaction,
+                
+                EXISTS (
+                    SELECT 1
+                    FROM follower
+                    WHERE follower.follower_id = other.author_id
+                ) AS isFollower
+                
+            FROM home_post_keys AS home
+            LEFT JOIN other_post AS other ON home.post_id = other.post_id
+        """
+    )
+    fun getHomePosts(): Flow<List<OtherPostDto>>
+
+    @Transaction
+    @Query(
+        """
+            SELECT
+                paging.post_id AS postId,
+                
+                other.author_id AS authorId,
+                other.image_url AS imageUrl,
+                other.register_at AS registerAt,
+                other.description AS description,
+                other.tags AS tags,
+                other.reactions AS reactions,
+                other.my_reaction AS myReaction,
+                
+                EXISTS (
+                    SELECT 1
+                    FROM follower
+                    WHERE follower.follower_id = other.author_id
+                ) AS isFollower
+                
+            FROM paging_post_keys AS paging
+            LEFT JOIN other_post AS other ON paging.post_id = other.post_id
+            ORDER BY paging.sort_order ASC
+        """
+    )
+    fun getPagingPosts(): PagingSource<Int, OtherPostDto>
+
     @Transaction
     suspend fun clearAllItems() {
         clearHomeItems()
-        clearPostDefaultInfo()
         clearOtherUserPostInfo()
         clearPagingItems()
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPostDefaultInfo(defaultPostInfoEntity: List<DefaultPostInfoEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOtherUserPostInfo(otherUserPostInfoEntity: List<OtherUserPostInfoEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHomeItemPost(homeItemPostEntity: List<HomeItemPostEntity>)
-
-    @Transaction
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertPagingItemPost(pagingItemPostEntity: List<PagingItemPostEntity>)
-
-    @Query("SELECT COALESCE(MAX(sort_order), 0) FROM paging_items")
-    suspend fun getMaxSortOrder(): Int
-
-    @Transaction
-    @Query(
-        """
-        SELECT
-            pagingItems.post_id AS postId,
-
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-
-            other.author_id AS authorId,
-            other.my_reaction AS myReaction,
-            
-            EXISTS (
-                SELECT 1
-                FROM follower AS follower
-                WHERE follower.follower_id = other.author_id
-            ) AS isFollower
-            
-        FROM paging_items AS pagingItems
-        LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
-        LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
-        ORDER BY
-            CASE WHEN :useRegisterAt = 1 THEN post.register_at END DESC,
-            pagingItems.sort_order ASC
-    """
-    )
-    fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, LocalPostDto>
-
-    @Transaction
-    @Query(
-        """
-        SELECT 
-            homeItems.post_id AS postId,
-        
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-        
-            other.author_id AS authorId,
-            other.my_reaction AS myReaction,
-            
-            EXISTS (
-                SELECT 1
-                FROM follower AS follower
-                WHERE follower.follower_id = other.author_id
-            ) AS isFollower
-            
-        FROM home_items AS homeItems
-        LEFT JOIN post_default_info AS post ON homeItems.post_id = post.post_id
-        LEFT JOIN other_user_post_info AS other ON homeItems.post_id = other.post_id
-    """
-    )
-    fun getItems(): Flow<List<LocalPostDto>>
-
     @Transaction
     @Query(
         """
             SELECT
-            pagingItems.post_id AS postId,
+            paging.post_id AS postId,
 
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-
+            other.image_url AS imageUrl,
+            other.register_at AS registerAt,
+            other.description AS description,
+            other.tags AS tags,
+            other.reactions AS reactions,
             other.author_id AS authorId,
             other.my_reaction AS myReaction,
             
@@ -151,26 +152,25 @@ interface PostDao {
                 WHERE follower.follower_id = other.author_id
             ) AS isFollower
             
-            FROM paging_items AS pagingItems
-            LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
-            LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
+            FROM paging_post_keys AS paging
+            LEFT JOIN other_post AS other ON paging.post_id = other.post_id
             ORDER BY register_at DESC LIMIT 1
         """
     )
-    fun getFirstPageItem(): LocalPostDto
+    fun getFirstPageItem(): OtherPostDto
+
 
     @Transaction
     @Query(
         """
             SELECT
-            pagingItems.post_id AS postId,
+            paging.post_id AS postId,
 
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-
+            other.image_url AS imageUrl,
+            other.register_at AS registerAt,
+            other.description AS description,
+            other.tags AS tags,
+            other.reactions AS reactions,
             other.author_id AS authorId,
             other.my_reaction AS myReaction,
             
@@ -180,25 +180,23 @@ interface PostDao {
                 WHERE follower.follower_id = other.author_id
             ) AS isFollower
             
-            FROM paging_items AS pagingItems
-            LEFT JOIN post_default_info AS post ON pagingItems.post_id = post.post_id
-            LEFT JOIN other_user_post_info AS other ON pagingItems.post_id = other.post_id
+            FROM paging_post_keys AS paging
+            LEFT JOIN other_post AS other ON paging.post_id = other.post_id
             ORDER BY register_at ASC LIMIT 1
         """
     )
-    fun getLastPageItem(): LocalPostDto
+    fun getLastPageItem(): OtherPostDto
 
     @Transaction
     @Query(
         """
         SELECT 
-            post.post_id AS postId,
-            post.image_url AS imageUrl,
-            post.register_at AS registerAt,
-            post.description AS description,
-            post.tags AS tags,
-            post.reactions AS reactions,
-            
+            other.post_id AS postId,
+            other.image_url AS imageUrl,
+            other.register_at AS registerAt,
+            other.description AS description,
+            other.tags AS tags,
+            other.reactions AS reactions,
             other.author_id AS authorId,
             other.my_reaction AS myReaction,
             
@@ -208,39 +206,47 @@ interface PostDao {
                 WHERE follower.follower_id = other.author_id
             ) AS isFollower
             
-        FROM post_default_info AS post
-        LEFT JOIN other_user_post_info AS other ON post.post_id = other.post_id
-        WHERE post.post_id = :postId
+        FROM other_post AS other
+        WHERE other.post_id = :postId
     """
     )
-    suspend fun getItemById(postId: String): LocalPostDto?
+    suspend fun getItemById(postId: String): OtherPostDto?
 
-    @Query("UPDATE other_user_post_info SET my_reaction = :reaction WHERE post_id = :postId")
+    @Query("UPDATE other_post SET my_reaction = :reaction WHERE post_id = :postId")
     suspend fun updateMyReaction(postId: String, reaction: Int?)
 
-    @Query("UPDATE post_default_info SET reactions = :reactions WHERE post_id = :postId")
+    @Query("UPDATE other_post SET reactions = :reactions WHERE post_id = :postId")
     suspend fun updateReactions(postId: String, reactions: List<Int>)
 
-    @Query("DELETE FROM home_items")
+    @Query("DELETE FROM home_post_keys")
     suspend fun clearHomeItems()
 
-    @Query("DELETE FROM post_default_info")
-    suspend fun clearPostDefaultInfo()
-
-    @Query("DELETE FROM other_user_post_info")
+    @Query("DELETE FROM other_post")
     suspend fun clearOtherUserPostInfo()
 
-    @Query("DELETE FROM paging_items")
+    @Query("DELETE FROM paging_post_keys")
     suspend fun clearPagingItems()
 
-    @Transaction
-    suspend fun deleteMyPost(postId: String) {
-        deletePagingItem(postId)
-    }
+    // MyPost 연관 쿼리 ============================================================================
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMyPost(posts: List<MyPostEntity>)
 
-    @Query("DELETE FROM paging_items WHERE post_id = :postId")
-    suspend fun deletePagingItem(postId: String)
+    @Query(
+        """
+            SELECT
+                my.post_id AS postId,
+                my.image_url AS imageUrl,
+                my.register_at AS registerAt,
+                my.description AS description,
+                my.tags AS tags,
+                my.reactions AS reactions
+            FROM my_post AS my
+            ORDER BY register_at DESC
+                
+        """
+    )
+    fun getMyPosts(): PagingSource<Int, MyPostDto>
 
-    @Query("DELETE FROM post_default_info WHERE post_id = :postId")
-    suspend fun deletePostDefaultInfo(postId: String)
+    @Query("DELETE FROM my_post WHERE post_id = :postId")
+    suspend fun deleteMyPost(postId: String)
 }

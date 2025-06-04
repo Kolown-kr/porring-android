@@ -23,7 +23,7 @@ sealed interface Route {
     data object DetailSearch : Route
 
     @Serializable
-    data object DetailMy : Route
+    data class DetailMy(val postId: String) : Route
 
     @Serializable
     data object DetailTheir : Route

@@ -12,6 +12,7 @@ import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
+import com.kolown.porring.feature.detail_my.navigation.detailMyNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
 import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.imageedit.navigation.imageEditNavGraph
@@ -73,19 +74,17 @@ internal fun MainNavHost(
                 padding = padding,
                 navigateToLogin = navigator::navigateToLogin,
                 navigateToSetting = navigator::navigateToSetting,
-                navigateToDetail = { authorId, postId ->
-                    navigator.navigateToDetail(
-                        type = MainMenuRoute.Detail.Type.MY,
-                        order = 0,
-                        authorId = authorId,
-                        postId = postId,
-                    )
-                },
+                navigateToDetail = navigator::navigateToDetailMy,
             )
 
             detailNavGraph(
                 padding = padding,
                 navigateToTheir = navigator::navigateToTheir,
+                popBackStack = navigator::popBackStack
+            )
+
+            detailMyNavGraph(
+                padding = padding,
                 popBackStack = navigator::popBackStack
             )
 
