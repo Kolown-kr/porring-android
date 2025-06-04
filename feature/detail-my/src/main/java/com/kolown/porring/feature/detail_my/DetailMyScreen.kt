@@ -70,8 +70,8 @@ private fun DetailMyScreen(
 
     LaunchedEffect(postId, pagingItems.itemSnapshotList.items) {
         val index = pagingItems.itemSnapshotList.items.indexOfFirst { it.postId == postId }
-        
-        if (index >= 0) {
+
+        if (index >= 0 && pagerState.currentPage != index) {
             pagerState.scrollToPage(index)
         }
     }

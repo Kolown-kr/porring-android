@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
+import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val followRepository: FollowRepository
+    private val followRepository: FollowRepository,
+    private val postRepository: PostRepository
 ) : ViewModel() {
     private var _loginState: MutableStateFlow<UiState<String>> = MutableStateFlow(UiState.Idle)
     val loginState = _loginState.asStateFlow()
@@ -42,6 +44,7 @@ class LoginViewModel @Inject constructor(
                     _loginState.update { UiState.Success("로그인 완료") }
                     userRepository.createUserData()
                     followRepository.fetchFollows()
+                    postRepository.fetchMyPosts()
                 }
                 .onFailure { e -> _loginState.update { UiState.Failure(e) } }
         }
