@@ -1,7 +1,6 @@
 package com.kolown.porring.core.data.repository
 
 import android.net.Uri
-import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -9,9 +8,6 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
-import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
-import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
-import com.kolown.porring.core.data.datasource.paging.UserPagingKey
 import com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
 import com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
 import com.kolown.porring.core.data.model.toPostContentModel
@@ -53,10 +49,8 @@ import javax.inject.Named
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
-    fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>>
-    suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit>
-    suspend fun removePostReaction(postId: String, reaction: Reactions): Result<Unit>
-    fun getUserPosts(userId: String? = null): Flow<PagingData<PostContentModel>>
+    suspend fun setPostReaction(postId: String, reaction: Reactions): Result<Unit>
+    suspend fun deletePostReaction(postId: String, reaction: Reactions): Result<Unit>
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
     suspend fun deletePost(postId: String): Flow<Boolean>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
@@ -84,33 +78,8 @@ class PostRepositoryImpl @Inject constructor(
     private val userGalleryRemoteMediatorFactory: UserGalleryPostRemoteMediatorFactory,
 ) : PostRepository {
     private val _uploadFeedBack = MutableSharedFlow<UploadFeedBack>()
+
     override fun getUploadFeedBack(): Flow<UploadFeedBack> = _uploadFeedBack.asSharedFlow()
-
-    override fun getUserPosts(userId: String?): Flow<PagingData<PostContentModel>> {
-        val authorId = googleAuthDataSource.getUserId()
-        val initialKey = if (userId == null) {
-            UserPagingKey(0, authorId)
-        } else {
-            UserPagingKey(0, userId)
-        }
-
-        return Pager(
-            config = PagingConfig(
-                pageSize = GALLERY_PAGE_SIZE,
-                enablePlaceholders = false,
-            ),
-            initialKey = initialKey,
-            pagingSourceFactory = {
-                UserPagingDataSource(
-                    postDataSource = postDataSource,
-                    tagDataSource = tagDataSource,
-                    reactionDataSource = reactionDataSource,
-                    googleAuthDataSource = googleAuthDataSource,
-                    userId = userId ?: authorId
-                )
-            }
-        ).flow
-    }
 
     override fun uploadPost(
         fileUri: Uri,
@@ -188,6 +157,7 @@ class PostRepositoryImpl @Inject constructor(
                 postType.pageSize,
                 pageState,
             )
+
             PostType.USER_DETAIL -> getUserDetailPagingItem(
                 postType.pageSize,
                 pageState,
@@ -279,65 +249,35 @@ class PostRepositoryImpl @Inject constructor(
             HOME_ITEM_SIZE,
             RANDOM_SEED.random().toString()
         ).getOrElse {
-            Log.e("fatal: postRepository", it.toString())
             throw IOException("게시물 불러오기 실패")
-        }
-        val isFollowers = coroutineScope {
-            posts.map {
-                async {
-                    followDataSource.getIsFollower(
-                        userId = currentUserId,
-                        followerId = it.authorId
-                    ).getOrElse {
-                        throw IOException("팔로우 확인 실패")
-                    }
-                }
-            }.awaitAll()
-        }
-
-        val postContentModels = posts.mapIndexed { index, postModel ->
+        }.map {
             PostContentModel(
-                postId = postModel.postId,
-                authorId = postModel.authorId,
-                imageUrl = postModel.imageUrl,
-                registerAt = postModel.registerAt,
-                description = postModel.description,
-                tags = postModel.tags,
-                isFollower = isFollowers[index],
-                reactions = postModel.reactions.map { it.toReactions() ?: Reactions.LOVE },
-                myReaction = postModel.myReaction?.toReactions()
+                postId = it.postId,
+                authorId = it.authorId,
+                imageUrl = it.imageUrl,
+                registerAt = it.registerAt,
+                description = it.description,
+                tags = it.tags,
+                isFollower = it.isFollower,
+                reactions = it.reactions.map { r -> r.toReactions() ?: Reactions.LOVE },
+                myReaction = it.myReaction?.toReactions()
             )
         }
 
         localPostDataSource.clearHomeItems()
         delay(100)
         localPostDataSource.insertItems(
-            postContentModels,
+            posts,
             HOME_ITEM
         )
     }
 
-    override fun getRandomDetailPostList(): Flow<PagingData<PostContentModel>> {
-        return Pager(
-            config = PagingConfig(pageSize = DETAIL_PER_PAGE, enablePlaceholders = false),
-            pagingSourceFactory = {
-                RandomPagingDataSource(
-                    postDataSource,
-                    tagDataSource,
-                    reactionDataSource,
-                    followDataSource,
-                    googleAuthDataSource
-                )
-            }
-        ).flow
-    }
-
-    override suspend fun reactPost(postId: String, reaction: Reactions): Result<Unit> {
+    override suspend fun setPostReaction(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
             localPostDataSource.updateReaction(postId, reaction.value)
-            reactionDataSource.updatePostReaction(
+            postDataSource.setPostReaction(
                 userId = currentUserId,
                 postId = postId,
                 reaction = reaction
@@ -345,15 +285,12 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removePostReaction(postId: String, reaction: Reactions): Result<Unit> {
+    override suspend fun deletePostReaction(postId: String, reaction: Reactions): Result<Unit> {
         return kotlin.runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
             localPostDataSource.updateReaction(postId, reaction.value)
-            reactionDataSource.removePostReaction(
-                userId = currentUserId,
-                postId = postId,
-            )
+            postDataSource.deletePostReaction(postId, currentUserId)
         }
     }
 
