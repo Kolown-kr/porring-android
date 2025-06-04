@@ -67,6 +67,7 @@ interface PostRepository {
     suspend fun updatePostReaction(postId: String, reaction: Reactions)
     fun getMyPosts(): Flow<PagingData<MyPost>>
     suspend fun fetchMyPosts()
+    suspend fun updateMyPost()
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -312,7 +313,7 @@ class PostRepositoryImpl @Inject constructor(
         return Pager(
             config = PagingConfig(
                 pageSize = GALLERY_PAGE_SIZE,
-                enablePlaceholders = false
+                enablePlaceholders = true
             ),
             pagingSourceFactory = { localPostDataSource.getMyPosts() }
         ).flow.map { pagingData ->
@@ -325,6 +326,13 @@ class PostRepositoryImpl @Inject constructor(
         val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
 
         localPostDataSource.insertMyPost(posts.map { it.toMyPost() })
+    }
+
+    override suspend fun updateMyPost() {
+        val uid = googleAuthDataSource.getUserId()
+        val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
+
+        localPostDataSource.updateMyPost(posts.map { it.toMyPost() })
     }
 
     override fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {

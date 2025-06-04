@@ -69,8 +69,8 @@ internal fun MyRoute(
     navigateToSetting: () -> Unit = {},
     navigateToDetail: (String) -> Unit = { _ -> },
 ) {
-    val pagingItems = viewModel.posts.collectAsLazyPagingItems()
-    val isDeleteSuccess by viewModel.isDeleteSuccess.collectAsStateWithLifecycle()
+    val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
+
     val isLoggedIn by viewModel.loginState.collectAsStateWithLifecycle(initialValue = true)
     var isRefreshing by remember { mutableStateOf(false) }
     var showErrorScreen by remember { mutableStateOf(false) }
@@ -80,7 +80,7 @@ internal fun MyRoute(
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
-        pagingItems.refresh()
+        viewModel.refresh()
     }
 
     val scaleFraction = {
@@ -102,9 +102,6 @@ internal fun MyRoute(
         )
     }
 
-    LaunchedEffect(isDeleteSuccess) {
-        pagingItems.refresh()
-    }
     LaunchedEffect(pagingItems.loadState) {
         isRefreshing = false
     }
@@ -119,8 +116,6 @@ internal fun MyRoute(
     }
 
     if (isLoggedIn) {
-        viewModel.setUserId()
-
         MyScreen(
             pagingItems = pagingItems,
             title = stringResource(R.string.string_my_gallery),

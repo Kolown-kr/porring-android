@@ -25,4 +25,5 @@ interface LocalPostDataSource {
     suspend fun deletePostReaction(postId: String)
     suspend fun insertMyPost(posts: List<MyPost>)
     fun getMyPosts(): PagingSource<Int, MyPostDto>
+    suspend fun updateMyPost(posts: List<MyPost>)
 }
