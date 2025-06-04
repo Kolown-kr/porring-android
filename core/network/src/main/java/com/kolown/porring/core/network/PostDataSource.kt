@@ -38,6 +38,7 @@ interface PostDataSource {
     fun setPostReaction(userId: String, postId: String, reaction: Reactions)
     fun deletePostReaction(postId: String, userId: String)
     suspend fun deletePost(postId: String): Flow<Result<Unit>>
+    suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>>
 }
 
 class PostDataSourceImpl @Inject constructor(
@@ -248,5 +249,16 @@ class PostDataSourceImpl @Inject constructor(
 
         postCollection.document(documentId).delete().await()
         emit(Result.success(Unit))
+    }
+
+    override suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>> {
+        return kotlin.runCatching {
+            postCollection
+                .whereEqualTo("authorId", authorId)
+                .orderBy("registerAt", Query.Direction.DESCENDING)
+                .get()
+                .await()
+                .mapNotNull { it.toObject(PostDto::class.java).toPostModel(randomType) }
+        }
     }
 }

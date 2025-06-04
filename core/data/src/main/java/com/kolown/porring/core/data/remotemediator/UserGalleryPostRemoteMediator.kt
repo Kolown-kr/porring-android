@@ -36,10 +36,10 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, com.kolown.porring.core.data.model.LocalPostDto>() {
+) : RemoteMediator<Int, com.kolown.porring.core.data.model.OtherPostDto>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, com.kolown.porring.core.data.model.LocalPostDto>
+        state: PagingState<Int, com.kolown.porring.core.data.model.OtherPostDto>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
@@ -69,7 +69,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             posts,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            com.kolown.porring.core.data.model.PostsUsageType.PAGING
         )
 
         return MediatorResult.Success(endOfPaginationReached = posts.isEmpty())
@@ -77,7 +77,6 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
     private suspend fun onAppend(pageSize: Long): MediatorResult {
         val lastItem = localPostDataSource.getLastPageItem()
-        Log.i("PagingTest: UserGalleryPostRemoteMediator", "onAppend")
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
@@ -92,7 +91,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result,
-            com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+            com.kolown.porring.core.data.model.PostsUsageType.PAGING
         )
 
         return MediatorResult.Success(endOfPaginationReached = result.isEmpty())

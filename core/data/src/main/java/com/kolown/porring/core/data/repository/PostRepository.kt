@@ -8,14 +8,17 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
-import com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
-import com.kolown.porring.core.data.model.LocalItemType.PAGING_ITEM
+import com.kolown.porring.core.data.model.PostsUsageType.HOME
+import com.kolown.porring.core.data.model.PostsUsageType.PAGING
+import com.kolown.porring.core.data.model.toModel
+import com.kolown.porring.core.data.model.toMyPost
 import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETAIL_PER_PAGE
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
+import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.Reactions
@@ -31,6 +34,8 @@ import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +65,8 @@ interface PostRepository {
     ): Flow<PagingData<PostContentModel>>
 
     suspend fun updatePostReaction(postId: String, reaction: Reactions)
+    fun getMyPosts(): Flow<PagingData<MyPost>>
+    suspend fun fetchMyPosts()
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -210,7 +217,7 @@ class PostRepositoryImpl @Inject constructor(
                 postId = postId,
                 pageState = pageState
             ),
-            pagingSourceFactory = { localPostDataSource.getPagingItems(true) }
+            pagingSourceFactory = { localPostDataSource.getPagingItems() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toPostContentModel()
@@ -230,7 +237,7 @@ class PostRepositoryImpl @Inject constructor(
                 pageSize = pageSize,
             ),
             remoteMediator = userGalleryRemoteMediatorFactory.create(authorId = authorId),
-            pagingSourceFactory = { localPostDataSource.getPagingItems(true) }
+            pagingSourceFactory = { localPostDataSource.getPagingItems() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toPostContentModel()
@@ -265,7 +272,7 @@ class PostRepositoryImpl @Inject constructor(
         delay(100)
         localPostDataSource.insertItems(
             posts,
-            HOME_ITEM
+            HOME
         )
     }
 
@@ -301,6 +308,25 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getMyPosts(): Flow<PagingData<MyPost>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = GALLERY_PAGE_SIZE,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { localPostDataSource.getMyPosts() }
+        ).flow.map { pagingData ->
+            pagingData.map { it.toModel() }
+        }
+    }
+
+    override suspend fun fetchMyPosts() {
+        val uid = googleAuthDataSource.getUserId()
+        val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
+
+        localPostDataSource.insertMyPost(posts.map { it.toMyPost() })
+    }
+
     override fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {
         return createPager(
             pageSize = SEARCH_PER_PAGE,
@@ -331,7 +357,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun insertPagingItem(item: PostContentModel) {
         localPostDataSource.insertItems(
             listOf(item),
-            PAGING_ITEM
+            PAGING
         )
     }
 

@@ -3,19 +3,26 @@ package com.kolown.porring.feature.my
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
@@ -24,12 +31,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,13 +50,14 @@ import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
+import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.LoadingScreen
+import com.kolown.porring.core.ui.component.PageItemFooter
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.RestrictedLoginContent
-import com.kolown.porring.core.ui.component.StateLazyGrid
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +67,7 @@ internal fun MyRoute(
     padding: PaddingValues = PaddingValues(),
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
-    navigateToDetail: (String, String) -> Unit = { _, _ -> },
+    navigateToDetail: (String) -> Unit = { _ -> },
 ) {
     val pagingItems = viewModel.posts.collectAsLazyPagingItems()
     val isDeleteSuccess by viewModel.isDeleteSuccess.collectAsStateWithLifecycle()
@@ -124,8 +134,7 @@ internal fun MyRoute(
             onRefresh = onRefresh,
             setPage = viewModel::setPage,
             navigateToDetail = { post ->
-                navigateToDetail(post.authorId, post.postId)
-                viewModel.onClickItem(post)
+                navigateToDetail(post.postId)
             },
             navigateToSetting = navigateToSetting,
             scaleFraction = scaleFraction,
@@ -140,7 +149,7 @@ internal fun MyRoute(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun MyScreen(
-    pagingItems: LazyPagingItems<PostContentModel>,
+    pagingItems: LazyPagingItems<MyPost>,
     title: String = "",
     isRefreshing: Boolean = false,
     showErrorScreen: Boolean = false,
@@ -149,7 +158,7 @@ private fun MyScreen(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     onRefresh: () -> Unit = {},
     setPage: (Int) -> Unit = {},
-    navigateToDetail: (PostContentModel) -> Unit = {},
+    navigateToDetail: (MyPost) -> Unit = {},
     navigateToSetting: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {},
@@ -197,7 +206,7 @@ private fun MyScreen(
                 CompositionLocalProvider(
                     LocalOverscrollConfiguration provides null
                 ) {
-                    StateLazyGrid(
+                    MyContent(
                         listState = listState,
                         pagingItems = pagingItems,
                         navigateToDetail = navigateToDetail,
@@ -207,6 +216,77 @@ private fun MyScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MyContent(
+    listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
+    longClickEnabled: Boolean = true,
+    pagingItems: LazyPagingItems<MyPost>,
+    navigateToDetail: (MyPost) -> Unit = {},
+    setPage: (Int) -> Unit = {},
+    onLongClick: (String) -> Unit = {}
+) {
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(2),
+        modifier = Modifier.fillMaxSize(),
+        state = listState,
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalItemSpacing = 8.dp
+    ) {
+        items(pagingItems.itemCount) { index ->
+            val pagingItem = pagingItems[index]
+
+            if (pagingItem != null) {
+                GalleryItem(
+                    postContentModel = pagingItem,
+                    longClickEnabled = longClickEnabled,
+                    onLongClickImage = { onLongClick(pagingItem.postId) },
+                    onClickImage = {
+                        navigateToDetail(pagingItem)
+                        setPage(index)
+                    }
+                )
+            }
+        }
+
+        if (pagingItems.loadState.append !is LoadState.NotLoading) {
+            item(
+                key = "",
+                span = StaggeredGridItemSpan.FullLine
+            ) {
+                PageItemFooter(
+                    loadState = pagingItems.loadState.append,
+                    onRetryClicked = pagingItems::retry
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GalleryItem(
+    postContentModel: MyPost,
+    onLongClickImage: () -> Unit = {},
+    onClickImage: () -> Unit = {},
+    longClickEnabled: Boolean = true
+) {
+    val imageRatio = rememberSaveable { mutableFloatStateOf(4f / 5f) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+    ) {
+        CoilImage(
+            onClick = onClickImage,
+            onLongClick = { if (longClickEnabled) onLongClickImage() },
+            imageUrl = postContentModel.imageUrl,
+            imageRatio = imageRatio.floatValue,
+            updateImageRatio = { imageRatio.floatValue = it }
+        )
     }
 }
 

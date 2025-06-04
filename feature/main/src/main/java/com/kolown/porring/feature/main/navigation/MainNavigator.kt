@@ -14,6 +14,7 @@ import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
+import com.kolown.porring.feature.detail_my.navigation.navigateToDetailMy
 import com.kolown.porring.feature.follower.navigation.navigateFollower
 import com.kolown.porring.feature.home.navigation.navigateHome
 import com.kolown.porring.feature.imageedit.navigation.navigateImageEdit
@@ -79,6 +80,10 @@ internal class MainNavigator(
             postId = postId,
             navOptions = singleTopOptions
         )
+
+    fun navigateToDetailMy(postId: String) {
+        navController.navigateToDetailMy(postId = postId, navOptions = singleTopOptions)
+    }
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)
 

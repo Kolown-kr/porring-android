@@ -2,16 +2,13 @@ package com.kolown.porring.feature.my
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.model.PostContentModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,8 +19,7 @@ class MyViewModel @Inject constructor(
     private val userRepository: UserRepository,
     authRepository: AuthRepository
 ) : ViewModel() {
-    private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
-    val posts = _posts.asStateFlow()
+    val posts = postRepository.getMyPosts()
 
     private var _firstPage = 0
     val firstPage get() = _firstPage
@@ -38,12 +34,13 @@ class MyViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             setUserId()
-            postRepository.clearPagingItems()
-            postRepository.getPagingItemPosts(
-                postType = PostType.USER_GALLERY,
-                authorId = currentUserId.value,
-                pageState = null
-            ).collectLatest(_posts::emit)
+            postRepository.fetchMyPosts()
+//            postRepository.clearPagingItems()
+//            postRepository.getPagingItemPosts(
+//                postType = PostType.USER_GALLERY,
+//                authorId = currentUserId.value,
+//                pageState = null
+//            ).collectLatest(_posts::emit)
         }
     }
 
@@ -55,6 +52,12 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
 //            postRepository.clearPagingItems()
 //            postRepository.insertPagingItem(post)
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            postRepository.fetchMyPosts()
         }
     }
 
