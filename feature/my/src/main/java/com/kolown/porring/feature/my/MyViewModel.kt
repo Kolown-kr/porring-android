@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -36,10 +35,6 @@ class MyViewModel @Inject constructor(
 
     private val _isDeleteSuccess = MutableStateFlow(false)
     val isDeleteSuccess = _isDeleteSuccess.asStateFlow()
-
-    val galleryFlow = currentUserId.flatMapLatest {
-        postRepository.getUserPosts().cachedIn(viewModelScope)
-    }.cachedIn(viewModelScope)
 
     val loginState = authRepository.checkUserLoggedIn()
 

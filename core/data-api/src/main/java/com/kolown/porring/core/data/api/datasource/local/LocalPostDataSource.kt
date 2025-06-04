@@ -12,8 +12,11 @@ interface LocalPostDataSource {
     fun getPagingItems(useRegisterAt: Boolean = false): PagingSource<Int, LocalPostDto>
     suspend fun getItemById(postId: String): PostContentModel?
     suspend fun clearHomeItems()
-    suspend fun updateReaction(postId: String, reaction: Int)
     suspend fun clearPagingItems()
     suspend fun getFirstPageItem(): LocalPostDto
     suspend fun getLastPageItem(): LocalPostDto
+
+    suspend fun getMyReaction(postId: String): Int?
+    suspend fun setPostReaction(postId: String, reaction: Int)
+    suspend fun deletePostReaction(postId: String)
 }
