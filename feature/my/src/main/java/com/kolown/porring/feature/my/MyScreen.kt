@@ -108,9 +108,7 @@ internal fun MyRoute(
     LaunchedEffect(pagingItems.loadState) {
         isRefreshing = false
     }
-    LaunchedEffect(pagingItems) {
-        listState.scrollToItem(0)
-    }
+
     LaunchedEffect(pagingItems.loadState.refresh) {
         if (pagingItems.loadState.refresh == LoadState.Loading) {
             delay(7000)
@@ -132,7 +130,6 @@ internal fun MyRoute(
             refreshState = refreshState,
             listState = listState,
             onRefresh = onRefresh,
-            setPage = viewModel::setPage,
             navigateToDetail = { post ->
                 navigateToDetail(post.postId)
             },
@@ -157,7 +154,6 @@ private fun MyScreen(
     refreshState: PullToRefreshState,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     onRefresh: () -> Unit = {},
-    setPage: (Int) -> Unit = {},
     navigateToDetail: (MyPost) -> Unit = {},
     navigateToSetting: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
@@ -210,7 +206,6 @@ private fun MyScreen(
                         listState = listState,
                         pagingItems = pagingItems,
                         navigateToDetail = navigateToDetail,
-                        setPage = setPage,
                         onLongClick = updateDeletingPostId
                     )
                 }
@@ -225,7 +220,6 @@ private fun MyContent(
     longClickEnabled: Boolean = true,
     pagingItems: LazyPagingItems<MyPost>,
     navigateToDetail: (MyPost) -> Unit = {},
-    setPage: (Int) -> Unit = {},
     onLongClick: (String) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
@@ -246,7 +240,6 @@ private fun MyContent(
                     onLongClickImage = { onLongClick(pagingItem.postId) },
                     onClickImage = {
                         navigateToDetail(pagingItem)
-                        setPage(index)
                     }
                 )
             }
