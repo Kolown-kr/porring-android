@@ -4,6 +4,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.Reactions
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.async
@@ -33,6 +34,8 @@ interface PostDataSource {
     suspend fun deletePost(postId: String): Result<Unit>
     suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
     fun resetLastVisible()
+    fun setPostReaction(userId: String, postId: String, reaction: Reactions)
+    fun deletePostReaction(userId: String, postId: String)
 }
 
 class PostDataSourceImpl @Inject constructor(
@@ -227,5 +230,19 @@ class PostDataSourceImpl @Inject constructor(
             val documentId = postId.substringAfter("-")
             postCollection.document(documentId).delete().await()
         }
+    }
+
+    override fun setPostReaction(userId: String, postId: String, reaction: Reactions) {
+        val id = postId.substringAfter("-")
+        val reactionsCollection = postCollection.document(id).collection("reactions")
+
+        reactionsCollection.document(userId).set(mapOf("reaction" to reaction.value))
+    }
+
+    override fun deletePostReaction(postId: String, userId: String) {
+        val id = postId.substringAfter("-")
+        val reactionsCollection = postCollection.document(id).collection("reactions")
+
+        reactionsCollection.document(userId).delete()
     }
 }
