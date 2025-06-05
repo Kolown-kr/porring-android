@@ -67,7 +67,7 @@ internal fun MyRoute(
     padding: PaddingValues = PaddingValues(),
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
-    navigateToDetail: (String) -> Unit = { _ -> },
+    navigateToDetail: (Int) -> Unit = { _ -> },
 ) {
     val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
 
@@ -125,9 +125,7 @@ internal fun MyRoute(
             refreshState = refreshState,
             listState = listState,
             onRefresh = onRefresh,
-            navigateToDetail = { post ->
-                navigateToDetail(post.postId)
-            },
+            navigateToDetail = navigateToDetail,
             navigateToSetting = navigateToSetting,
             scaleFraction = scaleFraction,
             updateShowErrorScreen = { showErrorScreen = it },
@@ -149,7 +147,7 @@ private fun MyScreen(
     refreshState: PullToRefreshState,
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     onRefresh: () -> Unit = {},
-    navigateToDetail: (MyPost) -> Unit = {},
+    navigateToDetail: (Int) -> Unit = {},
     navigateToSetting: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {},
@@ -214,7 +212,7 @@ private fun MyContent(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     longClickEnabled: Boolean = true,
     pagingItems: LazyPagingItems<MyPost>,
-    navigateToDetail: (MyPost) -> Unit = {},
+    navigateToDetail: (Int) -> Unit = {},
     onLongClick: (String) -> Unit = {}
 ) {
     LazyVerticalStaggeredGrid(
@@ -233,9 +231,7 @@ private fun MyContent(
                     postContentModel = pagingItem,
                     longClickEnabled = longClickEnabled,
                     onLongClickImage = { onLongClick(pagingItem.postId) },
-                    onClickImage = {
-                        navigateToDetail(pagingItem)
-                    }
+                    onClickImage = { navigateToDetail(index) }
                 )
             }
         }

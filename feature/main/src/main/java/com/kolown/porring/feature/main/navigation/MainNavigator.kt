@@ -81,8 +81,8 @@ internal class MainNavigator(
             navOptions = singleTopOptions
         )
 
-    fun navigateToDetailMy(postId: String) {
-        navController.navigateToDetailMy(postId = postId, navOptions = singleTopOptions)
+    fun navigateToDetailMy(pageIndex: Int) {
+        navController.navigateToDetailMy(pageIndex = pageIndex, navOptions = singleTopOptions)
     }
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)

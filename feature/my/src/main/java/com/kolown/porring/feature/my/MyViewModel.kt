@@ -26,9 +26,6 @@ class MyViewModel @Inject constructor(
     fun deletePost(postId: String) {
         viewModelScope.launch {
             postRepository.deletePost(postId)
-                .collect { result ->
-                    if (result.isSuccess) refresh()
-                }
         }
     }
 }
