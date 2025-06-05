@@ -63,12 +63,14 @@ class MainViewModel @Inject constructor(
                         null
                     )
 
-                    UploadFeedBack.Success -> SnackBarEvent.Message(
-                        "업로드 완료되었습니다.",
-                        "갤러리에서 확인하기"
-                    ) {
-                        viewModelScope.launch {
-                            _navigationRequest.emit(SnackBarNavigation.ToGallery)
+                    UploadFeedBack.Success -> {
+                        SnackBarEvent.Message(
+                            "업로드 완료되었습니다.",
+                            "갤러리에서 확인하기"
+                        ) {
+                            viewModelScope.launch {
+                                _navigationRequest.emit(SnackBarNavigation.ToGallery)
+                            }
                         }
                     }
 
@@ -81,7 +83,14 @@ class MainViewModel @Inject constructor(
                         }
                     }
                 }
+
                 _snackBarFlow.emit(event)
+
+                if (feedback is UploadFeedBack.Success) {
+                    viewModelScope.launch {
+                        postRepository.fetchMyPosts()
+                    }
+                }
             }
         }
     }

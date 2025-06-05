@@ -12,13 +12,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
@@ -35,47 +37,51 @@ import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.component.FullscreenImageViewer
 
 @Composable
 internal fun DetailMyRoute(
     padding: PaddingValues,
-    postId: String,
     popBackStack: () -> Unit,
     viewModel: DetailMyViewModel = hiltViewModel()
 ) {
     val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
-
-    DetailMyScreen(
-        padding = padding,
-        popBackStack = popBackStack,
-        pagingItems = pagingItems,
-        imageRatioMap = imageRatioMap,
-        onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
-        postId = postId
+    val pagerState = rememberPagerState(
+        initialPage = uiState.initialPage,
+        pageCount = { pagingItems.itemCount }
     )
+
+    if (uiState.isFocusMode) {
+        FullscreenImageViewer(
+            imageUrl = uiState.focusImageUrl,
+            imageRatio = uiState.focusImageRatio,
+            onDismiss = { viewModel.onAction(DetailMyIntent.ChangeToDefaultMode) }
+        )
+    } else {
+        DetailMyScreen(
+            pagerState = pagerState,
+            padding = padding,
+            popBackStack = popBackStack,
+            pagingItems = pagingItems,
+            imageRatioMap = imageRatioMap,
+            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
+            onAction = viewModel::onAction,
+        )
+    }
 }
 
 @Composable
 private fun DetailMyScreen(
+    pagerState: PagerState = rememberPagerState { 0 },
     pagingItems: LazyPagingItems<MyPost>,
-    postId: String = "",
     imageRatioMap: Map<Int, Float> = mapOf(),
     onUpdateRatio: (Int, Float) -> Unit = { _, _ -> },
-    onShowReelsMode: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
+    onAction: (DetailMyIntent) -> Unit = {},
     padding: PaddingValues = PaddingValues()
 ) {
-    val pagerState = rememberPagerState { pagingItems.itemCount }
-
-    LaunchedEffect(postId, pagingItems.itemSnapshotList.items) {
-        val index = pagingItems.itemSnapshotList.items.indexOfFirst { it.postId == postId }
-
-        if (index >= 0 && pagerState.currentPage != index) {
-            pagerState.scrollToPage(index)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -108,7 +114,7 @@ private fun DetailMyScreen(
                 post = post,
                 imageRatio = imageRatioMap[page] ?: (4f / 5f),
                 onUpdateRatio = { onUpdateRatio(page, it) },
-                onShowReelsMode = onShowReelsMode,
+                onAction = onAction
             )
         }
     }
@@ -119,10 +125,11 @@ private fun DetailContent(
     post: MyPost,
     imageRatio: Float = 4f / 5f,
     onUpdateRatio: (Float) -> Unit = {},
-    onShowReelsMode: (String) -> Unit = {},
+    onAction: (DetailMyIntent) -> Unit = {},
 ) {
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
@@ -135,7 +142,14 @@ private fun DetailContent(
                     .fillMaxWidth(),
                 imageUrl = post.imageUrl,
                 imageRatio = imageRatio,
-                onClick = { onShowReelsMode(post.imageUrl) },
+                onClick = {
+                    onAction(
+                        DetailMyIntent.ChangeToFocusMode(
+                            url = post.imageUrl,
+                            ratio = imageRatio
+                        )
+                    )
+                },
                 updateImageRatio = onUpdateRatio
             )
         }
