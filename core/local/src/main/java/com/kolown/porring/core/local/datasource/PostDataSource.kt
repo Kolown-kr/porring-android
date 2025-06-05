@@ -84,10 +84,6 @@ class HomePostDataSourceImpl @Inject constructor(
         postDao.insertMyPost(posts.map { it.toEntity() })
     }
 
-    override suspend fun updateMyPost(posts: List<MyPost>) {
-        postDao.updateMyPost(posts.map { it.toEntity() })
-    }
-
     override suspend fun deleteMyPost(postId: String) {
         postDao.deleteMyPost(postId)
     }

@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
 import com.kolown.porring.core.data.model.MyPostDto
 import com.kolown.porring.core.data.model.OtherPostDto
 import com.kolown.porring.core.data.model.PostsUsageType
@@ -231,9 +230,6 @@ interface PostDao {
     // MyPost 연관 쿼리 ============================================================================
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMyPost(posts: List<MyPostEntity>)
-
-    @Update
-    suspend fun updateMyPost(posts: List<MyPostEntity>)
 
     @Query(
         """

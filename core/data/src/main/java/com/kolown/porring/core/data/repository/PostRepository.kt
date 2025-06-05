@@ -52,7 +52,6 @@ interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
-    suspend fun deletePost(postId: String): Flow<Result<Unit>>
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
     suspend fun insertPagingItem(item: PostContentModel)
@@ -65,19 +64,20 @@ interface PostRepository {
     ): Flow<PagingData<PostContentModel>>
 
     suspend fun updatePostReaction(postId: String, reaction: Reactions)
+
     fun getMyPosts(): Flow<PagingData<MyPost>>
     suspend fun fetchMyPosts()
-    suspend fun updateMyPost()
+    suspend fun deletePost(postId: String): Flow<Result<Unit>>
 }
 
 class PostRepositoryImpl @Inject constructor(
     private val imageDataSource: ImageDataSource,
     private val postDataSource: PostDataSource,
     private val tagDataSource: TagDataSource,
-    private val reactionDataSource: ReactionDataSource,
+    private val reactionDataSource: ReactionDataSource, // TODO: 삭제예정
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
-    private val followDataSource: FollowDataSource,
+    private val followDataSource: FollowDataSource, // TODO: 삭제예정
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
     private val userDetailRemoteMediatorFactory: UserDetailRemoteMediatorFactory,
     private val userGalleryRemoteMediatorFactory: UserGalleryPostRemoteMediatorFactory,
@@ -326,13 +326,6 @@ class PostRepositoryImpl @Inject constructor(
         val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
 
         localPostDataSource.insertMyPost(posts.map { it.toMyPost() })
-    }
-
-    override suspend fun updateMyPost() {
-        val uid = googleAuthDataSource.getUserId()
-        val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
-
-        localPostDataSource.updateMyPost(posts.map { it.toMyPost() })
     }
 
     override fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>> {
