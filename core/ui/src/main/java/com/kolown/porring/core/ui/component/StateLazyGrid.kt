@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 
 @Composable
 fun StateLazyGrid(

@@ -1,8 +1,7 @@
-package com.kolown.porring.core.model
+package com.kolown.porring.core.ui.model
 
-import kotlinx.serialization.Serializable
+import com.kolown.porring.core.model.Reaction
 
-@Serializable
 data class PostUiModel(
     val postId: String,
     val authorId: String,

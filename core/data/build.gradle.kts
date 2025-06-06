@@ -20,5 +20,6 @@ dependencies {
 
     //paging
     implementation(libs.androidx.paging.runtime)
+    implementation(project(":core:ui"))
 }
 

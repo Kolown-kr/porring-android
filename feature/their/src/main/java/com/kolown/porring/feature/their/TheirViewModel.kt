@@ -5,15 +5,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.ui.mapper.toUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,7 +52,9 @@ class TheirViewModel @Inject constructor(
                 postId = null,
                 authorId = authorId,
                 pageState = MutableStateFlow(PageState())
-            ).collectLatest(_pagingItems::emit)
+            ).map { pagingData -> pagingData.map { it.toUiModel() } }
+                .collectLatest(_pagingItems::emit)
+
         }
     }
 

@@ -65,10 +65,10 @@ import coil3.request.crossfade
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.ui.R
+import com.kolown.porring.core.ui.model.PostUiModel
 
 @Composable
 fun DetailItem(

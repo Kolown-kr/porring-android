@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.ui.mapper.toUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -33,6 +35,7 @@ internal class SearchImageViewModel @Inject constructor(
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(postRepository::getPostBySearch)
+        .map { pagingData -> pagingData.map { it.toUiModel() } }
         .cachedIn(viewModelScope)
 
     val imagesFlow: Flow<PagingData<PostUiModel>> =
