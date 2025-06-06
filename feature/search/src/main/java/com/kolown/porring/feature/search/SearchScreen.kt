@@ -50,7 +50,7 @@ import com.kolown.porring.feature.search.model.SearchUiState
 internal fun SearchRoute(
     padding: PaddingValues,
     viewModel: SearchViewModel = hiltViewModel(),
-    navigateToDetail: () -> Unit = {}
+    navigateToDetail: (String, String) -> Unit = {_,_ -> }
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val tags = viewModel.tagsFlow.collectAsLazyPagingItems()
@@ -58,7 +58,7 @@ internal fun SearchRoute(
 
     LaunchSideEffect(viewModel) { effect ->
         when (effect) {
-            is SearchUiSideEffect.NavigateToDetail -> navigateToDetail()
+            is SearchUiSideEffect.NavigateToDetail -> navigateToDetail(effect.tagId, effect.postId)
         }
     }
 
@@ -71,7 +71,7 @@ internal fun SearchRoute(
         onSearchQueryChanged = { viewModel.handleIntent(SearchUiIntent.OnQueryChanged(it)) },
         onFocusChanged = { viewModel.handleIntent(SearchUiIntent.OnFocusChanged(it)) },
         onTagClicked = { viewModel.handleIntent(SearchUiIntent.OnTagClicked(it)) },
-        onImageClicked = { viewModel.handleIntent(SearchUiIntent.OnImageClicked) }
+        onImageClicked = { viewModel.handleIntent(SearchUiIntent.OnImageClicked(it)) }
     )
 }
 
@@ -85,7 +85,7 @@ private fun SearchScreen(
     onSearchQueryChanged: (String) -> Unit = {},
     onFocusChanged: (Boolean) -> Unit = {},
     onTagClicked: (Tag) -> Unit = {},
-    onImageClicked: () -> Unit = {}
+    onImageClicked: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -193,7 +193,7 @@ private fun SearchTags(
 @Composable
 private fun SearchImages(
     images: LazyPagingItems<PostContentModel>,
-    onImageClicked: () -> Unit = {},
+    onImageClicked: (String) -> Unit = {},
 ) {
     LazyVerticalGrid(
         modifier = Modifier.padding(horizontal = 16.dp),
@@ -211,7 +211,7 @@ private fun SearchImages(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
                         .aspectRatio(1f),
-                    onClick = onImageClicked,
+                    onClick = { onImageClicked(image.postId) },
                     imageUrl = image.imageUrl,
                     delay = 1500,
                     isTextExist = false

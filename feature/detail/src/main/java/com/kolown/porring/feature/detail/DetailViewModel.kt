@@ -55,41 +55,44 @@ internal class DetailViewModel @Inject constructor(
             initialValue = false
         )
 
-    init {
-        viewModelScope.launch {
-            val type = savedStateHandle.get<MainMenuRoute.Detail.Type>("type") ?: return@launch
-            val postId = savedStateHandle.get<String>("postId") ?: ""
-            val authorId = savedStateHandle.get<String>("authorId") ?: ""
+    fun initViewModel(
+        type: MainMenuRoute.Detail.Type,
+        postId: String?,
+        authorId: String,
+    ) = viewModelScope.launch {
+        when (type) {
+            MainMenuRoute.Detail.Type.DEFAULT -> {
+                postRepository.getPagingItemPosts(
+                    postType = PostType.RANDOM_DETAIL,
+                    pageState = pageState,
+                )
+                    .collectLatest(_posts::emit)
+            }
 
-            when (type) {
-                MainMenuRoute.Detail.Type.DEFAULT -> {
-                    postRepository.getPagingItemPosts(
-                        postType = PostType.RANDOM_DETAIL,
-                        pageState = pageState,
-                    )
-                        .collectLatest(_posts::emit)
-                }
+            MainMenuRoute.Detail.Type.SEARCH -> {
+                postRepository.getPostBySearch(authorId)
+                    .collectLatest(_posts::emit)
+            }
 
-                MainMenuRoute.Detail.Type.FOLLOW -> {
-                    postRepository.getPagingItemPosts(
-                        postType = PostType.USER_DETAIL,
-                        pageState = pageState,
-                        authorId = authorId,
-                        postId = postId
-                    )
-                        .collectLatest(_posts::emit)
-                }
+            MainMenuRoute.Detail.Type.FOLLOW -> {
+                postRepository.getPagingItemPosts(
+                    postType = PostType.USER_DETAIL,
+                    pageState = pageState,
+                    authorId = authorId,
+                    postId = postId
+                )
+                    .collectLatest(_posts::emit)
+            }
 
 
-                MainMenuRoute.Detail.Type.MY -> {
-                    postRepository.getPagingItemPosts(
-                        postType = PostType.USER_DETAIL,
-                        pageState = pageState,
-                        authorId = authorId,
-                        postId = postId
-                    )
-                        .collectLatest(_posts::emit)
-                }
+            MainMenuRoute.Detail.Type.MY -> {
+                postRepository.getPagingItemPosts(
+                    postType = PostType.USER_DETAIL,
+                    pageState = pageState,
+                    authorId = authorId,
+                    postId = postId
+                )
+                    .collectLatest(_posts::emit)
             }
         }
     }

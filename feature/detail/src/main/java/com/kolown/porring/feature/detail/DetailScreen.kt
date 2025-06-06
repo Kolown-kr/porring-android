@@ -72,6 +72,7 @@ import kotlinx.coroutines.flow.first
 internal fun DetailRoute(
     type: MainMenuRoute.Detail.Type,
     order: Int,
+    authorId: String,
     postId: String?,
     padding: PaddingValues = PaddingValues(),
     viewModel: DetailViewModel = hiltViewModel(),
@@ -86,6 +87,14 @@ internal fun DetailRoute(
     val snackBarBridge = LocalSnackBarBridge.current
 
     val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
+
+    LaunchedEffect(Unit) {
+        viewModel.initViewModel(
+            type = type,
+            postId = postId,
+            authorId = authorId
+        )
+    }
 
     LaunchedEffect(Unit) {
         snapshotFlow { posts.itemSnapshotList.items }
