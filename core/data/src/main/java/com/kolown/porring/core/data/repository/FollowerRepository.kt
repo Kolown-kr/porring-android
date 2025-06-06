@@ -35,7 +35,7 @@ class FollowRepositoryImpl @Inject constructor(
 ) : FollowRepository {
 
     override suspend fun getFollowerName(followerId: String): Flow<String?> {
-        return localFollowDataSource.getFollowerName(followerId)
+        return localFollowDataSource.getFollowName(followerId)
     }
 
     override fun followUser(
@@ -44,7 +44,7 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        localFollowDataSource.insertFollowers(
+        localFollowDataSource.insertFollows(
             listOf(
                 Follower(
                     followerId = followerId,
@@ -69,7 +69,7 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        localFollowDataSource.deleteFollower(followerId)
+        localFollowDataSource.deleteFollow(followerId)
         followDataSource.removeFollow(
             userId = currentUserId,
             followerId = followerId
@@ -82,11 +82,11 @@ class FollowRepositoryImpl @Inject constructor(
         val userId = googleAuthDataSource.getUserId()
         val follows = followDataSource.fetchFollows(userId)
 
-        localFollowDataSource.insertFollowers(follows)
+        localFollowDataSource.insertFollows(follows)
     }
 
     override suspend fun clearFollowCache() {
-        localFollowDataSource.clearFollowers()
+        localFollowDataSource.clearFollows()
     }
 
     override suspend fun getFollowsWithPaging(): Flow<PagingData<FollowerWithThumbnail>> =
@@ -96,7 +96,7 @@ class FollowRepositoryImpl @Inject constructor(
                     pageSize = FOLLOWER_PER_PAGE,
                     enablePlaceholders = false,
                 ),
-                pagingSourceFactory = { localFollowDataSource.getFollowers() }
+                pagingSourceFactory = { localFollowDataSource.getFollows() }
             ).flow.map { pagingData ->
                 pagingData.map { follow ->
                     val posts =

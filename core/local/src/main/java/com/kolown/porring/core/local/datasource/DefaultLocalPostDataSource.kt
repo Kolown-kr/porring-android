@@ -2,42 +2,37 @@ package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
-import com.kolown.porring.core.data.model.MyPostDto
-import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.MyPostData
+import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
-import com.kolown.porring.core.data.model.toPostContentModel
 import com.kolown.porring.core.local.dao.PostDao
 import com.kolown.porring.core.local.mapper.toEntity
-import com.kolown.porring.core.local.mapper.toModel
-import com.kolown.porring.core.model.MyPost
-import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class HomePostDataSourceImpl @Inject constructor(
+class DefaultLocalPostDataSource @Inject constructor(
     private val postDao: PostDao,
 ) : LocalPostDataSource {
     override suspend fun insertItems(
-        items: List<PostContentModel>,
+        items: List<OtherPostData>,
         itemType: PostsUsageType
     ) {
-        postDao.insertItems(items.map { it.toModel() }, itemType)
+        postDao.insertItems(items, itemType)
     }
 
     override suspend fun getFirstPageItem() = postDao.getFirstPageItem()
 
     override suspend fun getLastPageItem() = postDao.getLastPageItem()
 
-    override fun getItems(): Flow<List<PostContentModel>> {
-        return postDao.getHomePosts().map { items -> items.map { it.toPostContentModel() } }
+    override fun getItems(): Flow<List<OtherPostData>> {
+        return postDao.getHomePosts()
     }
 
-    override fun getPagingItems(): PagingSource<Int, OtherPostDto> =
+    override fun getPagingItems(): PagingSource<Int, OtherPostData> =
         postDao.getPagingPosts()
 
-    override suspend fun getItemById(postId: String): PostContentModel? {
-        return postDao.getItemById(postId)?.toPostContentModel()
+    override suspend fun getItemById(postId: String): OtherPostData? {
+        return postDao.getItemById(postId)
     }
 
     override suspend fun clearHomeItems() {
@@ -76,11 +71,11 @@ class HomePostDataSourceImpl @Inject constructor(
         postDao.updateMyReaction(postId, null)
     }
 
-    override fun getMyPosts(): PagingSource<Int, MyPostDto> {
+    override fun getMyPosts(): PagingSource<Int, MyPostData> {
         return postDao.getMyPosts()
     }
 
-    override suspend fun insertMyPost(posts: List<MyPost>) {
+    override suspend fun insertMyPost(posts: List<MyPostData>) {
         postDao.insertMyPost(posts.map { it.toEntity() })
     }
 

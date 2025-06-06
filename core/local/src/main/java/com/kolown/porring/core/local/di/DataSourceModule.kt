@@ -3,7 +3,7 @@ package com.kolown.porring.core.local.di
 import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.local.datasource.DefaultLocalFollowDataSource
-import com.kolown.porring.core.local.datasource.HomePostDataSourceImpl
+import com.kolown.porring.core.local.datasource.DefaultLocalPostDataSource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,8 +13,8 @@ import dagger.hilt.components.SingletonComponent
 @Module
 abstract class DataSourceModule {
     @Binds
-    abstract fun bindPostDataSource(postDataSource: HomePostDataSourceImpl): LocalPostDataSource
+    abstract fun bindPostDataSource(postDataSource: DefaultLocalPostDataSource): LocalPostDataSource
 
     @Binds
-    abstract fun bindFollowerDataSource(followerDataSource: DefaultLocalFollowDataSource): LocalFollowDataSource
+    abstract fun bindFollowDataSource(followDataSource: DefaultLocalFollowDataSource): LocalFollowDataSource
 }

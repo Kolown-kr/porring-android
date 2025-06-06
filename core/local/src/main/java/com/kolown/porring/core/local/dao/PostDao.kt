@@ -6,15 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.kolown.porring.core.data.model.MyPostDto
-import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.MyPostData
+import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
 import com.kolown.porring.core.local.entity.HomePostKeyEntity
 import com.kolown.porring.core.local.entity.MyPostEntity
 import com.kolown.porring.core.local.entity.OtherPostEntity
 import com.kolown.porring.core.local.entity.PagingPostKeyEntity
 import com.kolown.porring.core.local.mapper.toEntity
-import com.kolown.porring.core.model.PostModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,18 +22,18 @@ interface PostDao {
     // INSERT
     @Transaction
     suspend fun insertItems(
-        posts: List<PostModel>,
-        postsUsageType: PostsUsageType
+        posts: List<OtherPostData>,
+        usageType: PostsUsageType
     ) {
         val otherPostsEntity = posts.map { it.toEntity() }
 
         insertOtherPostInfo(otherPostsEntity)
-        insertUsageKey(posts, postsUsageType)
+        insertUsageKey(posts, usageType)
 
     }
 
     private suspend fun insertUsageKey(
-        posts: List<PostModel>,
+        posts: List<OtherPostData>,
         usageType: PostsUsageType
     ) {
         when (usageType) {
@@ -88,15 +87,15 @@ interface PostDao {
                 
                 EXISTS (
                     SELECT 1
-                    FROM follower
-                    WHERE follower.follower_id = other.author_id
-                ) AS isFollower
+                    FROM follow
+                    WHERE follow.id = other.author_id
+                ) AS isFollowing
                 
             FROM home_post_keys AS home
             LEFT JOIN other_post AS other ON home.post_id = other.post_id
         """
     )
-    fun getHomePosts(): Flow<List<OtherPostDto>>
+    fun getHomePosts(): Flow<List<OtherPostData>>
 
     @Transaction
     @Query(
@@ -114,16 +113,16 @@ interface PostDao {
                 
                 EXISTS (
                     SELECT 1
-                    FROM follower
-                    WHERE follower.follower_id = other.author_id
-                ) AS isFollower
+                    FROM follow
+                    WHERE follow.id = other.author_id
+                ) AS isFollowing
                 
             FROM paging_post_keys AS paging
             LEFT JOIN other_post AS other ON paging.post_id = other.post_id
             ORDER BY paging.sort_order ASC
         """
     )
-    fun getPagingPosts(): PagingSource<Int, OtherPostDto>
+    fun getPagingPosts(): PagingSource<Int, OtherPostData>
 
     @Transaction
     suspend fun clearAllItems() {
@@ -148,16 +147,16 @@ interface PostDao {
             
             EXISTS (
                 SELECT 1
-                FROM follower AS follower
-                WHERE follower.follower_id = other.author_id
-            ) AS isFollower
+                FROM follow
+                WHERE follow.id = other.author_id
+            ) AS isFollowing
             
             FROM paging_post_keys AS paging
             LEFT JOIN other_post AS other ON paging.post_id = other.post_id
             ORDER BY register_at DESC LIMIT 1
         """
     )
-    fun getFirstPageItem(): OtherPostDto
+    fun getFirstPageItem(): OtherPostData
 
 
     @Transaction
@@ -176,16 +175,16 @@ interface PostDao {
             
             EXISTS (
                 SELECT 1
-                FROM follower AS follower
-                WHERE follower.follower_id = other.author_id
-            ) AS isFollower
+                FROM follow
+                WHERE follow.id = other.author_id
+            ) AS isFollowing
             
             FROM paging_post_keys AS paging
             LEFT JOIN other_post AS other ON paging.post_id = other.post_id
             ORDER BY register_at ASC LIMIT 1
         """
     )
-    fun getLastPageItem(): OtherPostDto
+    fun getLastPageItem(): OtherPostData
 
     @Transaction
     @Query(
@@ -202,15 +201,15 @@ interface PostDao {
             
             EXISTS (
                 SELECT 1
-                FROM follower AS follower
-                WHERE follower.follower_id = other.author_id
-            ) AS isFollower
+                FROM follow 
+                WHERE follow.id = other.author_id
+            ) AS isFollowing
             
         FROM other_post AS other
         WHERE other.post_id = :postId
     """
     )
-    suspend fun getItemById(postId: String): OtherPostDto?
+    suspend fun getItemById(postId: String): OtherPostData?
 
     @Query("UPDATE other_post SET my_reaction = :reaction WHERE post_id = :postId")
     suspend fun updateMyReaction(postId: String, reaction: Int?)
@@ -245,7 +244,7 @@ interface PostDao {
                 
         """
     )
-    fun getMyPosts(): PagingSource<Int, MyPostDto>
+    fun getMyPosts(): PagingSource<Int, MyPostData>
 
     @Query("DELETE FROM my_post WHERE post_id = :postId")
     suspend fun deleteMyPost(postId: String)

@@ -36,10 +36,10 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, com.kolown.porring.core.data.model.OtherPostDto>() {
+) : RemoteMediator<Int, com.kolown.porring.core.data.model.OtherPostData>() {
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, com.kolown.porring.core.data.model.OtherPostDto>
+        state: PagingState<Int, com.kolown.porring.core.data.model.OtherPostData>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {

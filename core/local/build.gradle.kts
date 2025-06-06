@@ -8,7 +8,6 @@ plugins {
 setNamespace("core.local")
 
 dependencies {
-    implementation(projects.core.model)
     implementation(projects.core.dataApi)
 
     implementation(libs.androidx.room)

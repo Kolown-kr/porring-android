@@ -1,28 +1,26 @@
 package com.kolown.porring.core.data.api.datasource.local
 
 import androidx.paging.PagingSource
-import com.kolown.porring.core.data.model.MyPostDto
-import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.MyPostData
+import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
-import com.kolown.porring.core.model.MyPost
-import com.kolown.porring.core.model.PostContentModel
 import kotlinx.coroutines.flow.Flow
 
 interface LocalPostDataSource {
-    suspend fun insertItems(items: List<PostContentModel>, itemType: PostsUsageType)
-    fun getItems(): Flow<List<PostContentModel>>
-    fun getPagingItems(): PagingSource<Int, OtherPostDto>
-    suspend fun getItemById(postId: String): PostContentModel?
+    suspend fun insertItems(items: List<OtherPostData>, itemType: PostsUsageType)
+    fun getItems(): Flow<List<OtherPostData>>
+    fun getPagingItems(): PagingSource<Int, OtherPostData>
+    suspend fun getItemById(postId: String): OtherPostData?
     suspend fun clearHomeItems()
     suspend fun clearPagingItems()
-    suspend fun getFirstPageItem(): OtherPostDto
-    suspend fun getLastPageItem(): OtherPostDto
+    suspend fun getFirstPageItem(): OtherPostData
+    suspend fun getLastPageItem(): OtherPostData
 
     suspend fun deleteMyPost(postId: String)
 
     suspend fun getMyReaction(postId: String): Int?
     suspend fun setPostReaction(postId: String, reaction: Int)
     suspend fun deletePostReaction(postId: String)
-    suspend fun insertMyPost(posts: List<MyPost>)
-    fun getMyPosts(): PagingSource<Int, MyPostDto>
+    suspend fun insertMyPost(posts: List<MyPostData>)
+    fun getMyPosts(): PagingSource<Int, MyPostData>
 }
