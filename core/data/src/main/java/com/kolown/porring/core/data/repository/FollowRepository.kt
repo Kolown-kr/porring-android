@@ -5,8 +5,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
-import com.kolown.porring.core.model.Follower
-import com.kolown.porring.core.model.FollowerWithThumbnail
+import com.kolown.porring.core.model.Follow
+import com.kolown.porring.core.model.FollowWithThumbnail
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
@@ -24,7 +24,7 @@ interface FollowRepository {
     suspend fun fetchFollows()
     suspend fun clearFollowCache()
     fun followUser(followerId: String, followerName: String): Flow<Boolean>
-    suspend fun getFollowsWithPaging(): Flow<PagingData<FollowerWithThumbnail>>
+    suspend fun getFollowsWithPaging(): Flow<PagingData<FollowWithThumbnail>>
 }
 
 class FollowRepositoryImpl @Inject constructor(
@@ -46,18 +46,18 @@ class FollowRepositoryImpl @Inject constructor(
 
         localFollowDataSource.insertFollows(
             listOf(
-                Follower(
-                    followerId = followerId,
-                    followerName = followerName
+                Follow(
+                    id = followerId,
+                    name = followerName
                 )
             )
         )
 
         followDataSource.uploadFollow(
             userId = currentUserId,
-            follower = Follower(
-                followerId = followerId,
-                followerName = followerName
+            follow = Follow(
+                id = followerId,
+                name = followerName
             )
         ).collect { success ->
             emit(success)
@@ -89,7 +89,7 @@ class FollowRepositoryImpl @Inject constructor(
         localFollowDataSource.clearFollows()
     }
 
-    override suspend fun getFollowsWithPaging(): Flow<PagingData<FollowerWithThumbnail>> =
+    override suspend fun getFollowsWithPaging(): Flow<PagingData<FollowWithThumbnail>> =
         withContext(Dispatchers.IO) {
             return@withContext Pager(
                 config = PagingConfig(
@@ -102,7 +102,7 @@ class FollowRepositoryImpl @Inject constructor(
                     val posts =
                         postDataSource.fetchPostWithAuthorId(follow.followerId, 4).getOrThrow()
 
-                    FollowerWithThumbnail(
+                    FollowWithThumbnail(
                         id = follow.followerId,
                         followerName = follow.followerName,
                         thumbnails = posts.map { it.imageUrl }

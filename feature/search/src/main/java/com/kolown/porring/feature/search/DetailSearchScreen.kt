@@ -18,17 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.ui.component.DetailItem
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
+import com.kolown.porring.core.ui.component.DetailItem
 import com.kolown.porring.core.ui.component.DetailTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -83,9 +81,9 @@ fun DetailSearchScreen(
     isLoggedIn: Boolean,
     pagerState: PagerState,
     popBackStack: () -> Unit = {},
-    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
+    onSelectReaction: (PostUiModel, Reaction) -> Unit = { _, _ -> },
     isReelsMode: Boolean = true,
-    pagingItems: LazyPagingItems<PostContentModel>,
+    pagingItems: LazyPagingItems<PostUiModel>,
     padding: PaddingValues = PaddingValues(),
     navigateToTheir: (String) -> Unit = {},
     updatePage: (Int) -> Unit = {},
@@ -130,10 +128,10 @@ fun DetailSearchScreen(
 
 @Composable
 fun DetailContent(
-    onSelectReaction: (PostContentModel, Reactions) -> Unit,
+    onSelectReaction: (PostUiModel, Reaction) -> Unit,
     isReelsMode: Boolean,
     onChangeReelsMode: (Boolean) -> Unit,
-    pagingItems: LazyPagingItems<PostContentModel>,
+    pagingItems: LazyPagingItems<PostUiModel>,
     pagerState: PagerState,
     blockDoubleTab: Boolean = false,
     navigateToTheir: (String) -> Unit,
@@ -142,7 +140,7 @@ fun DetailContent(
     onUnfollowClick: (String) -> Unit = {},
     followerState: State<Pair<String, Boolean>?> = mutableStateOf(null),
     isLoggedIn: Boolean,
-    checkPostIsMine: (String) -> Boolean = { _ -> false}
+    checkPostIsMine: (String) -> Boolean = { _ -> false }
 ) {
 
     VerticalPager(

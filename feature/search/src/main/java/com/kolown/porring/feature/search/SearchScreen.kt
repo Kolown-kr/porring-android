@@ -36,7 +36,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.util.LaunchSideEffect
@@ -50,7 +50,7 @@ import com.kolown.porring.feature.search.model.SearchUiState
 internal fun SearchRoute(
     padding: PaddingValues,
     viewModel: SearchViewModel = hiltViewModel(),
-    navigateToDetail: (String, String) -> Unit = {_,_ -> }
+    navigateToDetail: (String, String) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val tags = viewModel.tagsFlow.collectAsLazyPagingItems()
@@ -80,7 +80,7 @@ private fun SearchScreen(
     padding: PaddingValues,
     state: SearchUiState = SearchUiState.Content(SearchUiModel.initial()),
     tags: LazyPagingItems<Tag>? = null,
-    images: LazyPagingItems<PostContentModel>? = null,
+    images: LazyPagingItems<PostUiModel>? = null,
     onBackClick: () -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onFocusChanged: (Boolean) -> Unit = {},
@@ -192,7 +192,7 @@ private fun SearchTags(
 
 @Composable
 private fun SearchImages(
-    images: LazyPagingItems<PostContentModel>,
+    images: LazyPagingItems<PostUiModel>,
     onImageClicked: (String) -> Unit = {},
 ) {
     LazyVerticalGrid(

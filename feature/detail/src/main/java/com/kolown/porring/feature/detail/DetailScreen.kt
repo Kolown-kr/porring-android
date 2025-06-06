@@ -53,8 +53,8 @@ import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
@@ -82,7 +82,7 @@ internal fun DetailRoute(
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val pagerState = rememberPagerState { posts.itemCount }
 
-    var followPost by remember { mutableStateOf<PostContentModel?>(null) }
+    var followPostUiModel by remember { mutableStateOf<PostUiModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
@@ -120,24 +120,24 @@ internal fun DetailRoute(
 
     LaunchedEffect(viewModel.followEvent) {
         viewModel.followEvent.collect { post ->
-            followPost = post
+            followPostUiModel = post
         }
     }
 
-    followPost?.let { post ->
-        if (post.isFollower) {
+    followPostUiModel?.let { post ->
+        if (post.isFollowing) {
             BetaPorringAlertDialog(
                 title = "팔로우 취소",
                 description = "팔로우를 취소하시겠습니까?",
                 dismissText = "취소",
                 confirmText = "확인",
                 onConfirm = { viewModel.cancelFollow(post.authorId) },
-                onDismissRequest = { followPost = null }
+                onDismissRequest = { followPostUiModel = null }
             )
         } else {
             FollowDialog(
                 onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
-                onClickCancel = { followPost = null }
+                onClickCancel = { followPostUiModel = null }
             )
         }
     }
@@ -170,7 +170,7 @@ internal fun DetailRoute(
 
 @Composable
 private fun DetailScreen(
-    posts: LazyPagingItems<PostContentModel>,
+    posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
     imageRatioMap: Map<Int, Float> = mapOf(),
@@ -178,9 +178,9 @@ private fun DetailScreen(
     galleryVisible: Boolean = true,
     onUpdateRatio: (Int, Float) -> Unit = { _, _ -> },
     onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
+    onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {},
+    onFollowClick: (PostUiModel) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
     Column(
@@ -212,7 +212,7 @@ private fun DetailScreen(
             val post = posts[page] ?: return@HorizontalPager
 
             DetailContent(
-                post = post,
+                postUiModel = post,
                 eventRowVisible = eventRowVisible,
                 galleryVisible = galleryVisible,
                 imageRatio = imageRatioMap[page] ?: (4f / 5f),
@@ -228,15 +228,15 @@ private fun DetailScreen(
 
 @Composable
 private fun DetailContent(
-    post: PostContentModel = PostContentModel.EMPTY,
+    postUiModel: PostUiModel = PostUiModel.EMPTY,
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     imageRatio: Float = 4f / 5f,
     onUpdateRatio: (Float) -> Unit = {},
     onShowReelsMode: (String) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
+    onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {}
+    onFollowClick: (PostUiModel) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -250,9 +250,9 @@ private fun DetailContent(
             CoilImage(
                 modifier = Modifier
                     .fillMaxWidth(),
-                imageUrl = post.imageUrl,
+                imageUrl = postUiModel.imageUrl,
                 imageRatio = imageRatio,
-                onClick = { onShowReelsMode(post.imageUrl) },
+                onClick = { onShowReelsMode(postUiModel.imageUrl) },
                 updateImageRatio = onUpdateRatio
             )
         }
@@ -265,15 +265,15 @@ private fun DetailContent(
         ) {
             Column {
                 Text(
-                    text = post.description,
+                    text = postUiModel.description,
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.White,
                 )
 
-                if (post.tags.isNotEmpty()) {
+                if (postUiModel.tags.isNotEmpty()) {
                     Text(
                         text = buildString {
-                            post.tags.forEachIndexed { index, tag ->
+                            postUiModel.tags.forEachIndexed { index, tag ->
                                 if (index != 0) append(", ")
                                 append("# $tag ")
                             }
@@ -286,19 +286,19 @@ private fun DetailContent(
             }
 
             ReactionGroup(
-                reactions = post.reactions,
-                myReaction = post.myReaction,
+                reactions = postUiModel.reactions,
+                myReaction = postUiModel.myReaction,
             )
         }
 
         if (eventRowVisible) {
             EventRow(
-                isFollowed = post.isFollower,
+                isFollowed = postUiModel.isFollowing,
                 galleryVisible = galleryVisible,
-                activatedReaction = post.myReaction,
-                onReactionClick = { onReactionClick(post.postId, it) },
-                onGalleryClick = { onGalleryClick(post.authorId) },
-                onFollowClick = { onFollowClick(post) }
+                activatedReaction = postUiModel.myReaction,
+                onReactionClick = { onReactionClick(postUiModel.postId, it) },
+                onGalleryClick = { onGalleryClick(postUiModel.authorId) },
+                onFollowClick = { onFollowClick(postUiModel) }
             )
         }
 
@@ -310,8 +310,8 @@ private fun DetailContent(
 private fun EventRow(
     isFollowed: Boolean = false,
     galleryVisible: Boolean = true,
-    activatedReaction: Reactions? = null,
-    onReactionClick: (Reactions) -> Unit = {},
+    activatedReaction: Reaction? = null,
+    onReactionClick: (Reaction) -> Unit = {},
     onGalleryClick: () -> Unit = {},
     onFollowClick: () -> Unit = {}
 ) {

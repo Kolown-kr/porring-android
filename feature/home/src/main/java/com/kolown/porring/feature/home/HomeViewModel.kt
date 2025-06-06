@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -31,10 +31,10 @@ class HomeViewModel @Inject constructor(
     private val followRepository: FollowRepository,
     authRepository: AuthRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState<List<PostContentModel>>>(UiState.Loading)
+    private val _uiState = MutableStateFlow<UiState<List<PostUiModel>>>(UiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    private val _followEvent = MutableSharedFlow<PostContentModel>()
+    private val _followEvent = MutableSharedFlow<PostUiModel>()
     val followEvent = _followEvent.asSharedFlow()
 
     private val loggedInChannel = Channel<Unit>(Channel.UNLIMITED)
@@ -72,10 +72,10 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
+    fun onFollowClick(postUiModel: PostUiModel) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
-        _followEvent.emit(post)
+        _followEvent.emit(postUiModel)
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {
@@ -88,21 +88,21 @@ class HomeViewModel @Inject constructor(
         followRepository.followUser(authorId, name).launchIn(viewModelScope)
     }
 
-    fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
+    fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
         reactPost(postId, reaction)
     }
 
-    private fun reactPost(postId: String, reaction: Reactions) =
+    private fun reactPost(postId: String, reaction: Reaction) =
         viewModelScope.launch {
             postRepository.updatePostReaction(postId, reaction)
         }
 
-    fun onClickItem(post: PostContentModel) {
+    fun onClickItem(postUiModel: PostUiModel) {
         viewModelScope.launch {
             postRepository.clearPagingItems()
-            postRepository.insertPagingItem(post)
+            postRepository.insertPagingItem(postUiModel)
         }
     }
 }

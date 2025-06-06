@@ -6,5 +6,5 @@ data class MyPost(
     val registerAt: String,
     val description: String,
     val tags: List<String>,
-    val reactions: List<Reactions>,
+    val reactions: List<Reaction>,
 )

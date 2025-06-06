@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
@@ -21,14 +21,14 @@ class RandomPagingDataSource @Inject constructor(
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-) : PagingSource<Long, PostContentModel>() {
+) : PagingSource<Long, PostUiModel>() {
     private val randomSeed = (0..Long.MAX_VALUE).random()
 
-    override fun getRefreshKey(state: PagingState<Long, PostContentModel>): Long? {
+    override fun getRefreshKey(state: PagingState<Long, PostUiModel>): Long? {
         return state.anchorPosition?.toLong()
     }
 
-    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, PostContentModel> {
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, PostUiModel> {
         return try {
             val currentUserId = googleAuthDataSource.getUserId()
             val page = params.key ?: randomSeed
@@ -74,14 +74,14 @@ class RandomPagingDataSource @Inject constructor(
 
             LoadResult.Page(
                 data = posts.mapIndexed { index, postModel ->
-                    PostContentModel(
+                    PostUiModel(
                         postId = postModel.postId,
                         authorId = postModel.authorId,
                         imageUrl = postModel.imageUrl,
                         registerAt = postModel.registerAt,
                         description = postModel.description,
                         tags = tags[index].map { it.tagName },
-                        isFollower = isFollowers[index],
+                        isFollowing = isFollowers[index],
                         reactions = reactions[index].mapNotNull { it.reaction },
                         myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
                     )

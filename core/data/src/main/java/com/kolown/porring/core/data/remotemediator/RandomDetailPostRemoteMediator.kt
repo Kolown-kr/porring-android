@@ -11,8 +11,8 @@ import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ReactionDataSource
@@ -127,7 +127,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
         nextKey = currentLastKey + 1
     }
 
-    private suspend fun List<PostModel>.getPostContent(): List<PostContentModel> {
+    private suspend fun List<PostModel>.getPostContent(): List<PostUiModel> {
         val posts = this
         val (tags, reactions, isFollowers) = coroutineScope {
             val tagsDeferred = async {
@@ -165,14 +165,14 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
         }
 
         return posts.mapIndexed { index, postModel ->
-            PostContentModel(
+            PostUiModel(
                 postId = postModel.postId,
                 authorId = postModel.authorId,
                 imageUrl = postModel.imageUrl,
                 registerAt = postModel.registerAt,
                 description = postModel.description,
                 tags = tags[index].map { it.tagName },
-                isFollower = isFollowers[index],
+                isFollowing = isFollowers[index],
                 reactions = reactions[index].mapNotNull { it.reaction },
                 myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
             )

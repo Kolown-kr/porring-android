@@ -9,6 +9,6 @@ data class PostModel(
     val tags: List<String>,
     val reactions: List<Int>,
     val myReaction: Int? = null,
-    val isFollower: Boolean = false,
+    val isFollowing: Boolean = false,
     val random: Long = 0L
 )

@@ -32,7 +32,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
-import com.kolown.porring.core.model.FollowerWithThumbnail
+import com.kolown.porring.core.model.FollowWithThumbnail
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
@@ -53,7 +53,7 @@ internal fun FollowerRoute(
     val loginState by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val pagerState = rememberLazyListState()
 
-    var followerWithThumbnail by remember { mutableStateOf<FollowerWithThumbnail?>(null) }
+    var followWithThumbnail by remember { mutableStateOf<FollowWithThumbnail?>(null) }
     var showErrorScreen by remember { mutableStateOf(false) }
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -79,11 +79,11 @@ internal fun FollowerRoute(
         }
     }
 
-    followerWithThumbnail?.let {
+    followWithThumbnail?.let {
         FollowDialog(
             isAddFollow = false,
             onClickConfirm = { },
-            onClickCancel = { followerWithThumbnail = null }
+            onClickCancel = { followWithThumbnail = null }
         )
     }
 
@@ -98,7 +98,7 @@ internal fun FollowerRoute(
             onRefresh = onRefresh,
             scaleFraction = scaleFraction,
             navigateToTheir = navigateToTheir,
-            updateFollowerThumbnail = { followerWithThumbnail = it }
+            updateFollowerThumbnail = { followWithThumbnail = it }
         )
     } else {
         RestrictedLoginContent(
@@ -110,7 +110,7 @@ internal fun FollowerRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FollowerScreen(
-    pagingItems: LazyPagingItems<FollowerWithThumbnail>,
+    pagingItems: LazyPagingItems<FollowWithThumbnail>,
     padding: PaddingValues = PaddingValues(),
     isRefreshing: Boolean = false,
     showErrorScreen: Boolean = false,
@@ -119,7 +119,7 @@ private fun FollowerScreen(
     onRefresh: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     navigateToTheir: (String) -> Unit = {},
-    updateFollowerThumbnail: (FollowerWithThumbnail) -> Unit = {}
+    updateFollowerThumbnail: (FollowWithThumbnail) -> Unit = {}
 ) {
     PullToRefreshColumn(
         padding = padding,
@@ -156,7 +156,7 @@ private fun FollowerScreen(
                     items(pagingItems.itemCount) { index ->
                         pagingItems[index]?.let {
                             FollowContent(
-                                followerWithThumbnail = it,
+                                followWithThumbnail = it,
                                 navigateToTheir = { navigateToTheir(it.id) },
                                 updateFollowerThumbnail = updateFollowerThumbnail
                             )

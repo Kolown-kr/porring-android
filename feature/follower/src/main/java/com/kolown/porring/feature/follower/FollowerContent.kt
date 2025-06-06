@@ -30,14 +30,14 @@ import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.Surface
-import com.kolown.porring.core.model.FollowerWithThumbnail
+import com.kolown.porring.core.model.FollowWithThumbnail
 import com.kolown.porring.core.ui.component.CoilImage
 
 @Composable
 internal fun FollowContent(
-    followerWithThumbnail: FollowerWithThumbnail,
+    followWithThumbnail: FollowWithThumbnail,
     navigateToTheir: () -> Unit = {},
-    updateFollowerThumbnail: (FollowerWithThumbnail) -> Unit = {}
+    updateFollowerThumbnail: (FollowWithThumbnail) -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -63,12 +63,12 @@ internal fun FollowContent(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = followerWithThumbnail.followerName,
+                text = followWithThumbnail.followerName,
                 color = Primary,
                 style = MaterialTheme.typography.titleLarge
             )
             Box(
-                modifier = Modifier.clickable { updateFollowerThumbnail(followerWithThumbnail) }
+                modifier = Modifier.clickable { updateFollowerThumbnail(followWithThumbnail) }
             ) {
                 Text(
                     text = stringResource(R.string.string_edit),
@@ -88,7 +88,7 @@ internal fun FollowContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(space = 8.dp)
         ) {
-            items(followerWithThumbnail.thumbnails) { imageUrl ->
+            items(followWithThumbnail.thumbnails) { imageUrl ->
                 Card(
                     modifier = Modifier
                         .size(100.dp)
@@ -117,5 +117,5 @@ internal fun FollowContent(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewFollowContent() {
-    FollowContent(FollowerWithThumbnail.dummy)
+    FollowContent(FollowWithThumbnail.dummy)
 }

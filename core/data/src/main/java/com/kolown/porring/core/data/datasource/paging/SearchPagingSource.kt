@@ -2,7 +2,7 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
@@ -22,9 +22,9 @@ class SearchPagingSource(
     private val followerDataSource: FollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     val tagId: String
-) : PagingSource<String, PostContentModel>() {
+) : PagingSource<String, PostUiModel>() {
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, PostContentModel> {
+    override suspend fun load(params: LoadParams<String>): LoadResult<String, PostUiModel> {
         return try {
             val currentUserId = googleAuthDataSource.getUserId()
             val postIds =
@@ -76,16 +76,16 @@ class SearchPagingSource(
 
             LoadResult.Page(
                 data = posts.mapIndexed { index, postModel ->
-                    PostContentModel(
+                    PostUiModel(
                         postId = postModel.postId,
                         authorId = postModel.authorId,
                         imageUrl = postModel.imageUrl,
                         registerAt = postModel.registerAt,
                         description = postModel.description,
                         tags = tags[index].map { it.tagName },
-                        isFollower = isFollowers[index],
+                        isFollowing = isFollowers[index],
                         reactions = reactions[index].mapNotNull { it.reaction },
-                        myReaction = reactions[index].find { it.userId == currentUserId }?. reaction
+                        myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
                     )
                 },
                 prevKey = if (page == null) null else posts.firstOrNull()?.postId,
@@ -98,7 +98,7 @@ class SearchPagingSource(
     }
 
 
-    override fun getRefreshKey(state: PagingState<String, PostContentModel>): String? {
+    override fun getRefreshKey(state: PagingState<String, PostUiModel>): String? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey
         }

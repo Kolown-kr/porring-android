@@ -2,8 +2,8 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
@@ -25,8 +25,8 @@ class UserPagingDataSource @Inject constructor(
     private val reactionDataSource: ReactionDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val userId: String
-) : PagingSource<UserPagingKey, PostContentModel>() {
-    override fun getRefreshKey(state: PagingState<UserPagingKey, PostContentModel>): UserPagingKey? {
+) : PagingSource<UserPagingKey, PostUiModel>() {
+    override fun getRefreshKey(state: PagingState<UserPagingKey, PostUiModel>): UserPagingKey? {
         return state.anchorPosition?.let { position ->
             val closestPage = state.closestPageToPosition(position)
             val page = closestPage?.prevKey?.page?.plus(1)
@@ -36,7 +36,7 @@ class UserPagingDataSource @Inject constructor(
         }
     }
 
-    override suspend fun load(params: LoadParams<UserPagingKey>): LoadResult<UserPagingKey, PostContentModel> {
+    override suspend fun load(params: LoadParams<UserPagingKey>): LoadResult<UserPagingKey, PostUiModel> {
         val page = params.key?.page ?: 0
         val posts = getPosts(params).getOrElse {
             return LoadResult.Error(it)
@@ -56,7 +56,7 @@ class UserPagingDataSource @Inject constructor(
         return postDataSource.getUserPost(userId, params.loadSize.toLong())
     }
 
-    private suspend fun getData(posts: List<PostModel>): Result<List<PostContentModel>> {
+    private suspend fun getData(posts: List<PostModel>): Result<List<PostUiModel>> {
         return runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
@@ -80,14 +80,14 @@ class UserPagingDataSource @Inject constructor(
             }
 
             posts.mapIndexed { index, postModel ->
-                PostContentModel(
+                PostUiModel(
                     postId = postModel.postId,
                     authorId = postModel.authorId,
                     imageUrl = postModel.imageUrl,
                     registerAt = postModel.registerAt,
                     description = postModel.description,
                     tags = tags[index].map { it.tagName },
-                    isFollower = true,
+                    isFollowing = true,
                     reactions = reactions[index].mapNotNull { it.reaction },
                     myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
                 )

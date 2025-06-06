@@ -49,8 +49,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UiState
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
@@ -73,7 +73,7 @@ internal fun HomeRoute(
     navigateToTheir: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var followPost by remember { mutableStateOf<PostContentModel?>(null) }
+    var followPostUiModel by remember { mutableStateOf<PostUiModel?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -99,7 +99,7 @@ internal fun HomeRoute(
 
     LaunchedEffect(viewModel.followEvent) {
         viewModel.followEvent.collect { post ->
-            followPost = post
+            followPostUiModel = post
         }
     }
 
@@ -112,20 +112,20 @@ internal fun HomeRoute(
         }
     }
 
-    followPost?.let { post ->
-        if (post.isFollower) {
+    followPostUiModel?.let { post ->
+        if (post.isFollowing) {
             BetaPorringAlertDialog(
                 title = stringResource(R.string.string_unfollow),
                 description = stringResource(R.string.string_unfollow_description),
                 dismissText = stringResource(R.string.string_cancel),
                 confirmText = stringResource(R.string.string_confirm),
                 onConfirm = { viewModel.cancelFollow(post.authorId) },
-                onDismissRequest = { followPost = null }
+                onDismissRequest = { followPostUiModel = null }
             )
         } else {
             FollowDialog(
                 onClickConfirm = { viewModel.registerFollow(post.authorId, it) },
-                onClickCancel = { followPost = null }
+                onClickCancel = { followPostUiModel = null }
             )
         }
     }
@@ -156,7 +156,7 @@ internal fun HomeRoute(
 @Composable
 private fun HomeScreen(
     padding: PaddingValues = PaddingValues(),
-    uiState: UiState<List<PostContentModel>> = UiState.Loading,
+    uiState: UiState<List<PostUiModel>> = UiState.Loading,
     imageRatioMap: Map<Int, Float> = mapOf(),
     isRefreshing: Boolean = false,
     isShowErrorScreen: Boolean = false,
@@ -164,11 +164,11 @@ private fun HomeScreen(
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     updateImageRatio: (Int, Float) -> Unit = { _, _ -> },
     updateIsShowErrorScreen: (Boolean) -> Unit = {},
-    navigateToDetail: (PostContentModel) -> Unit = {},
+    navigateToDetail: (PostUiModel) -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
     onRefresh: () -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {},
-    onReactionClick: (String, Reactions) -> Unit = { _, _ -> }
+    onFollowClick: (PostUiModel) -> Unit = {},
+    onReactionClick: (String, Reaction) -> Unit = { _, _ -> }
 ) {
     PullToRefreshColumn(
         padding = padding,
@@ -199,7 +199,7 @@ private fun HomeScreen(
 
                 Box {
                     HomeContent(
-                        posts = images,
+                        postUiModels = images,
                         modifier = Modifier
                             .fillMaxSize()
                             .align(Alignment.Center)
@@ -220,21 +220,21 @@ private fun HomeScreen(
 
 @Composable
 private fun HomeContent(
-    posts: List<PostContentModel>,
+    postUiModels: List<PostUiModel>,
     modifier: Modifier = Modifier,
     imageRatioMap: Map<Int, Float> = mapOf(),
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
-    onReactionClick: (String, Reactions) -> Unit = { _, _ -> },
-    onImageClick: (PostContentModel) -> Unit = {},
+    onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
+    onImageClick: (PostUiModel) -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {},
+    onFollowClick: (PostUiModel) -> Unit = {},
     updateImageRatio: (Int, Float) -> Unit = { _, _ -> }
 ) {
     HorizontalPager(
         modifier = modifier,
         state = pagerState
     ) { page ->
-        val post = posts[page]
+        val post = postUiModels[page]
 
         Column(
             modifier = Modifier
@@ -261,8 +261,8 @@ private fun HomeContent(
             Spacer(Modifier.height(20.dp))
 
             EventRow(
-                post = post,
-                isFollowed = post.isFollower,
+                postUiModel = post,
+                isFollowed = post.isFollowing,
                 activatedReaction = post.myReaction,
                 onReactionClick = { onReactionClick(post.postId, it) },
                 onGalleryClick = onGalleryClick,
@@ -276,12 +276,12 @@ private fun HomeContent(
 
 @Composable
 private fun EventRow(
-    post: PostContentModel = PostContentModel.EMPTY,
+    postUiModel: PostUiModel = PostUiModel.EMPTY,
     isFollowed: Boolean = false,
-    activatedReaction: Reactions? = null,
-    onReactionClick: (Reactions) -> Unit = {},
+    activatedReaction: Reaction? = null,
+    onReactionClick: (Reaction) -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
-    onFollowClick: (PostContentModel) -> Unit = {}
+    onFollowClick: (PostUiModel) -> Unit = {}
 ) {
     var isExpand by remember { mutableStateOf(false) }
 
@@ -308,8 +308,8 @@ private fun EventRow(
         Spacer(Modifier.width(12.dp))
 
         ReactionGroup(
-            reactions = post.reactions,
-            myReaction = post.myReaction
+            reactions = postUiModel.reactions,
+            myReaction = postUiModel.myReaction
         )
 
         DropdownMenu(
@@ -330,14 +330,14 @@ private fun EventRow(
         Spacer(Modifier.weight(1f))
 
         HomeButton(
-            onClick = { onGalleryClick(post.authorId) },
+            onClick = { onGalleryClick(postUiModel.authorId) },
             imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
         )
 
         Spacer(Modifier.width(12.dp))
 
         HomeButton(
-            onClick = { onFollowClick(post) },
+            onClick = { onFollowClick(postUiModel) },
             imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_follow),
             contentColor = if (isFollowed) Background else Primary,
             backgroundColor = if (isFollowed) Primary else Background
@@ -373,5 +373,5 @@ private fun HomeButton(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewHomeScreen() {
-    HomeContent(listOf(PostContentModel.EMPTY, PostContentModel.EMPTY, PostContentModel.EMPTY))
+    HomeContent(listOf(PostUiModel.EMPTY, PostUiModel.EMPTY, PostUiModel.EMPTY))
 }

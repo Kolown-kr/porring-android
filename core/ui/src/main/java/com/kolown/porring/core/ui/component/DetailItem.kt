@@ -62,13 +62,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryContainerDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.ui.R
 
 @Composable
 fun DetailItem(
@@ -77,9 +77,9 @@ fun DetailItem(
     isButtonGroupNeed: Boolean = true,
     isPopBackStack: Boolean = false,
     onChangeReelsMode: (Boolean) -> Unit,
-    updateMainPostReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
-    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
-    imageItem: PostContentModel?,
+    updateMainPostReaction: (PostUiModel, Reaction) -> Unit = { _, _ -> },
+    onSelectReaction: (PostUiModel, Reaction) -> Unit = { _, _ -> },
+    imageItem: PostUiModel?,
     navigateToTheir: (String) -> Unit,
     updatePage: () -> Unit,
     onFollowClick: (String, String) -> Unit = { _, _ -> },
@@ -130,9 +130,9 @@ fun DetailItem(
 private fun ReelsContent(
     isLoggedIn: Boolean,
     isButtonGroupNeed: Boolean,
-    updateMainPostReaction: (PostContentModel, Reactions) -> Unit,
-    onSelectReaction: (PostContentModel, Reactions) -> Unit = { _, _ -> },
-    imageItem: PostContentModel,
+    updateMainPostReaction: (PostUiModel, Reaction) -> Unit,
+    onSelectReaction: (PostUiModel, Reaction) -> Unit = { _, _ -> },
+    imageItem: PostUiModel,
     imageRatio: Float,
     navigateToTheir: (String) -> Unit,
     updatePage: () -> Unit,
@@ -147,7 +147,7 @@ private fun ReelsContent(
 ) {
     val isReactionVisible = remember { mutableStateOf(false) }
     val isFollowDialogVisible = remember { mutableStateOf(false) }
-    val isFollowed = rememberSaveable { mutableStateOf(imageItem.isFollower) }
+    val isFollowed = rememberSaveable { mutableStateOf(imageItem.isFollowing) }
     val isError = remember { mutableStateOf(false) }
     val snackBarBridge = LocalSnackBarBridge.current
 

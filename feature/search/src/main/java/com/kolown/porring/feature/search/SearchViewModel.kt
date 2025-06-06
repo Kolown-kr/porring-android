@@ -5,7 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.TagRepository
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.base.BaseMviViewModel
 import com.kolown.porring.feature.search.model.SearchUiIntent
@@ -20,10 +20,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -43,16 +41,16 @@ internal class SearchViewModel @Inject constructor(
 
     private val tagSelectedFlow = MutableSharedFlow<String>()
 
-    private val clearImagesFlow: Flow<PagingData<PostContentModel>> =
+    private val clearImagesFlow: Flow<PagingData<PostUiModel>> =
         tagSelectedFlow.map { PagingData.empty() }
 
-    private val loadImagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
+    private val loadImagesFlow: Flow<PagingData<PostUiModel>> = tagSelectedFlow
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(postRepository::getPostBySearch)
         .cachedIn(viewModelScope)
 
-    val imagesFlow: Flow<PagingData<PostContentModel>> =
+    val imagesFlow: Flow<PagingData<PostUiModel>> =
         merge(clearImagesFlow, loadImagesFlow)
             .cachedIn(viewModelScope)
 
@@ -63,7 +61,14 @@ internal class SearchViewModel @Inject constructor(
             is SearchUiIntent.OnQueryChanged -> onQueryChanged(intent.query)
             is SearchUiIntent.OnFocusChanged -> onFocusChanged(intent.hasFocus)
             is SearchUiIntent.OnTagClicked -> onTagClicked(intent.tag)
-            is SearchUiIntent.OnImageClicked -> launch { postSideEffect(SearchUiSideEffect.NavigateToDetail(tagSelectedFlow.first(), intent.postId)) }
+            is SearchUiIntent.OnImageClicked -> launch {
+                postSideEffect(
+                    SearchUiSideEffect.NavigateToDetail(
+                        tagSelectedFlow.first(),
+                        intent.postId
+                    )
+                )
+            }
         }
     }
 
