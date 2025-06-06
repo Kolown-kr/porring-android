@@ -1,6 +1,6 @@
 package com.kolown.porring.core.network.model
 
-import com.kolown.porring.core.model.Follower
+import com.kolown.porring.core.model.Follow
 
 
 data class FollowerDto(
@@ -10,9 +10,9 @@ data class FollowerDto(
     val userId: String = ""
 )
 
-fun FollowerDto.toFollowerModel(): Follower {
-    return Follower(
-        followerId = followerId,
-        followerName = followerName
+fun FollowerDto.toFollowerModel(): Follow {
+    return Follow(
+        id = followerId,
+        name = followerName
     )
 }

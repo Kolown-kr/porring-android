@@ -26,7 +26,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
@@ -93,7 +93,7 @@ internal fun TheirRoute(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun TheirScreen(
-    pagingItems: LazyPagingItems<PostContentModel>,
+    pagingItems: LazyPagingItems<PostUiModel>,
     title: String = "",
     isRefreshing: Boolean = false,
     showErrorScreen: Boolean = false,
@@ -103,7 +103,7 @@ private fun TheirScreen(
     onRefresh: () -> Unit = {},
     setPage: (Int) -> Unit = {},
     popBackStack: () -> Unit = {},
-    navigateToDetail: (PostContentModel) -> Unit = {},
+    navigateToDetail: (PostUiModel) -> Unit = {},
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {}
 ) {

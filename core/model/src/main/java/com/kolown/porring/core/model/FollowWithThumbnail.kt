@@ -1,12 +1,12 @@
 package com.kolown.porring.core.model
 
-data class FollowerWithThumbnail(
+data class FollowWithThumbnail(
     val id: String,
     val followerName: String,
     val thumbnails: List<String>
 ) {
     companion object {
-        val dummy = FollowerWithThumbnail(
+        val dummy = FollowWithThumbnail(
             id = "1",
             followerName = "name",
             thumbnails = listOf()

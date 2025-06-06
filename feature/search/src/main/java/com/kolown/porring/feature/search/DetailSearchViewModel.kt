@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.UserRepository
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +37,7 @@ class DetailSearchViewModel @Inject constructor(
         firstPage = page
     }
 
-    fun selectReaction(imageItem: PostContentModel, reaction: Reactions) {
+    fun selectReaction(imageItem: PostUiModel, reaction: Reaction) {
         val currentReaction = imageItem.myReaction
 
         viewModelScope.launch {
@@ -48,8 +48,8 @@ class DetailSearchViewModel @Inject constructor(
 
     private fun updateReactionState(
         postId: String,
-        prevReaction: Reactions?,
-        currentReaction: Reactions,
+        prevReaction: Reaction?,
+        currentReaction: Reaction,
     ) {
         reactionStateFlow.update { reactionState ->
             val newState = reactionState.toMutableMap()
@@ -85,6 +85,6 @@ class DetailSearchViewModel @Inject constructor(
 }
 
 data class ReactionState(
-    val prev: Reactions? = null,
-    val current: Reactions = Reactions.LOVE,
+    val prev: Reaction? = null,
+    val current: Reaction = Reaction.LOVE,
 )

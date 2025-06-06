@@ -16,15 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kolown.porring.core.ui.R
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.Reaction
+import com.kolown.porring.core.ui.R
 
 @Composable
 fun ReactionDialog(
     modifier: Modifier = Modifier,
-    activatedReaction: Reactions? = null,
-    selectedReaction: (Reactions) -> Unit = {},
+    activatedReaction: Reaction? = null,
+    selectedReaction: (Reaction) -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     Card(
@@ -40,7 +40,7 @@ fun ReactionDialog(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Reactions.entries.forEach {
+            Reaction.entries.forEach {
                 ReactionButton(
                     didIReact = activatedReaction == it,
                     reaction = it,
@@ -57,8 +57,8 @@ fun ReactionDialog(
 @Composable
 private fun ReactionButton(
     didIReact: Boolean,
-    reaction: Reactions,
-    onClick: (Reactions) -> Unit,
+    reaction: Reaction,
+    onClick: (Reaction) -> Unit,
 ) {
     IconButton(
         modifier = Modifier
@@ -78,17 +78,17 @@ private fun ReactionButton(
 
 }
 
-fun Reactions.toImage() =
+fun Reaction.toImage() =
     when (this) {
-        Reactions.LOVE -> R.drawable.ic_reaction_1
-        Reactions.SURPRISE -> R.drawable.ic_reaction_2
-        Reactions.SMILE -> R.drawable.ic_reaction_3
-        Reactions.STAR -> R.drawable.ic_reaction_4
-        Reactions.THUMB -> R.drawable.ic_reaction_5
+        Reaction.LOVE -> R.drawable.ic_reaction_1
+        Reaction.SURPRISE -> R.drawable.ic_reaction_2
+        Reaction.SMILE -> R.drawable.ic_reaction_3
+        Reaction.STAR -> R.drawable.ic_reaction_4
+        Reaction.THUMB -> R.drawable.ic_reaction_5
     }
 
 @Preview
 @Composable
 private fun Preview() {
-    ReactionDialog {  }
+    ReactionDialog { }
 }

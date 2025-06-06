@@ -6,7 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
-import com.kolown.porring.core.model.FollowerWithThumbnail
+import com.kolown.porring.core.model.FollowWithThumbnail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -19,7 +19,7 @@ class FollowerViewModel @Inject constructor(
     private val followerRepository: FollowRepository
 ) : ViewModel() {
     private val _followerItems =
-        MutableStateFlow<PagingData<FollowerWithThumbnail>>(PagingData.empty())
+        MutableStateFlow<PagingData<FollowWithThumbnail>>(PagingData.empty())
     val followerItems = _followerItems.cachedIn(viewModelScope)
 
     val isLoggedIn = authRepository.checkUserLoggedIn()

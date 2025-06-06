@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -23,19 +23,19 @@ import javax.inject.Inject
 @HiltViewModel
 internal class SearchImageViewModel @Inject constructor(
     private val postRepository: PostRepository,
-): ViewModel() {
+) : ViewModel() {
     private val tagSelectedFlow = MutableSharedFlow<String>()
 
-    private val clearImagesFlow: Flow<PagingData<PostContentModel>> =
+    private val clearImagesFlow: Flow<PagingData<PostUiModel>> =
         tagSelectedFlow.map { PagingData.empty() }
 
-    private val loadImagesFlow: Flow<PagingData<PostContentModel>> = tagSelectedFlow
+    private val loadImagesFlow: Flow<PagingData<PostUiModel>> = tagSelectedFlow
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(postRepository::getPostBySearch)
         .cachedIn(viewModelScope)
 
-    val imagesFlow: Flow<PagingData<PostContentModel>> =
+    val imagesFlow: Flow<PagingData<PostUiModel>> =
         merge(clearImagesFlow, loadImagesFlow)
             .cachedIn(viewModelScope)
 

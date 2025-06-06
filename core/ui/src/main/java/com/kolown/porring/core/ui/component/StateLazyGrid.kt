@@ -19,14 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.kolown.porring.core.model.PostContentModel
+import com.kolown.porring.core.model.PostUiModel
 
 @Composable
 fun StateLazyGrid(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     longClickEnabled: Boolean = true,
-    pagingItems: LazyPagingItems<PostContentModel>,
-    navigateToDetail: (PostContentModel) -> Unit = {},
+    pagingItems: LazyPagingItems<PostUiModel>,
+    navigateToDetail: (PostUiModel) -> Unit = {},
     setPage: (Int) -> Unit = {},
     onLongClick: (String) -> Unit = {}
 ) {
@@ -43,7 +43,7 @@ fun StateLazyGrid(
 
             if (pagingItem != null) {
                 GalleryItem(
-                    postContentModel = pagingItem,
+                    postUiModel = pagingItem,
                     longClickEnabled = longClickEnabled,
                     onLongClickImage = { onLongClick(pagingItem.postId) },
                     onClickImage = {
@@ -70,7 +70,7 @@ fun StateLazyGrid(
 
 @Composable
 private fun GalleryItem(
-    postContentModel: PostContentModel,
+    postUiModel: PostUiModel,
     onLongClickImage: () -> Unit = {},
     onClickImage: () -> Unit = {},
     longClickEnabled: Boolean = true
@@ -85,7 +85,7 @@ private fun GalleryItem(
         CoilImage(
             onClick = onClickImage,
             onLongClick = { if (longClickEnabled) onLongClickImage() },
-            imageUrl = postContentModel.imageUrl,
+            imageUrl = postUiModel.imageUrl,
             imageRatio = imageRatio.floatValue,
             updateImageRatio = { imageRatio.floatValue = it }
         )

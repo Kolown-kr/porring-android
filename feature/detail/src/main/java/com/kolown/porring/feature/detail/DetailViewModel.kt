@@ -10,8 +10,8 @@ import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostContentModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.navigation.MainMenuRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -36,13 +36,13 @@ internal class DetailViewModel @Inject constructor(
     private val followRepository: FollowRepository,
 ) : ViewModel() {
 
-    private val _posts = MutableStateFlow<PagingData<PostContentModel>>(PagingData.empty())
+    private val _posts = MutableStateFlow<PagingData<PostUiModel>>(PagingData.empty())
     val posts = _posts.asStateFlow().cachedIn(viewModelScope)
 
     private val _pageState = MutableStateFlow(PageState())
     private val pageState = _pageState.asStateFlow()
 
-    private val _followEvent = MutableSharedFlow<PostContentModel>()
+    private val _followEvent = MutableSharedFlow<PostUiModel>()
     val followEvent = _followEvent.asSharedFlow()
 
     private val loggedInChannel = Channel<Unit>(Channel.UNLIMITED)
@@ -110,14 +110,14 @@ internal class DetailViewModel @Inject constructor(
     }
 
 
-    fun onReactionClick(postId: String, reaction: Reactions) = viewModelScope.launch {
+    fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
         postRepository.updatePostReaction(postId, reaction)
     }
 
-    fun onFollowClick(post: PostContentModel) = viewModelScope.launch {
+    fun onFollowClick(postUiModel: PostUiModel) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
-        _followEvent.emit(post)
+        _followEvent.emit(postUiModel)
     }
 
     fun cancelFollow(authorId: String) = viewModelScope.launch {

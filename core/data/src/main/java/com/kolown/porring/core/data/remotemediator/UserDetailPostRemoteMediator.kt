@@ -12,8 +12,8 @@ import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ReactionDataSource
@@ -109,13 +109,13 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
         )
     }
 
-    private suspend fun onDetailRefresh(pageSize: Long, postItem: PostContentModel?) {
+    private suspend fun onDetailRefresh(pageSize: Long, postUiModelItem: PostUiModel?) {
         val result = coroutineScope {
             val prev = async {
                 Firebase.firestore.collection("post")
                     .whereEqualTo("authorId", authorId)
                     .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .endBefore(postItem?.registerAt)
+                    .endBefore(postUiModelItem?.registerAt)
                     .limitToLast(pageSize)
                     .get()
                     .await()
@@ -127,7 +127,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
                 Firebase.firestore.collection("post")
                     .whereEqualTo("authorId", authorId)
                     .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .startAfter(postItem?.registerAt)
+                    .startAfter(postUiModelItem?.registerAt)
                     .limit(pageSize)
                     .get()
                     .await()
@@ -184,7 +184,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
         )
     }
 
-    private suspend fun List<PostModel>.getPostContent(): List<PostContentModel> {
+    private suspend fun List<PostModel>.getPostContent(): List<PostUiModel> {
         val currentUserId = googleAuthDataSource.getUserId()
         val posts = this
         val (tags, reactions, isFollowers) = coroutineScope {
@@ -223,14 +223,14 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
         }
 
         return posts.mapIndexed { index, postModel ->
-            PostContentModel(
+            PostUiModel(
                 postId = postModel.postId,
                 authorId = postModel.authorId,
                 imageUrl = postModel.imageUrl,
                 registerAt = postModel.registerAt,
                 description = postModel.description,
                 tags = tags[index].map { it.tagName },
-                isFollower = isFollowers[index],
+                isFollowing = isFollowers[index],
                 reactions = reactions[index].mapNotNull { it.reaction },
                 myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
             )

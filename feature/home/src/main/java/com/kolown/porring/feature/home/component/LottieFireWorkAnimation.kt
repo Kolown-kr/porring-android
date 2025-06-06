@@ -13,14 +13,14 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.feature.home.R
-import com.kolown.porring.core.model.Reactions
 
 @Composable
 internal fun LottieFireWorkAnimation(
     modifier: Modifier,
-    reactions: List<Reactions>,
-    myReaction: Reactions?
+    reactions: List<Reaction>,
+    myReaction: Reaction?
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.fireworks))
     var isAnimationPlaying by remember { mutableStateOf(false) }

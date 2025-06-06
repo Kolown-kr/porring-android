@@ -5,7 +5,7 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
-import com.kolown.porring.core.model.Follower
+import com.kolown.porring.core.model.Follow
 import com.kolown.porring.core.network.model.FollowerDto
 import com.kolown.porring.core.network.model.toFollowerModel
 import kotlinx.coroutines.flow.Flow
@@ -18,16 +18,16 @@ interface FollowDataSource {
     suspend fun getIsFollower(userId: String, followerId: String): Result<Boolean>
     suspend fun uploadFollow(
         userId: String,
-        follower: Follower
+        follow: Follow
     ): Flow<Boolean>
 
-    suspend fun fetchFollows(userId: String): List<Follower>
+    suspend fun fetchFollows(userId: String): List<Follow>
     suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
     suspend fun getFollowerList(
         userId: String,
         key: String?,
         perPage: Long
-    ): Result<List<Follower>>
+    ): Result<List<Follow>>
 }
 
 class FollowDataSourceImpl @Inject constructor(
@@ -52,7 +52,7 @@ class FollowDataSourceImpl @Inject constructor(
         userId: String,
         key: String?,
         perPage: Long
-    ): Result<List<Follower>> {
+    ): Result<List<Follow>> {
         return kotlin.runCatching {
             val followerIds = followCollection
                 .whereEqualTo("userId", userId)
@@ -67,12 +67,12 @@ class FollowDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadFollow(userId: String, follower: Follower): Flow<Boolean> = flow {
+    override suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean> = flow {
         userCollection
             .document(userId)
             .collection("followers")
-            .document(follower.followerId)
-            .set(mapOf("followerName" to follower.followerName))
+            .document(follow.id)
+            .set(mapOf("followerName" to follow.name))
             .await()
             .runCatching {
                 emit(true)
@@ -97,7 +97,7 @@ class FollowDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchFollows(userId: String): List<Follower> {
+    override suspend fun fetchFollows(userId: String): List<Follow> {
         val followers = userCollection
             .document(userId)
             .collection("followers")
@@ -108,9 +108,9 @@ class FollowDataSourceImpl @Inject constructor(
             emptyList()
         } else {
             followers.map {
-                Follower(
-                    followerId = it.id,
-                    followerName = it.getString("followerName") ?: "NULL"
+                Follow(
+                    id = it.id,
+                    name = it.getString("followerName") ?: "NULL"
                 )
             }
         }

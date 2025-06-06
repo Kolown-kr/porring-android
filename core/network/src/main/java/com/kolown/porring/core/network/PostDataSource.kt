@@ -5,7 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.kolown.porring.core.common.safeFlow
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.Reactions
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.async
@@ -35,7 +35,7 @@ interface PostDataSource {
 
     suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
     fun resetLastVisible()
-    fun setPostReaction(userId: String, postId: String, reaction: Reactions)
+    fun setPostReaction(userId: String, postId: String, reaction: Reaction)
     fun deletePostReaction(postId: String, userId: String)
     suspend fun deletePost(postId: String): Flow<Result<Unit>>
     suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>>
@@ -228,7 +228,7 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override fun setPostReaction(userId: String, postId: String, reaction: Reactions) {
+    override fun setPostReaction(userId: String, postId: String, reaction: Reaction) {
         val id = postId.substringAfter("-")
         val reactionsCollection = postCollection.document(id).collection("reactions")
 
