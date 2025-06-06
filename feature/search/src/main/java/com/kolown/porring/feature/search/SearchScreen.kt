@@ -36,9 +36,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.core.ui.util.LaunchSideEffect
 import com.kolown.porring.feature.search.component.TagSearchBar
 import com.kolown.porring.feature.search.model.SearchUiIntent

@@ -4,10 +4,9 @@ import com.kolown.porring.core.data.model.MyPostData
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.toReactions
 
-internal fun OtherPostData.toPostContentModel() = PostUiModel(
+internal fun OtherPostData.toModel() = PostModel(
     postId = this.postId,
     authorId = this.authorId,
     imageUrl = this.imageUrl,
@@ -15,11 +14,32 @@ internal fun OtherPostData.toPostContentModel() = PostUiModel(
     description = this.description,
     tags = this.tags,
     isFollowing = this.isFollowing,
-    reactions = this.reactions.mapNotNull { it.toReactions() },
-    myReaction = this.myReaction?.toReactions()
+    reactions = this.reactions,
+    myReaction = this.myReaction
 )
 
-fun MyPostData.toModel() = MyPost(
+internal fun PostModel.toOtherData() = OtherPostData(
+    postId = this.postId,
+    authorId = this.authorId,
+    imageUrl = this.imageUrl,
+    registerAt = this.registerAt,
+    description = this.description,
+    tags = this.tags,
+    isFollowing = this.isFollowing,
+    reactions = this.reactions,
+    myReaction = this.myReaction
+)
+
+internal fun PostModel.toMyData() = MyPostData(
+    postId = this.postId,
+    imageUrl = this.imageUrl,
+    registerAt = this.registerAt,
+    description = this.description,
+    tags = this.tags,
+    reactions = this.reactions,
+)
+
+internal fun MyPostData.toModel() = MyPost(
     postId = this.postId,
     imageUrl = this.imageUrl,
     registerAt = this.registerAt,

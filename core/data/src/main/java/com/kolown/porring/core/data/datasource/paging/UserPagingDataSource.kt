@@ -3,11 +3,11 @@ package com.kolown.porring.core.data.datasource.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
+import com.kolown.porring.core.ui.model.PostUiModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -25,8 +25,8 @@ class UserPagingDataSource @Inject constructor(
     private val reactionDataSource: ReactionDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val userId: String
-) : PagingSource<UserPagingKey, PostUiModel>() {
-    override fun getRefreshKey(state: PagingState<UserPagingKey, PostUiModel>): UserPagingKey? {
+) : PagingSource<UserPagingKey, com.kolown.porring.core.ui.model.PostUiModel>() {
+    override fun getRefreshKey(state: PagingState<UserPagingKey, com.kolown.porring.core.ui.model.PostUiModel>): UserPagingKey? {
         return state.anchorPosition?.let { position ->
             val closestPage = state.closestPageToPosition(position)
             val page = closestPage?.prevKey?.page?.plus(1)
@@ -36,7 +36,7 @@ class UserPagingDataSource @Inject constructor(
         }
     }
 
-    override suspend fun load(params: LoadParams<UserPagingKey>): LoadResult<UserPagingKey, PostUiModel> {
+    override suspend fun load(params: LoadParams<UserPagingKey>): LoadResult<UserPagingKey, com.kolown.porring.core.ui.model.PostUiModel> {
         val page = params.key?.page ?: 0
         val posts = getPosts(params).getOrElse {
             return LoadResult.Error(it)
@@ -56,7 +56,7 @@ class UserPagingDataSource @Inject constructor(
         return postDataSource.getUserPost(userId, params.loadSize.toLong())
     }
 
-    private suspend fun getData(posts: List<PostModel>): Result<List<PostUiModel>> {
+    private suspend fun getData(posts: List<PostModel>): Result<List<com.kolown.porring.core.ui.model.PostUiModel>> {
         return runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
@@ -80,7 +80,7 @@ class UserPagingDataSource @Inject constructor(
             }
 
             posts.mapIndexed { index, postModel ->
-                PostUiModel(
+                com.kolown.porring.core.ui.model.PostUiModel(
                     postId = postModel.postId,
                     authorId = postModel.authorId,
                     imageUrl = postModel.imageUrl,

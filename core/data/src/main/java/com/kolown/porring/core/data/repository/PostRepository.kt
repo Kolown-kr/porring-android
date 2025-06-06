@@ -8,7 +8,9 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
-import com.kolown.porring.core.data.mapper.toPostContentModel
+import com.kolown.porring.core.data.mapper.toModel
+import com.kolown.porring.core.data.mapper.toMyData
+import com.kolown.porring.core.data.mapper.toOtherData
 import com.kolown.porring.core.data.model.PostsUsageType.HOME
 import com.kolown.porring.core.data.model.PostsUsageType.PAGING
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
@@ -18,22 +20,17 @@ import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETA
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostUiModel
+import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.core.model.UploadModel
-import com.kolown.porring.core.model.toReactions
 import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
-import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -50,12 +47,12 @@ interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
 
-    fun getPostBySearch(tagId: String): Flow<PagingData<PostUiModel>>
+    fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>>
 
-    suspend fun getHomeItemPosts(): Flow<List<PostUiModel>>
+    suspend fun getHomeItemPosts(): Flow<List<PostModel>>
     suspend fun fetchHomeItemPosts()
 
-    suspend fun insertPagingItem(item: PostUiModel)
+    suspend fun insertPagingItem(item: PostModel)
     suspend fun clearPagingItems()
 
     fun getPagingItemPosts(
@@ -63,7 +60,7 @@ interface PostRepository {
         pageState: StateFlow<PageState>?,
         authorId: String? = null,
         postId: String? = null
-    ): Flow<PagingData<PostUiModel>>
+    ): Flow<PagingData<PostModel>>
 
     suspend fun updatePostReaction(postId: String, reaction: Reaction)
 
@@ -76,10 +73,8 @@ class PostRepositoryImpl @Inject constructor(
     private val imageDataSource: ImageDataSource,
     private val postDataSource: PostDataSource,
     private val tagDataSource: TagDataSource,
-    private val reactionDataSource: ReactionDataSource, // TODO: 삭제예정
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
-    private val followDataSource: FollowDataSource, // TODO: 삭제예정
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
     private val userDetailRemoteMediatorFactory: UserDetailRemoteMediatorFactory,
     private val userGalleryRemoteMediatorFactory: UserGalleryPostRemoteMediatorFactory,
@@ -146,9 +141,9 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getHomeItemPosts(): Flow<List<PostUiModel>> =
+    override suspend fun getHomeItemPosts(): Flow<List<PostModel>> =
         withContext(Dispatchers.IO) {
-            localPostDataSource.getItems().map { data -> data.map { it.toPostContentModel() } }
+            localPostDataSource.getItems().map { data -> data.map { it.toModel() } }
         }
 
     override suspend fun clearPagingItems() = withContext(Dispatchers.IO) {
@@ -160,7 +155,7 @@ class PostRepositoryImpl @Inject constructor(
         pageState: StateFlow<PageState>?,
         authorId: String?,
         postId: String?
-    ): Flow<PagingData<PostUiModel>> {
+    ): Flow<PagingData<PostModel>> {
         return when (postType) {
             PostType.RANDOM_DETAIL -> getRandomPagingItem(
                 postType.pageSize,
@@ -185,7 +180,7 @@ class PostRepositoryImpl @Inject constructor(
     private fun getRandomPagingItem(
         pageSize: Int,
         pageState: StateFlow<PageState>?
-    ): Flow<PagingData<PostUiModel>> {
+    ): Flow<PagingData<PostModel>> {
         if (pageState == null) throw IllegalArgumentException("Page State가 없습니다.")
 
         return Pager(
@@ -197,7 +192,7 @@ class PostRepositoryImpl @Inject constructor(
             pagingSourceFactory = { localPostDataSource.getPagingItems() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
-                data.toPostContentModel()
+                data.toModel()
             }
         }
     }
@@ -208,7 +203,7 @@ class PostRepositoryImpl @Inject constructor(
         pageState: StateFlow<PageState>?,
         authorId: String?,
         postId: String?
-    ): Flow<PagingData<PostUiModel>> {
+    ): Flow<PagingData<PostModel>> {
         if (pageState == null) throw IllegalArgumentException("Page State가 없습니다.")
         if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
 
@@ -225,7 +220,7 @@ class PostRepositoryImpl @Inject constructor(
             pagingSourceFactory = { localPostDataSource.getPagingItems() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
-                data.toPostContentModel()
+                data.toModel()
             }
         }
     }
@@ -234,7 +229,7 @@ class PostRepositoryImpl @Inject constructor(
     private fun getUserGalleryPagingItem(
         pageSize: Int,
         authorId: String?,
-    ): Flow<PagingData<PostUiModel>> {
+    ): Flow<PagingData<PostModel>> {
         if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
 
         return Pager(
@@ -245,7 +240,7 @@ class PostRepositoryImpl @Inject constructor(
             pagingSourceFactory = { localPostDataSource.getPagingItems() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
-                data.toPostContentModel()
+                data.toModel()
             }
         }
     }
@@ -253,30 +248,18 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        val postUiModels = postDataSource.getRandomPost(
+        val posts = postDataSource.getRandomPost(
             currentUserId,
             HOME_ITEM_SIZE,
             RANDOM_SEED.random().toString()
         ).getOrElse {
             throw IOException("게시물 불러오기 실패")
-        }.map {
-            PostUiModel(
-                postId = it.postId,
-                authorId = it.authorId,
-                imageUrl = it.imageUrl,
-                registerAt = it.registerAt,
-                description = it.description,
-                tags = it.tags,
-                isFollowing = it.isFollowing,
-                reactions = it.reactions.map { r -> r.toReactions() ?: Reaction.LOVE },
-                myReaction = it.myReaction?.toReactions()
-            )
         }
 
         localPostDataSource.clearHomeItems()
         delay(100)
         localPostDataSource.insertItems(
-            postUiModels,
+            posts.map { it.toOtherData() },
             HOME
         )
     }
@@ -329,10 +312,10 @@ class PostRepositoryImpl @Inject constructor(
         val uid = googleAuthDataSource.getUserId()
         val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
 
-        localPostDataSource.insertMyPost(posts.map { it.toMyPost() })
+        localPostDataSource.insertMyPost(posts.map { it.toMyData() })
     }
 
-    override fun getPostBySearch(tagId: String): Flow<PagingData<PostUiModel>> {
+    override fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>> {
         return createPager(
             pageSize = SEARCH_PER_PAGE,
             keySelector = { it.postId }
@@ -359,9 +342,9 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun insertPagingItem(item: PostUiModel) {
+    override suspend fun insertPagingItem(item: PostModel) {
         localPostDataSource.insertItems(
-            listOf(item),
+            listOf(item.toOtherData()),
             PAGING
         )
     }
@@ -387,65 +370,23 @@ class PostRepositoryImpl @Inject constructor(
         tagId: String,
         startKey: String?,
         perPage: Int
-    ): Result<List<PostUiModel>> = runCatching {
+    ): Result<List<PostModel>> {
         val currentUserId = googleAuthDataSource.getUserId()
-
         val postIds = tagDataSource.getPostTagByTagId(tagId).getOrElse {
-            throw IOException("포스트 ID 가져오기 실패")
+            return Result.failure(it)
         }
-
         val posts = postDataSource.getPostBySearch(
             currentUserId = currentUserId,
             postIds = postIds,
             key = startKey,
             perPage = perPage.toLong()
         ).getOrElse {
-            throw IOException("포스트 가져오기 실패")
+            return Result.failure(it)
         }
 
-        val (tags, reactions, isFollowers) = coroutineScope {
-            val tagsDeferred = async {
-                posts.map {
-                    async {
-                        tagDataSource.getPostTag(it.postId).getOrElse { emptyList() }
-                    }
-                }.awaitAll()
-            }
-
-            val reactionsDeferred = async {
-                posts.map {
-                    async {
-                        reactionDataSource.getReactionByPostId(it.postId).getOrElse { emptyList() }
-                    }
-                }.awaitAll()
-            }
-
-            val followDeferred = async {
-                posts.map {
-                    async {
-                        followDataSource.getIsFollower(currentUserId, it.authorId)
-                            .getOrElse { false }
-                    }
-                }.awaitAll()
-            }
-
-            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
-        }
-
-        posts.mapIndexed { index, postModel ->
-            PostUiModel(
-                postId = postModel.postId,
-                authorId = postModel.authorId,
-                imageUrl = postModel.imageUrl,
-                registerAt = postModel.registerAt,
-                description = postModel.description,
-                tags = tags[index].map { it.tagName },
-                isFollowing = isFollowers[index],
-                reactions = reactions[index].mapNotNull { it.reaction },
-                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
-            )
-        }
+        return Result.success(posts)
     }
+
 
     companion object {
         const val DETAIL_PER_PAGE = 5

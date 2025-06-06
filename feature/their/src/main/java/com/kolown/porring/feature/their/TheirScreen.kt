@@ -26,10 +26,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
+import com.kolown.porring.core.ui.model.PostUiModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

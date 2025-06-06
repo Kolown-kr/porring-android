@@ -2,12 +2,12 @@ package com.kolown.porring.core.data.datasource.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.ReactionDataSource
 import com.kolown.porring.core.network.TagDataSource
+import com.kolown.porring.core.ui.model.PostUiModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -22,9 +22,9 @@ class SearchPagingSource(
     private val followerDataSource: FollowDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     val tagId: String
-) : PagingSource<String, PostUiModel>() {
+) : PagingSource<String, com.kolown.porring.core.ui.model.PostUiModel>() {
 
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, PostUiModel> {
+    override suspend fun load(params: LoadParams<String>): LoadResult<String, com.kolown.porring.core.ui.model.PostUiModel> {
         return try {
             val currentUserId = googleAuthDataSource.getUserId()
             val postIds =
@@ -76,7 +76,7 @@ class SearchPagingSource(
 
             LoadResult.Page(
                 data = posts.mapIndexed { index, postModel ->
-                    PostUiModel(
+                    com.kolown.porring.core.ui.model.PostUiModel(
                         postId = postModel.postId,
                         authorId = postModel.authorId,
                         imageUrl = postModel.imageUrl,
@@ -98,7 +98,7 @@ class SearchPagingSource(
     }
 
 
-    override fun getRefreshKey(state: PagingState<String, PostUiModel>): String? {
+    override fun getRefreshKey(state: PagingState<String, com.kolown.porring.core.ui.model.PostUiModel>): String? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey
         }

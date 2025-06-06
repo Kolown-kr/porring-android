@@ -1,18 +1,19 @@
 package com.kolown.porring.feature.detail
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.ui.mapper.toUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -30,7 +32,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class DetailViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
@@ -65,12 +66,13 @@ internal class DetailViewModel @Inject constructor(
                 postRepository.getPagingItemPosts(
                     postType = PostType.RANDOM_DETAIL,
                     pageState = pageState,
-                )
+                ).map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }
 
             MainMenuRoute.Detail.Type.SEARCH -> {
                 postRepository.getPostBySearch(authorId)
+                    .map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }
 
@@ -81,6 +83,7 @@ internal class DetailViewModel @Inject constructor(
                     authorId = authorId,
                     postId = postId
                 )
+                    .map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }
 
@@ -92,6 +95,7 @@ internal class DetailViewModel @Inject constructor(
                     authorId = authorId,
                     postId = postId
                 )
+                    .map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }
         }

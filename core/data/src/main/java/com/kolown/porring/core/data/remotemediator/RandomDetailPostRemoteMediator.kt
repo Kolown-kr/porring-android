@@ -6,30 +6,20 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.mapper.toOtherData
 import com.kolown.porring.core.data.model.OtherPostData
+import com.kolown.porring.core.data.utils.fetchRandomPost
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.FollowDataSource
-import com.kolown.porring.core.network.ReactionDataSource
-import com.kolown.porring.core.network.TagDataSource
-import com.kolown.porring.core.network.model.toPostModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import javax.inject.Named
 
 @OptIn(ExperimentalPagingApi::class)
@@ -37,10 +27,8 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
     @Assisted private val pageState: StateFlow<PageState>,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
-    private val tagDataSource: TagDataSource,
-    private val reactionDataSource: ReactionDataSource,
-    private val followDataSource: FollowDataSource,
 ) : RemoteMediator<Int, OtherPostData>() {
+    private val firestore = Firebase.firestore
     private var isLoading = false
     private var nextKey = 0L
     private val currentUserId = googleAuthDataSource.getUserId()
@@ -56,7 +44,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
 
                 if (loadType == LoadType.REFRESH) {
                     nextKey = (0..Long.MAX_VALUE).random()
-                    getPosts(nextKey, pageSize)
+                    fetchPosts(nextKey, pageSize)
                 }
 
                 if (loadType == LoadType.PREPEND) return@withContext MediatorResult.Success(
@@ -68,7 +56,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
                         isLoading = true
                         launch {
                             try {
-                                getPosts(nextKey, pageSize)
+                                fetchPosts(nextKey, pageSize)
                             } finally {
                                 isLoading = false
                             }
@@ -84,98 +72,21 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
         }
     }
 
-    private suspend fun getPosts(key: Long, pageSize: Long) {
-        val query: suspend (Long, Long) -> Query = { seed, pageSize ->
-            Firebase.firestore.collection("post")
-                .whereNotEqualTo("authorId", currentUserId)
-                .whereGreaterThan("random$randomType", seed)
-                .orderBy("random$randomType", Query.Direction.ASCENDING)
-                .orderBy("postId")
-                .limit(pageSize)
-        }
-        val results = coroutineScope {
-            val posts = async {
-                query(key, pageSize)
-                    .get()
-                    .await()
-                    .toObjects(com.kolown.porring.core.network.model.PostDto::class.java)
-                    .map { it.toPostModel(randomType) }
-            }.await()
-
-            if (posts.size < pageSize) {
-                val additions = async {
-                    query(0, pageSize - posts.size)
-                        .get()
-                        .await()
-                        .toObjects(com.kolown.porring.core.network.model.PostDto::class.java)
-                        .map { it.toPostModel(randomType) }
-                }.await()
-
-                posts + additions
-            } else {
-                posts
-            }
-        }
+    private suspend fun fetchPosts(key: Long, pageSize: Long) {
+        val posts = firestore.fetchRandomPost(
+            userId = currentUserId,
+            randomType = randomType,
+            seed = key,
+            pageSize = pageSize
+        )
 
         localPostDataSource.insertItems(
-            results.getPostContent(),
+            posts.map { it.toOtherData() },
             com.kolown.porring.core.data.model.PostsUsageType.PAGING
         )
 
-        val currentLastKey = results.lastOrNull()?.random ?: nextKey
+        val currentLastKey = posts.lastOrNull()?.random ?: nextKey
 
         nextKey = currentLastKey + 1
-    }
-
-    private suspend fun List<PostModel>.getPostContent(): List<PostUiModel> {
-        val posts = this
-        val (tags, reactions, isFollowers) = coroutineScope {
-            val tagsDeferred = async {
-                posts.map {
-                    async {
-                        tagDataSource.getPostTag(it.postId).getOrElse {
-                            throw IOException("태그 불러오기 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-            val reactionsDeferred = async {
-                posts.map {
-                    async {
-                        reactionDataSource.getReactionByPostId(it.postId).getOrElse {
-                            throw IOException("리액션 불러오기 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-            val followDeferred = async {
-                posts.map {
-                    async {
-                        followDataSource.getIsFollower(
-                            userId = currentUserId,
-                            followerId = it.authorId
-                        ).getOrElse {
-                            throw IOException("팔로우 확인 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-
-            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
-        }
-
-        return posts.mapIndexed { index, postModel ->
-            PostUiModel(
-                postId = postModel.postId,
-                authorId = postModel.authorId,
-                imageUrl = postModel.imageUrl,
-                registerAt = postModel.registerAt,
-                description = postModel.description,
-                tags = tags[index].map { it.tagName },
-                isFollowing = isFollowers[index],
-                reactions = reactions[index].mapNotNull { it.reaction },
-                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
-            )
-        }
     }
 }

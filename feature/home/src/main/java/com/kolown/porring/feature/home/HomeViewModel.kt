@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.ui.mapper.toModel
+import com.kolown.porring.core.ui.mapper.toUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -53,7 +55,7 @@ class HomeViewModel @Inject constructor(
             postRepository.getHomeItemPosts()
                 .onStart { _uiState.update { UiState.Loading } }
                 .catch { e -> _uiState.update { UiState.Failure(e) } }
-                .collectLatest { posts -> _uiState.update { UiState.Success(posts) } }
+                .collectLatest { posts -> _uiState.update { UiState.Success(posts.map { it.toUiModel() }) } }
         }
     }
 
@@ -99,10 +101,10 @@ class HomeViewModel @Inject constructor(
             postRepository.updatePostReaction(postId, reaction)
         }
 
-    fun onClickItem(postUiModel: PostUiModel) {
+    fun onClickItem(post: PostUiModel) {
         viewModelScope.launch {
             postRepository.clearPagingItems()
-            postRepository.insertPagingItem(postUiModel)
+            postRepository.insertPagingItem(post.toModel())
         }
     }
 }

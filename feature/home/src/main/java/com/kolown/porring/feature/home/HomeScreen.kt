@@ -49,7 +49,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UiState
@@ -63,6 +62,7 @@ import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 import com.kolown.porring.core.ui.component.toImage
+import com.kolown.porring.core.ui.model.PostUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

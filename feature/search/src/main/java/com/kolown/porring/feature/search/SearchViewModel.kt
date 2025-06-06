@@ -3,11 +3,13 @@ package com.kolown.porring.feature.search
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.TagRepository
-import com.kolown.porring.core.model.PostUiModel
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.base.BaseMviViewModel
+import com.kolown.porring.core.ui.mapper.toUiModel
+import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.search.model.SearchUiIntent
 import com.kolown.porring.feature.search.model.SearchUiSideEffect
 import com.kolown.porring.feature.search.model.SearchUiState
@@ -48,6 +50,7 @@ internal class SearchViewModel @Inject constructor(
         .debounce(300)
         .distinctUntilChanged()
         .flatMapLatest(postRepository::getPostBySearch)
+        .map { pagingData -> pagingData.map { it.toUiModel() } }
         .cachedIn(viewModelScope)
 
     val imagesFlow: Flow<PagingData<PostUiModel>> =

@@ -9,41 +9,29 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.mapper.toOtherData
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
 import com.kolown.porring.core.model.PageState
-import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.PostUiModel
-import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.FollowDataSource
-import com.kolown.porring.core.network.ReactionDataSource
-import com.kolown.porring.core.network.TagDataSource
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.io.IOException
-import javax.inject.Named
 
 @OptIn(ExperimentalPagingApi::class)
 class UserDetailPostRemoteMediator @AssistedInject constructor(
     @Assisted("author_id") private val authorId: String,
     @Assisted("post_id") private val postId: String?,
     @Assisted private val pageState: StateFlow<PageState>,
-    @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
-    private val tagDataSource: TagDataSource,
-    private val reactionDataSource: ReactionDataSource,
-    private val followDataSource: FollowDataSource,
 ) : RemoteMediator<Int, OtherPostData>() {
     private var isLoading = false
 
@@ -92,54 +80,38 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
         }
     }
 
-    private suspend fun onListRefresh(pageSize: Long, authorId: String) {
-        val posts = Firebase.firestore.collection("post")
-            .whereEqualTo("authorId", authorId)
-            .orderBy("registerAt", Query.Direction.DESCENDING)
-            .limit(pageSize)
-            .get()
-            .await()
-            .toObjects(PostDto::class.java)
-            .map { it.toPostModel() }
-            .getPostContent()
-
-        localPostDataSource.insertItems(
-            posts,
-            PostsUsageType.PAGING
-        )
-    }
-
-    private suspend fun onDetailRefresh(pageSize: Long, postUiModelItem: PostUiModel?) {
+    private suspend fun onDetailRefresh(
+        pageSize: Long,
+        firstPost: OtherPostData?
+    ) {
         val result = coroutineScope {
             val prev = async {
                 Firebase.firestore.collection("post")
                     .whereEqualTo("authorId", authorId)
                     .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .endBefore(postUiModelItem?.registerAt)
+                    .endBefore(firstPost?.registerAt)
                     .limitToLast(pageSize)
                     .get()
                     .await()
                     .toObjects(PostDto::class.java)
                     .map { it.toPostModel() }
-                    .getPostContent()
             }
             val next = async {
                 Firebase.firestore.collection("post")
                     .whereEqualTo("authorId", authorId)
                     .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .startAfter(postUiModelItem?.registerAt)
+                    .startAfter(firstPost?.registerAt)
                     .limit(pageSize)
                     .get()
                     .await()
                     .toObjects(PostDto::class.java)
                     .map { it.toPostModel() }
-                    .getPostContent()
             }
             prev.await() + next.await()
         }
 
         localPostDataSource.insertItems(
-            result,
+            result.map { it.toOtherData() },
             PostsUsageType.PAGING
         )
     }
@@ -156,10 +128,9 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             .await()
             .toObjects(PostDto::class.java)
             .map { it.toPostModel() }
-            .getPostContent()
 
         localPostDataSource.insertItems(
-            result,
+            result.map { it.toOtherData() },
             PostsUsageType.PAGING
         )
     }
@@ -176,64 +147,10 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
             .await()
             .toObjects(PostDto::class.java)
             .map { it.toPostModel() }
-            .getPostContent()
 
         localPostDataSource.insertItems(
-            result,
+            result.map { it.toOtherData() },
             PostsUsageType.PAGING
         )
-    }
-
-    private suspend fun List<PostModel>.getPostContent(): List<PostUiModel> {
-        val currentUserId = googleAuthDataSource.getUserId()
-        val posts = this
-        val (tags, reactions, isFollowers) = coroutineScope {
-            val tagsDeferred = async {
-                posts.map {
-                    async {
-                        tagDataSource.getPostTag(it.postId).getOrElse {
-                            throw IOException("태그 불러오기 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-            val reactionsDeferred = async {
-                posts.map {
-                    async {
-                        reactionDataSource.getReactionByPostId(it.postId).getOrElse {
-                            throw IOException("리액션 불러오기 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-            val followDeferred = async {
-                posts.map {
-                    async {
-                        followDataSource.getIsFollower(
-                            userId = currentUserId,
-                            followerId = it.authorId
-                        ).getOrElse {
-                            throw IOException("팔로우 확인 실패")
-                        }
-                    }
-                }.awaitAll()
-            }
-
-            Triple(tagsDeferred.await(), reactionsDeferred.await(), followDeferred.await())
-        }
-
-        return posts.mapIndexed { index, postModel ->
-            PostUiModel(
-                postId = postModel.postId,
-                authorId = postModel.authorId,
-                imageUrl = postModel.imageUrl,
-                registerAt = postModel.registerAt,
-                description = postModel.description,
-                tags = tags[index].map { it.tagName },
-                isFollowing = isFollowers[index],
-                reactions = reactions[index].mapNotNull { it.reaction },
-                myReaction = reactions[index].find { it.userId == currentUserId }?.reaction
-            )
-        }
     }
 }
