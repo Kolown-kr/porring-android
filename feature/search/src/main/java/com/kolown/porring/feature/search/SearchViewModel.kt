@@ -18,7 +18,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
@@ -61,7 +63,7 @@ internal class SearchViewModel @Inject constructor(
             is SearchUiIntent.OnQueryChanged -> onQueryChanged(intent.query)
             is SearchUiIntent.OnFocusChanged -> onFocusChanged(intent.hasFocus)
             is SearchUiIntent.OnTagClicked -> onTagClicked(intent.tag)
-            is SearchUiIntent.OnImageClicked -> launch { postSideEffect(SearchUiSideEffect.NavigateToDetail) }
+            is SearchUiIntent.OnImageClicked -> launch { postSideEffect(SearchUiSideEffect.NavigateToDetail(tagSelectedFlow.first(), intent.postId)) }
         }
     }
 

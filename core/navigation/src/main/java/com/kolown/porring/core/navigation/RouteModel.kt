@@ -58,7 +58,7 @@ sealed interface MainMenuRoute : Route {
         MainMenuRoute {
         @Serializable
         enum class Type {
-            DEFAULT, MY, FOLLOW
+            DEFAULT, MY, FOLLOW, SEARCH
         }
     }
 

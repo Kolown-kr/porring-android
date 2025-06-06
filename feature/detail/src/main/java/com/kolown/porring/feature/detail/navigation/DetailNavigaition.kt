@@ -29,6 +29,7 @@ fun NavGraphBuilder.detailNavGraph(
             padding = padding,
             type = it.toRoute<MainMenuRoute.Detail>().type,
             order = it.toRoute<MainMenuRoute.Detail>().order,
+            authorId = it.toRoute<MainMenuRoute.Detail>().authorId,
             postId = it.toRoute<MainMenuRoute.Detail>().postId,
             navigateToTheir = navigateToTheir,
             popBackStack = popBackStack,

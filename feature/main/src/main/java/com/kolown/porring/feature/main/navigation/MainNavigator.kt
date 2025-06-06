@@ -86,9 +86,11 @@ internal class MainNavigator(
 
     fun navigateToJoin() = navController.navigateToJoin(navOptions = singleTopOptions)
 
-    fun navigateToDetailSearch() = navController.navigateToDetail(
-        MainMenuRoute.Detail.Type.DEFAULT,
+    fun navigateToDetailSearch(tagId: String, postId: String) = navController.navigateToDetail(
+        MainMenuRoute.Detail.Type.SEARCH,
         0,
+        postId = postId,
+        authorId = tagId,
         navOptions = singleTopOptions
     )
 

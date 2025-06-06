@@ -24,7 +24,7 @@ fun NavController.navigateSearchDetail(navOptions: NavOptions) {
 
 fun NavGraphBuilder.searchNavGraph(
     padding: PaddingValues,
-    navigateToSearchDetail: () -> Unit,
+    navigateToSearchDetail: (String, String) -> Unit = {_,_ -> }
 ) {
     composable<MainMenuRoute.Search> {
         SearchRoute(

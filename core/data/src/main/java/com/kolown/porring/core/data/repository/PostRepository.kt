@@ -10,7 +10,6 @@ import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
 import com.kolown.porring.core.data.datasource.paging.RandomPagingDataSource
-import com.kolown.porring.core.data.datasource.paging.SearchPagingSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingDataSource
 import com.kolown.porring.core.data.datasource.paging.UserPagingKey
 import com.kolown.porring.core.data.model.LocalItemType.HOME_ITEM
@@ -185,7 +184,10 @@ class PostRepositoryImpl @Inject constructor(
         postId: String?
     ): Flow<PagingData<PostContentModel>> {
         return when (postType) {
-            PostType.RANDOM_DETAIL -> getRandomPagingItem(postType.pageSize, pageState)
+            PostType.RANDOM_DETAIL -> getRandomPagingItem(
+                postType.pageSize,
+                pageState,
+            )
             PostType.USER_DETAIL -> getUserDetailPagingItem(
                 postType.pageSize,
                 pageState,
@@ -480,7 +482,8 @@ class PostRepositoryImpl @Inject constructor(
             val followDeferred = async {
                 posts.map {
                     async {
-                        followDataSource.getIsFollower(currentUserId, it.authorId).getOrElse { false }
+                        followDataSource.getIsFollower(currentUserId, it.authorId)
+                            .getOrElse { false }
                     }
                 }.awaitAll()
             }
