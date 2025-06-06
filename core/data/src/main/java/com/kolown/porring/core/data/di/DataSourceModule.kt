@@ -8,8 +8,6 @@ import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.ImageDataSourceImpl
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.PostDataSourceImpl
-import com.kolown.porring.core.network.ReactionDataSource
-import com.kolown.porring.core.network.ReactionDataSourceImpl
 import com.kolown.porring.core.network.TagDataSource
 import com.kolown.porring.core.network.TagDataSourceImpl
 import dagger.Binds
@@ -36,11 +34,6 @@ abstract class DataSourceModule {
     abstract fun bindTagDataSource(
         tagDataSource: TagDataSourceImpl,
     ): TagDataSource
-
-    @Binds
-    abstract fun bindReactionDataSource(
-        reactionDataSource: ReactionDataSourceImpl,
-    ): ReactionDataSource
 
     @Named("google")
     @Binds
