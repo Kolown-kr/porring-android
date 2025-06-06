@@ -94,6 +94,14 @@ internal fun DetailRoute(
     }
 
     LaunchedEffect(Unit) {
+        viewModel.initViewModel(
+            type = type,
+            postId = postId,
+            authorId = authorId
+        )
+    }
+
+    LaunchedEffect(Unit) {
         snapshotFlow { posts.itemSnapshotList.items }
             .filter { it.isNotEmpty() }
             .first()
