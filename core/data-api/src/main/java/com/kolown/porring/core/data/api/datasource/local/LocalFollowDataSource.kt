@@ -1,13 +1,13 @@
 package com.kolown.porring.core.data.api.datasource.local
 
 import androidx.paging.PagingSource
-import com.kolown.porring.core.model.Follower
+import com.kolown.porring.core.data.model.FollowData
 import kotlinx.coroutines.flow.Flow
 
 interface LocalFollowDataSource {
-    suspend fun insertFollowers(followers: List<Follower>)
-    fun getFollowerName(followerId: String): Flow<String?>
-    fun getFollowers(): PagingSource<Int, Follower>
-    suspend fun clearFollowers()
-    suspend fun deleteFollower(followerId: String)
+    suspend fun insertFollows(follows: List<FollowData>)
+    fun getFollowName(id: String): Flow<String?>
+    fun getFollows(): PagingSource<Int, FollowData>
+    suspend fun clearFollows()
+    suspend fun deleteFollow(id: String)
 }

@@ -51,11 +51,15 @@ import javax.inject.Named
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
+
     fun getPostBySearch(tagId: String): Flow<PagingData<PostContentModel>>
+
     suspend fun getHomeItemPosts(): Flow<List<PostContentModel>>
     suspend fun fetchHomeItemPosts()
+
     suspend fun insertPagingItem(item: PostContentModel)
     suspend fun clearPagingItems()
+
     fun getPagingItemPosts(
         postType: PostType,
         pageState: StateFlow<PageState>?,

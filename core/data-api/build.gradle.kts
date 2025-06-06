@@ -7,9 +7,7 @@ plugins {
 setNamespace("core.data.api")
 
 dependencies {
-    implementation(projects.core.model)
-    
     //paging
     implementation(libs.androidx.paging.runtime)
-
+    implementation(project(":core:model"))
 }

@@ -1,11 +1,9 @@
 package com.kolown.porring.core.local.mapper
 
-import com.kolown.porring.core.local.entity.FollowerEntity
-import com.kolown.porring.core.model.Follower
+import com.kolown.porring.core.data.model.FollowData
+import com.kolown.porring.core.local.entity.FollowEntity
 
-internal fun Follower.toEntity(): FollowerEntity {
-    return FollowerEntity(
-        followerId = followerId,
-        name = followerName,
-    )
-}
+internal fun FollowData.toEntity(): FollowEntity = FollowEntity(
+    id = this.id,
+    name = this.name,
+)

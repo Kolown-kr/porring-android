@@ -9,7 +9,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
-import com.kolown.porring.core.data.model.OtherPostDto
+import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostContentModel
 import com.kolown.porring.core.model.PostModel
@@ -40,7 +40,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
     private val tagDataSource: TagDataSource,
     private val reactionDataSource: ReactionDataSource,
     private val followDataSource: FollowDataSource,
-) : RemoteMediator<Int, OtherPostDto>() {
+) : RemoteMediator<Int, OtherPostData>() {
     private var isLoading = false
     private var nextKey = 0L
     private val currentUserId = googleAuthDataSource.getUserId()
@@ -48,7 +48,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
 
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, OtherPostDto>
+        state: PagingState<Int, OtherPostData>
     ): MediatorResult {
         return try {
             withContext(Dispatchers.IO) {
