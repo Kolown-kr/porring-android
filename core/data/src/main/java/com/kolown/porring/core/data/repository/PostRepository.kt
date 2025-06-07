@@ -66,7 +66,7 @@ interface PostRepository {
 
     fun getMyPosts(): Flow<PagingData<MyPost>>
     suspend fun fetchMyPosts()
-    suspend fun deletePost(postId: String): Flow<Result<Unit>>
+    suspend fun deletePost(postId: String): Result<Unit>
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -324,7 +324,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deletePost(postId: String): Flow<Result<Unit>> {
+    override suspend fun deletePost(postId: String): Result<Unit> {
         localPostDataSource.deleteMyPost(postId)
 
         return postDataSource.deletePost(postId)

@@ -3,7 +3,6 @@ package com.kolown.porring.core.network
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.kolown.porring.core.common.safeFlow
 import com.kolown.porring.core.model.PostModel
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.network.model.PostDto
@@ -11,7 +10,6 @@ import com.kolown.porring.core.network.model.toPostModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -37,7 +35,7 @@ interface PostDataSource {
     fun resetLastVisible()
     fun setPostReaction(userId: String, postId: String, reaction: Reaction)
     fun deletePostReaction(postId: String, userId: String)
-    suspend fun deletePost(postId: String): Flow<Result<Unit>>
+    suspend fun deletePost(postId: String): Result<Unit>
     suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>>
 }
 
@@ -242,13 +240,12 @@ class PostDataSourceImpl @Inject constructor(
         reactionsCollection.document(userId).delete()
     }
 
-    override suspend fun deletePost(postId: String): Flow<Result<Unit>> = safeFlow(
-        onError = { e -> Result.failure(e) }
-    ) {
-        val documentId = postId.substringAfter("-")
+    override suspend fun deletePost(postId: String): Result<Unit> {
+        return kotlin.runCatching {
+            val documentId = postId.substringAfter("-")
 
-        postCollection.document(documentId).delete().await()
-        emit(Result.success(Unit))
+            postCollection.document(documentId).delete().await()
+        }
     }
 
     override suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>> {

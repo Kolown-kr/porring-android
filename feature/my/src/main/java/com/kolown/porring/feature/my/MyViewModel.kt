@@ -25,7 +25,9 @@ class MyViewModel @Inject constructor(
 
     fun deletePost(postId: String) {
         viewModelScope.launch {
-            postRepository.deletePost(postId)
+            if (postRepository.deletePost(postId).isSuccess) {
+                postRepository.fetchMyPosts()
+            }
         }
     }
 }
