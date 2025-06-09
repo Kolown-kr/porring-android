@@ -94,7 +94,7 @@ class PostRepositoryImpl @Inject constructor(
 
             // 기존 imageUrl만 따로 업로드 하던 형태에서 함께 업로드 되도록 수정
             val postIdDeferred = async {
-                retryWithLimit { postDataSource.uploadPost(authorId, description, imageUrl) }
+                retryWithLimit { postDataSource.uploadPost(authorId, description, imageUrl, tags) }
             }
             val tagIdsDeferred = async {
                 retryWithLimit { tagDataSource.uploadTags(tags) }
@@ -107,7 +107,7 @@ class PostRepositoryImpl @Inject constructor(
                 // 만약 post는 성공했고 post가 firestore에 등록이 되었으면 자원 관리를 위해 해당 포스트 삭제
                 // 해당 코드가 필요없으면 삭제 요망
                 val postId = postResult.getOrNull()
-                if(postId != null) {
+                if (postId != null) {
                     postDataSource.deletePost(postId)
                 }
 
