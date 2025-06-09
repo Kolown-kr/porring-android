@@ -58,6 +58,7 @@ import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.feature.upload.component.CategoryGroup
 
 @Composable
@@ -68,8 +69,11 @@ internal fun UploadRoute(
     navigateToHome: () -> Unit,
 ) {
     val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
+    val uploadImageState by viewModel.uploadImage.collectAsStateWithLifecycle()
+    val uploadAttempted by viewModel.uploadAttempted.collectAsStateWithLifecycle()
     val uploadEnable by viewModel.uploadEnable.collectAsStateWithLifecycle()
 
+    val snackBarBridge = LocalSnackBarBridge.current
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val previousSize = remember { mutableIntStateOf(uploadState.categoryItems.size) }
@@ -81,6 +85,12 @@ internal fun UploadRoute(
 
     BackHandler {
         navigateToHome()
+    }
+
+    LaunchedEffect(uploadAttempted, uploadImageState) {
+        if (uploadAttempted && uploadImageState.isBlank()) {
+            snackBarBridge.postSnackBarString("업로드를 다시 시도해주세요.")
+        }
     }
 
     LaunchedEffect(Unit) {

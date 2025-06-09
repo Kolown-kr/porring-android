@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 interface PostDataSource {
     suspend fun uploadPost(authorId: String, description: String): Result<String>
-    suspend fun updateImageUrl(documentId: String, imageUrl: String)
+    suspend fun updateImageUrl(documentId: String, imageUrl: String): Result<Unit>
     suspend fun getRandomPost(uid: String, page: Long, perPage: Long): Result<List<PostModel>>
     suspend fun getRandomPost(
         uid: String,
@@ -108,8 +108,12 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateImageUrl(documentId: String, imageUrl: String) {
-        postCollection.document(documentId).update("imageUrl", imageUrl)
+    override suspend fun updateImageUrl(documentId: String, imageUrl: String): Result<Unit> {
+        return runCatching {
+            postCollection.document(documentId)
+                .update("imageUrl", imageUrl)
+                .await()
+        }
     }
 
     override suspend fun getRandomPost(

@@ -18,6 +18,7 @@ import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFacto
 import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.DETAIL_PER_PAGE
 import com.kolown.porring.core.data.repository.PostRepositoryImpl.Companion.GALLERY_PAGE_SIZE
+import com.kolown.porring.core.data.utils.retryWithLimit
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostModel
@@ -70,7 +71,6 @@ interface PostRepository {
 }
 
 class PostRepositoryImpl @Inject constructor(
-    private val imageDataSource: ImageDataSource,
     private val postDataSource: PostDataSource,
     private val tagDataSource: TagDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
@@ -84,7 +84,7 @@ class PostRepositoryImpl @Inject constructor(
     override fun getUploadFeedBack(): Flow<UploadFeedBack> = _uploadFeedBack.asSharedFlow()
 
     override fun uploadPost(
-        fileUri: Uri,
+        fileUri: String,
         description: String,
         tags: List<String>,
     ) {
@@ -111,7 +111,16 @@ class PostRepositoryImpl @Inject constructor(
 
                 val (postId, tagIds) = postIdDeferred.await() to tagIdsDeferred.await()
 
-                launch {
+                val updateImageDeferred = async {
+                    retryWithLimit {
+                        val documentId = postId.substringAfter("-")
+                        postDataSource.updateImageUrl(documentId, fileUri).getOrElse {
+                            throw IOException("이미지 업로드 실패")
+                        }
+                    }.getOrThrow()
+                }
+
+                val uploadPostTagsDeferred = async {
                     retryWithLimit {
                         tagDataSource.uploadPostTags(tagIds, postId).getOrElse {
                             throw IOException("포스트 태그 업로드 실패")
@@ -119,19 +128,17 @@ class PostRepositoryImpl @Inject constructor(
                     }.getOrThrow()
                 }
 
-                launch {
-                    retryWithLimit {
-                        updateImageUrl(postId, fileUri).getOrElse {
-                            throw IOException("이미지 uri 업로드 실패")
-                        }
-                    }.getOrThrow()
-                }
+                awaitAll(
+                    updateImageDeferred,
+                    uploadPostTagsDeferred
+                )
+
                 _uploadFeedBack.emit(UploadFeedBack.Success)
             } catch (e: Exception) {
                 _uploadFeedBack.emit(
                     UploadFeedBack.Error(
                         UploadModel(
-                            fileUri.toString(),
+                            fileUri,
                             description,
                             tags
                         )
@@ -330,40 +337,12 @@ class PostRepositoryImpl @Inject constructor(
         return postDataSource.deletePost(postId)
     }
 
-    private suspend fun updateImageUrl(postId: String, fileUri: Uri): Result<Unit> {
-        return runCatching {
-            val authorId = googleAuthDataSource.getUserId()
 
-            val documentId = postId.substringAfter("-")
-            val imageUrl = imageDataSource.getImageUrl(authorId, fileUri).getOrElse {
-                throw IOException("이미지 업로드 실패")
-            }
-            postDataSource.updateImageUrl(documentId, imageUrl)
-        }
-    }
-
-    override suspend fun insertPagingItem(item: PostModel) {
+    override suspend fun insertPagingItem(item: PostContentModel) {
         localPostDataSource.insertItems(
             listOf(item.toOtherData()),
             PAGING
         )
-    }
-
-    private suspend fun <T> retryWithLimit(
-        maxAttempts: Int = 3,
-        delayMillis: Long = 1000,
-        block: suspend () -> T
-    ): Result<T> {
-        repeat(maxAttempts - 1) { attempt ->
-            try {
-                return Result.success(block())
-            } catch (e: Exception) {
-                if (attempt < maxAttempts - 1) {
-                    delay(delayMillis)
-                }
-            }
-        }
-        return runCatching { block() }
     }
 
     private suspend fun fetchPostContentModelsByTagId(
