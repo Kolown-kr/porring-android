@@ -14,7 +14,13 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface PostDataSource {
-    suspend fun uploadPost(authorId: String, description: String, imageUrl: String): Result<String>
+    suspend fun uploadPost(
+        authorId: String,
+        description: String,
+        imageUrl: String,
+        tags: List<String>
+    ): Result<String>
+
     suspend fun getRandomPost(uid: String, page: Long, perPage: Long): Result<List<PostModel>>
     suspend fun getRandomPost(
         uid: String,
@@ -93,13 +99,15 @@ class PostDataSourceImpl @Inject constructor(
     override suspend fun uploadPost(
         authorId: String,
         description: String,
-        imageUrl: String
+        imageUrl: String,
+        tags: List<String>
     ): Result<String> {
         return runCatching {
             val upload = PostDto(
                 authorId = authorId,
                 description = description,
                 imageUrl = imageUrl,
+                tags = tags,
                 registerAt = PorringDateTime.getNowDateTimeUTCString(),
             )
             postCollection.add(upload).await().let { documentReference ->
