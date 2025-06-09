@@ -2,13 +2,13 @@ package com.kolown.porring.feature.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.core.net.toUri
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.kolown.porring.core.common.retry
-import com.kolown.porring.core.data.repository.ImageGenerateRepository
+import com.kolown.porring.core.data.repository.ImageRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.Route
@@ -17,7 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,20 +27,25 @@ import kotlin.reflect.typeOf
 
 @HiltViewModel
 class UploadViewModel @Inject constructor(
-    private val repository: ImageGenerateRepository,
+    private val repository: ImageRepository,
     private val postRepository: PostRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val _uploadState = MutableStateFlow(UploadModel())
     val uploadState = _uploadState.asStateFlow()
 
-    val uploadEnable = uploadState.map { state ->
-        state.description.isNotBlank() && state.categoryItems.isNotEmpty() && state.imgUri.isNotBlank()
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
+    private val _uploadImage = MutableStateFlow("")
+    val uploadImage = _uploadImage.asStateFlow()
+
+    private val _uploadAttempted = MutableStateFlow(false)
+    val uploadAttempted = _uploadAttempted.asStateFlow()
+
+    val uploadEnable = combine(uploadState, uploadImage) { state, imageUrl ->
+        state.description.isNotBlank() &&
+                state.categoryItems.isNotEmpty() &&
+                state.imgUri.isNotBlank() &&
+                imageUrl.isNotBlank()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
         _uploadState.value = extractUploadModel()
@@ -90,12 +95,22 @@ class UploadViewModel @Inject constructor(
                     imgUri = webPUri.toString()
                 )
             }
+
+            repository.getImageUrl(fileUri = webPUri)
+                .onSuccess {
+                    _uploadImage.value = it
+                    _uploadAttempted.value = true
+                }
+                .onFailure {
+                    _uploadImage.value = ""
+                    _uploadAttempted.value = true
+                }
         }
     }
 
     fun uploadPost() {
         postRepository.uploadPost(
-            fileUri = uploadState.value.imgUri.toUri(),
+            fileUri = uploadImage.value,
             description = uploadState.value.description,
             tags = uploadState.value.categoryItems
         )

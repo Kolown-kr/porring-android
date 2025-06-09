@@ -8,13 +8,21 @@ import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import com.kolown.porring.core.data.utils.Constants.IMAGE_LONG
 import com.kolown.porring.core.data.utils.Constants.IMAGE_SHORT
+import com.kolown.porring.core.data.utils.retryWithLimit
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.ImageDataSource
+import com.kolown.porring.core.network.PostDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Named
 
-interface ImageGenerateRepository {
+interface ImageRepository {
+    suspend fun getImageUrl(fileUri: Uri): Result<String>
     suspend fun saveBitmapToCache(
         bitmap: Bitmap,
         format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
@@ -41,9 +49,22 @@ interface ImageGenerateRepository {
     suspend fun resizeBitmap(bitmap: Bitmap): Bitmap
 }
 
-class ImageGenerateRepositoryImpl(
-    private val applicationContext: Context
-) : ImageGenerateRepository {
+class ImageRepositoryImpl @Inject constructor(
+    private val applicationContext: Context,
+    private val imageDataSource: ImageDataSource,
+    @Named("google") private val googleAuthDataSource: AuthDataSource,
+) : ImageRepository {
+    override suspend fun getImageUrl(fileUri: Uri): Result<String> =
+        withContext(Dispatchers.IO) {
+            val authorId = googleAuthDataSource.getUserId()
+
+            retryWithLimit {
+                imageDataSource.getImageUrl(authorId, fileUri).getOrElse {
+                    throw IOException(it)
+                }
+            }
+        }
+
     override suspend fun saveBitmapToCache(
         bitmap: Bitmap,
         format: Bitmap.CompressFormat,

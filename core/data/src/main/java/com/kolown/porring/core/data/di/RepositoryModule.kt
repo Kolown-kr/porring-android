@@ -5,8 +5,8 @@ import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.AuthRepositoryImpl
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.FollowRepositoryImpl
-import com.kolown.porring.core.data.repository.ImageGenerateRepository
-import com.kolown.porring.core.data.repository.ImageGenerateRepositoryImpl
+import com.kolown.porring.core.data.repository.ImageRepository
+import com.kolown.porring.core.data.repository.ImageRepositoryImpl
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostRepositoryImpl
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
@@ -15,6 +15,8 @@ import com.kolown.porring.core.data.repository.TagRepository
 import com.kolown.porring.core.data.repository.TagRepositoryImpl
 import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.data.repository.UserRepositoryImpl
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.RemoteConfigDataSource
 import dagger.Binds
 import dagger.Module
@@ -22,12 +24,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 
 @Module
 @InstallIn(SingletonComponent::class)
-class ProvideRepositoryModule{
+class ProvideRepositoryModule {
     @Provides
     @Singleton
     fun providesRemoteConfigRepository(): RemoteConfigRepository {
@@ -36,8 +39,12 @@ class ProvideRepositoryModule{
 
     @Provides
     @Singleton
-    fun provideImageCacheRepository(@ApplicationContext applicationContext: Context): ImageGenerateRepository {
-        return ImageGenerateRepositoryImpl(applicationContext)
+    fun provideImageCacheRepository(
+        @ApplicationContext applicationContext: Context,
+        imageDataSource: ImageDataSource,
+        @Named("google") googleAuthDataSource: AuthDataSource
+    ): ImageRepository {
+        return ImageRepositoryImpl(applicationContext, imageDataSource, googleAuthDataSource)
     }
 }
 
