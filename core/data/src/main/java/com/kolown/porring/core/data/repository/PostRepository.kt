@@ -32,6 +32,7 @@ import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,7 +47,7 @@ import javax.inject.Named
 
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
-    fun uploadPost(fileUri: Uri, description: String, tags: List<String>)
+    fun uploadPost(fileUri: String, description: String, tags: List<String>)
 
     fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>>
 
@@ -338,7 +339,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun insertPagingItem(item: PostContentModel) {
+    override suspend fun insertPagingItem(item: PostModel) {
         localPostDataSource.insertItems(
             listOf(item.toOtherData()),
             PAGING
