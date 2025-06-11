@@ -5,13 +5,16 @@ import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.model.MyPostData
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
+import com.kolown.porring.core.data.model.ReactedPostData
 import com.kolown.porring.core.local.dao.PostDao
+import com.kolown.porring.core.local.dao.ReactedPostDao
 import com.kolown.porring.core.local.mapper.toEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultLocalPostDataSource @Inject constructor(
     private val postDao: PostDao,
+    private val reactedPostDao: ReactedPostDao,
 ) : LocalPostDataSource {
     override suspend fun insertItems(
         items: List<OtherPostData>,
@@ -44,31 +47,15 @@ class DefaultLocalPostDataSource @Inject constructor(
     }
 
     override suspend fun getMyReaction(postId: String): Int? {
-        val post = postDao.getItemById(postId) ?: return null
-
-        return post.myReaction
+        return reactedPostDao.getReactionByPostId(postId)
     }
 
-    override suspend fun setPostReaction(postId: String, reaction: Int) {
-        val post = postDao.getItemById(postId) ?: return
-        val myReaction = post.myReaction
-        val reactions = post.reactions.toMutableList()
-
-        myReaction?.let { reactions.remove(it) }
-        reactions.add(0, reaction)
-
-        postDao.updateReactions(postId, reactions.toList())
-        postDao.updateMyReaction(postId, reaction)
+    override suspend fun setPostReaction(reactedPost: ReactedPostData) {
+        reactedPostDao.insertReactedPost(reactedPost.toEntity())
     }
 
     override suspend fun deletePostReaction(postId: String) {
-        val post = postDao.getItemById(postId) ?: return
-        val reactions = post.reactions.toMutableList()
-
-        reactions.remove(post.myReaction)
-
-        postDao.updateReactions(postId, reactions.toList())
-        postDao.updateMyReaction(postId, null)
+        reactedPostDao.deleteReactedPost(postId)
     }
 
     override fun getMyPosts(): PagingSource<Int, MyPostData> {

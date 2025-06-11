@@ -10,7 +10,7 @@ data class PostDto(
     val registerAt: String = "",
     val description: String = "",
     val tags: List<String> = emptyList(),
-    val reactions: List<Int> = emptyList(),
+    val reactionCount: List<Int> = emptyList(),
     val myReaction: Int? = null,
     val randomA: Long = randomValue(),
     val randomB: Long = randomValue(),
@@ -29,7 +29,7 @@ fun PostDto.toPostModel(
         registerAt = this.registerAt,
         description = this.description,
         tags = this.tags,
-        reactions = this.reactions,
+        reactions = this.reactionCount.mapIndexedNotNull { index, i -> if (i > 0) index else null },
         myReaction = this.myReaction,
         random = when (seed) {
             "A" -> randomA

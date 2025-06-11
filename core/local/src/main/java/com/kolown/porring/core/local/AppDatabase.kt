@@ -5,11 +5,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.kolown.porring.core.local.dao.FollowDao
 import com.kolown.porring.core.local.dao.PostDao
+import com.kolown.porring.core.local.dao.ReactedPostDao
 import com.kolown.porring.core.local.entity.FollowEntity
 import com.kolown.porring.core.local.entity.HomePostKeyEntity
 import com.kolown.porring.core.local.entity.MyPostEntity
 import com.kolown.porring.core.local.entity.OtherPostEntity
 import com.kolown.porring.core.local.entity.PagingPostKeyEntity
+import com.kolown.porring.core.local.entity.ReactedPostEntity
 import com.kolown.porring.core.local.util.Converter
 
 @Database(
@@ -19,12 +21,14 @@ import com.kolown.porring.core.local.util.Converter
         OtherPostEntity::class,
         MyPostEntity::class,
         FollowEntity::class,
+        ReactedPostEntity::class,
     ],
-    version = 18,
+    version = 19,
     exportSchema = true,
 )
 @TypeConverters(Converter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun postDao(): PostDao
     abstract fun followerDao(): FollowDao
+    abstract fun reactedPostDao(): ReactedPostDao
 }

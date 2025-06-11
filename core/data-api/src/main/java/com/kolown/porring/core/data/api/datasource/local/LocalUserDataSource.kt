@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import com.kolown.porring.core.data.model.FollowData
 import kotlinx.coroutines.flow.Flow
 
-interface LocalFollowDataSource {
+interface LocalUserDataSource {
     suspend fun insertFollows(follows: List<FollowData>)
     fun getFollowName(id: String): Flow<String?>
     fun getFollows(): PagingSource<Int, FollowData>

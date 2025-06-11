@@ -4,7 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserDataSource
 import com.kolown.porring.core.data.mapper.toData
 import com.kolown.porring.core.data.model.FollowData
 import com.kolown.porring.core.model.Follow
@@ -32,12 +32,12 @@ interface FollowRepository {
 class FollowRepositoryImpl @Inject constructor(
     private val followDataSource: FollowDataSource,
     private val postDataSource: PostDataSource,
-    private val localFollowDataSource: LocalFollowDataSource,
+    private val localUserDataSource: LocalUserDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
 ) : FollowRepository {
 
     override suspend fun getFollowerName(followerId: String): Flow<String?> {
-        return localFollowDataSource.getFollowName(followerId)
+        return localUserDataSource.getFollowName(followerId)
     }
 
     override fun followUser(
@@ -46,7 +46,7 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        localFollowDataSource.insertFollows(
+        localUserDataSource.insertFollows(
             listOf(
                 FollowData(
                     id = id,
@@ -71,7 +71,7 @@ class FollowRepositoryImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        localFollowDataSource.deleteFollow(id)
+        localUserDataSource.deleteFollow(id)
         followDataSource.removeFollow(
             userId = currentUserId,
             followerId = id
@@ -84,11 +84,11 @@ class FollowRepositoryImpl @Inject constructor(
         val userId = googleAuthDataSource.getUserId()
         val follows = followDataSource.fetchFollows(userId)
 
-        localFollowDataSource.insertFollows(follows.map { it.toData() })
+        localUserDataSource.insertFollows(follows.map { it.toData() })
     }
 
     override suspend fun clearFollowCache() {
-        localFollowDataSource.clearFollows()
+        localUserDataSource.clearFollows()
     }
 
     override suspend fun getFollowsWithPaging(): Flow<PagingData<FollowWithThumbnail>> =
@@ -98,7 +98,7 @@ class FollowRepositoryImpl @Inject constructor(
                     pageSize = FOLLOWER_PER_PAGE,
                     enablePlaceholders = false,
                 ),
-                pagingSourceFactory = { localFollowDataSource.getFollows() }
+                pagingSourceFactory = { localUserDataSource.getFollows() }
             ).flow.map { pagingData ->
                 pagingData.map { follow ->
                     val posts =

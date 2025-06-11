@@ -29,4 +29,7 @@ class DatabaseModule {
 
     @Provides
     fun provideFollowerDao(database: AppDatabase) = database.followerDao()
+
+    @Provides
+    fun provideReactedPostDao(database: AppDatabase) = database.reactedPostDao()
 }

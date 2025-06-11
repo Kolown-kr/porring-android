@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
+import com.kolown.porring.core.data.mapper.toData
 import com.kolown.porring.core.data.mapper.toModel
 import com.kolown.porring.core.data.mapper.toMyData
 import com.kolown.porring.core.data.mapper.toOtherData
@@ -21,10 +22,12 @@ import com.kolown.porring.core.data.utils.retryWithLimit
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.ReactedPost
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.PorringDateTime.Companion.getNowDateTimeUTCString
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
@@ -236,7 +239,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        val posts = postDataSource.getRandomPost(
+        val posts = postDataSource.fetchRandomPost(
             currentUserId,
             HOME_ITEM_SIZE,
             RANDOM_SEED.random().toString()
@@ -254,33 +257,38 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun updatePostReaction(postId: String, reaction: Reaction) {
         val myReaction = localPostDataSource.getMyReaction(postId)
+        val currentTime = getNowDateTimeUTCString()
+        val reactedPost =
+            ReactedPost(postId = postId, reaction = reaction.value, registerAt = currentTime)
 
         if (myReaction == reaction.value) {
-            deletePostReaction(postId)
+            deletePostReaction(reactedPost)
         } else {
-            setPostReaction(postId, reaction)
+            setPostReaction(reactedPost, myReaction)
         }
     }
 
-    private suspend fun setPostReaction(postId: String, reaction: Reaction): Result<Unit> {
+    private suspend fun setPostReaction(
+        reactedPost: ReactedPost,
+        prevReaction: Int?
+    ): Result<Unit> {
         return kotlin.runCatching {
-            val currentUserId = googleAuthDataSource.getUserId()
-
-            localPostDataSource.setPostReaction(postId, reaction.value)
+            localPostDataSource.setPostReaction(reactedPost.toData())
             postDataSource.setPostReaction(
-                userId = currentUserId,
-                postId = postId,
-                reaction = reaction
+                postId = reactedPost.postId,
+                reaction = reactedPost.reaction,
+                prevReaction = prevReaction
             )
         }
     }
 
-    private suspend fun deletePostReaction(postId: String): Result<Unit> {
+    private suspend fun deletePostReaction(reactedPost: ReactedPost): Result<Unit> {
         return kotlin.runCatching {
-            val currentUserId = googleAuthDataSource.getUserId()
-
-            localPostDataSource.deletePostReaction(postId)
-            postDataSource.deletePostReaction(postId = postId, userId = currentUserId)
+            localPostDataSource.deletePostReaction(reactedPost.postId)
+            postDataSource.deletePostReaction(
+                postId = reactedPost.postId,
+                reaction = reactedPost.reaction
+            )
         }
     }
 

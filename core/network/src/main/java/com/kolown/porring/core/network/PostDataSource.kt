@@ -1,15 +1,12 @@
 package com.kolown.porring.core.network
 
-import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.firestore
 import com.kolown.porring.core.model.PostModel
-import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.network.model.PostDto
 import com.kolown.porring.core.network.model.toPostModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -21,14 +18,14 @@ interface PostDataSource {
         tags: List<String>
     ): Result<String>
 
-    suspend fun getRandomPost(uid: String, page: Long, perPage: Long): Result<List<PostModel>>
-    suspend fun getRandomPost(
+    suspend fun updateImageUrl(documentId: String, imageUrl: String)
+
+    suspend fun fetchRandomPost(
         uid: String,
         count: Int,
         randomType: String
     ): Result<List<PostModel>>
 
-    suspend fun getUserPost(uid: String, perPage: Long): Result<List<PostModel>>
     suspend fun getPostBySearch(
         currentUserId: String,
         postIds: List<String>,
@@ -37,9 +34,10 @@ interface PostDataSource {
     ): Result<List<PostModel>>
 
     suspend fun fetchPostWithAuthorId(authorId: String, limit: Long): Result<List<PostModel>>
-    fun resetLastVisible()
-    fun setPostReaction(userId: String, postId: String, reaction: Reaction)
-    fun deletePostReaction(postId: String, userId: String)
+
+    fun setPostReaction(postId: String, reaction: Int, prevReaction: Int?)
+    fun deletePostReaction(postId: String, reaction: Int)
+
     suspend fun deletePost(postId: String): Result<Unit>
     suspend fun getAllPostsByAuthorId(authorId: String): Result<List<PostModel>>
 }
@@ -49,36 +47,6 @@ class PostDataSourceImpl @Inject constructor(
 ) : PostDataSource {
     private val postCollection = firestore.collection("post")
     private var randomType = listOf("A", "B", "C", "D", "E").random()
-    private var lastVisible: DocumentSnapshot? = null
-
-    override fun resetLastVisible() {
-        lastVisible = null
-    }
-
-    override suspend fun getUserPost(uid: String, perPage: Long): Result<List<PostModel>> {
-        return runCatching {
-            if (lastVisible == null) {
-                postCollection
-                    .whereEqualTo("authorId", uid)
-                    .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .limit(perPage)
-                    .get()
-                    .await()
-                    .also { querySnapshot -> lastVisible = querySnapshot.documents.lastOrNull() }
-                    .mapNotNull { it.toObject(PostDto::class.java).toPostModel() }
-            } else {
-                postCollection
-                    .whereEqualTo("authorId", uid)
-                    .orderBy("registerAt", Query.Direction.DESCENDING)
-                    .startAfter(lastVisible!!)
-                    .limit(perPage)
-                    .get()
-                    .await()
-                    .also { querySnapshot -> lastVisible = querySnapshot.documents.lastOrNull() }
-                    .mapNotNull { it.toObject(PostDto::class.java).toPostModel() }
-            }
-        }
-    }
 
     override suspend fun fetchPostWithAuthorId(
         authorId: String,
@@ -91,8 +59,7 @@ class PostDataSourceImpl @Inject constructor(
                 .orderBy("registerAt", Query.Direction.DESCENDING)
                 .get()
                 .await()
-                .map { it.toObject(PostDto::class.java).toPostModel() }
-
+                .map { it.toObject(PostDto::class.java).toPostModel(randomType) }
         }
     }
 
@@ -117,7 +84,11 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRandomPost(
+    override suspend fun updateImageUrl(documentId: String, imageUrl: String) {
+        postCollection.document(documentId).update("imageUrl", imageUrl)
+    }
+
+    override suspend fun fetchRandomPost(
         uid: String,
         count: Int,
         randomType: String
@@ -161,52 +132,10 @@ class PostDataSourceImpl @Inject constructor(
                 initialPosts
             }
 
-            coroutineScope {
-                resultPosts.map { querySnapshot ->
-                    async {
-                        val reactionQuery = postCollection
-                            .document(querySnapshot.id)
-                            .collection("reactions")
-                            .get()
-                            .await()
-                        val reactions = reactionQuery
-                            .mapNotNull { it.getLong("reaction")?.toInt() }
-                            .distinct()
-                        val myReaction = reactionQuery
-                            .find { it.id == uid }
-                            ?.getLong("reaction")
-                            ?.toInt()
-
-                        querySnapshot.toObject(PostDto::class.java)
-                            .copy(
-                                reactions = reactions,
-                                myReaction = myReaction
-                            )
-                            .toPostModel(randomType)
-                    }
-                }.awaitAll()
+            resultPosts.map {
+                it.toObject(PostDto::class.java)
+                    .toPostModel(randomType)
             }
-        }
-    }
-
-    override suspend fun getRandomPost(
-        uid: String,
-        page: Long,
-        perPage: Long
-    ): Result<List<PostModel>> {
-        return runCatching {
-            val fetchPosts: suspend (Long) -> List<PostModel> = { key ->
-                postCollection
-                    .whereNotEqualTo("authorId", uid)
-                    .whereGreaterThan("random$randomType", key)
-                    .orderBy("random$randomType", Query.Direction.ASCENDING)
-                    .limit(perPage)
-                    .get()
-                    .await()
-                    .map { it.toObject(PostDto::class.java).toPostModel(randomType) }
-            }
-
-            fetchPosts(page).ifEmpty { fetchPosts(0) }
         }
     }
 
@@ -231,18 +160,33 @@ class PostDataSourceImpl @Inject constructor(
         }
     }
 
-    override fun setPostReaction(userId: String, postId: String, reaction: Reaction) {
+    override fun setPostReaction(postId: String, reaction: Int, prevReaction: Int?) {
         val id = postId.substringAfter("-")
-        val reactionsCollection = postCollection.document(id).collection("reactions")
+        val postRef = postCollection.document(id)
 
-        reactionsCollection.document(userId).set(mapOf("reaction" to reaction.value))
+        Firebase.firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(postRef)
+            val prevCount = snapshot.get("reactionCount") as? List<Long> ?: List(6) { 0L }
+            val newCount = prevCount.toMutableList()
+
+            prevReaction?.let { newCount[prevReaction] = newCount[prevReaction] - 1L }
+            newCount[reaction] = newCount[reaction] + 1L
+            transaction.update(postRef, "reactionCount", newCount)
+        }
     }
 
-    override fun deletePostReaction(postId: String, userId: String) {
+    override fun deletePostReaction(postId: String, reaction: Int) {
         val id = postId.substringAfter("-")
-        val reactionsCollection = postCollection.document(id).collection("reactions")
+        val postRef = postCollection.document(id)
 
-        reactionsCollection.document(userId).delete()
+        Firebase.firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(postRef)
+            val prevCount = snapshot.get("reactionCount") as? List<Long> ?: List(6) { 0L }
+            val newCount = prevCount.toMutableList()
+
+            newCount[reaction] = (newCount[reaction] - 1L).coerceAtLeast(0L)
+            transaction.update(postRef, "reactionCount", newCount)
+        }
     }
 
     override suspend fun deletePost(postId: String): Result<Unit> {

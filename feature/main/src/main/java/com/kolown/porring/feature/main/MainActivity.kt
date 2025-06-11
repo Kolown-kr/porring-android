@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
                     })
                 } else {
                     CompositionLocalProvider(LocalSnackBarBridge.provides(snackBarBridge)) {
+//                        AdminScreen()
                         MainScreen(
                             navigator = navigator,
                             mainViewModel
