@@ -10,8 +10,8 @@ import com.kolown.porring.core.data.model.FollowData
 import com.kolown.porring.core.model.Follow
 import com.kolown.porring.core.model.FollowWithThumbnail
 import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.FollowDataSource
 import com.kolown.porring.core.network.PostDataSource
+import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,7 +30,7 @@ interface FollowRepository {
 }
 
 class FollowRepositoryImpl @Inject constructor(
-    private val followDataSource: FollowDataSource,
+    private val userDataSource: UserDataSource,
     private val postDataSource: PostDataSource,
     private val localUserDataSource: LocalUserDataSource,
     @Named("google") private val googleAuthDataSource: AuthDataSource,
@@ -55,7 +55,7 @@ class FollowRepositoryImpl @Inject constructor(
             )
         )
 
-        followDataSource.uploadFollow(
+        userDataSource.uploadFollow(
             userId = currentUserId,
             follow = Follow(
                 id = id,
@@ -72,7 +72,7 @@ class FollowRepositoryImpl @Inject constructor(
         val currentUserId = googleAuthDataSource.getUserId()
 
         localUserDataSource.deleteFollow(id)
-        followDataSource.removeFollow(
+        userDataSource.removeFollow(
             userId = currentUserId,
             followerId = id
         ).collect { success ->
@@ -82,7 +82,7 @@ class FollowRepositoryImpl @Inject constructor(
 
     override suspend fun fetchFollows() {
         val userId = googleAuthDataSource.getUserId()
-        val follows = followDataSource.fetchFollows(userId)
+        val follows = userDataSource.fetchFollows(userId)
 
         localUserDataSource.insertFollows(follows.map { it.toData() })
     }
