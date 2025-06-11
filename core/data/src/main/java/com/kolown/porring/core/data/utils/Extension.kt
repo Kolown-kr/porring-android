@@ -5,16 +5,17 @@ import kotlinx.coroutines.delay
 internal suspend fun <T> retryWithLimit(
     maxAttempts: Int = 3,
     delayMillis: Long = 1000,
-    block: suspend () -> T
+    block: suspend () -> Result<T>
 ): Result<T> {
-    repeat(maxAttempts - 1) { attempt ->
-        try {
-            return Result.success(block())
-        } catch (e: Exception) {
-            if (attempt < maxAttempts - 1) {
-                delay(delayMillis)
-            }
-        }
+    var result = block()
+
+    if (result.isSuccess) return result
+
+    repeat(maxAttempts - 1) {
+        delay(delayMillis)
+        result = block()
+        if (result.isSuccess) return result
     }
-    return runCatching { block() }
+
+    return result
 }

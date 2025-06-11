@@ -1,6 +1,5 @@
 package com.kolown.porring.core.data.repository
 
-import android.net.Uri
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -26,7 +25,6 @@ import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
@@ -97,16 +95,12 @@ class PostRepositoryImpl @Inject constructor(
 
                 val postIdDeferred = async {
                     retryWithLimit {
-                        postDataSource.uploadPost(authorId, description).getOrElse {
-                            throw IOException("게시물 업로드 실패")
-                        }
+                        postDataSource.uploadPost(authorId, description)
                     }.getOrThrow()
                 }
                 val tagIdsDeferred = async {
                     retryWithLimit {
-                        tagDataSource.uploadTags(tags).getOrElse {
-                            throw IOException("태그 업로드 실패")
-                        }
+                        tagDataSource.uploadTags(tags)
                     }.getOrThrow()
                 }
 
@@ -115,17 +109,13 @@ class PostRepositoryImpl @Inject constructor(
                 val updateImageDeferred = async {
                     retryWithLimit {
                         val documentId = postId.substringAfter("-")
-                        postDataSource.updateImageUrl(documentId, fileUri).getOrElse {
-                            throw IOException("이미지 업로드 실패")
-                        }
+                        postDataSource.updateImageUrl(documentId, fileUri)
                     }.getOrThrow()
                 }
 
                 val uploadPostTagsDeferred = async {
                     retryWithLimit {
-                        tagDataSource.uploadPostTags(tagIds, postId).getOrElse {
-                            throw IOException("포스트 태그 업로드 실패")
-                        }
+                        tagDataSource.uploadPostTags(tagIds, postId)
                     }.getOrThrow()
                 }
 
