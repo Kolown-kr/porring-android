@@ -2,14 +2,14 @@ package com.kolown.porring.core.data.di
 
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.AuthDataSourceImpl
-import com.kolown.porring.core.network.FollowDataSource
-import com.kolown.porring.core.network.FollowDataSourceImpl
 import com.kolown.porring.core.network.ImageDataSource
 import com.kolown.porring.core.network.ImageDataSourceImpl
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.PostDataSourceImpl
 import com.kolown.porring.core.network.TagDataSource
 import com.kolown.porring.core.network.TagDataSourceImpl
+import com.kolown.porring.core.network.UserDataSource
+import com.kolown.porring.core.network.UserDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -43,6 +43,6 @@ abstract class DataSourceModule {
 
     @Binds
     abstract fun bindUploadDataSource(
-        followDataSource: FollowDataSourceImpl,
-    ): FollowDataSource
+        followDataSource: UserDataSourceImpl,
+    ): UserDataSource
 }

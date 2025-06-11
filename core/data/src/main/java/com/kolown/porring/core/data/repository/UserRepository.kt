@@ -1,8 +1,8 @@
 package com.kolown.porring.core.data.repository
 
-import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.RemoteUserDataSource
 import com.kolown.porring.core.datastore.LocalUserDataSource
+import com.kolown.porring.core.network.AuthDataSource
+import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Named
@@ -16,7 +16,7 @@ interface UserRepository {
 
 class UserRepositoryImpl @Inject constructor(
     @Named("google") private val authDataSource: AuthDataSource,
-    private val remoteUserDataSource: RemoteUserDataSource,
+    private val remoteUserDataSource: UserDataSource,
     private val localUserDataSource: LocalUserDataSource,
 ) : UserRepository {
     override suspend fun createUserData(): Result<Unit> {
