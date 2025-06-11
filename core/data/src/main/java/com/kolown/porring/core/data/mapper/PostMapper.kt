@@ -2,8 +2,10 @@ package com.kolown.porring.core.data.mapper
 
 import com.kolown.porring.core.data.model.MyPostData
 import com.kolown.porring.core.data.model.OtherPostData
+import com.kolown.porring.core.data.model.ReactedPostData
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.model.PostModel
+import com.kolown.porring.core.model.ReactedPost
 import com.kolown.porring.core.model.toReactions
 
 internal fun OtherPostData.toModel() = PostModel(
@@ -46,6 +48,12 @@ internal fun MyPostData.toModel() = MyPost(
     description = this.description,
     tags = this.tags,
     reactions = this.reactions.mapNotNull { it.toReactions() },
+)
+
+internal fun ReactedPost.toData() = ReactedPostData(
+    postId = this.postId,
+    reaction = this.reaction,
+    registerAt = this.registerAt
 )
 
 fun PostModel.toMyPost() = MyPost(

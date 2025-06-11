@@ -83,7 +83,13 @@ interface PostDao {
                 other.description AS description,
                 other.tags AS tags,
                 other.reactions AS reactions,
-                other.my_reaction AS myReaction,
+                
+                (
+                    SELECT reaction
+                    FROM reacted_post
+                    WHERE reacted_post.post_id = home.post_id
+                    LIMIT 1
+                ) AS myReaction,
                 
                 EXISTS (
                     SELECT 1
@@ -109,7 +115,13 @@ interface PostDao {
                 other.description AS description,
                 other.tags AS tags,
                 other.reactions AS reactions,
-                other.my_reaction AS myReaction,
+                
+                (
+                    SELECT reaction
+                    FROM reacted_post
+                    WHERE reacted_post.post_id = paging.post_id
+                    LIMIT 1
+                ) AS myReaction,
                 
                 EXISTS (
                     SELECT 1
@@ -143,7 +155,13 @@ interface PostDao {
             other.tags AS tags,
             other.reactions AS reactions,
             other.author_id AS authorId,
-            other.my_reaction AS myReaction,
+            
+            (
+                SELECT reaction
+                FROM reacted_post
+                WHERE reacted_post.post_id = paging.post_id
+                LIMIT 1
+            ) AS myReaction,
             
             EXISTS (
                 SELECT 1
@@ -171,7 +189,13 @@ interface PostDao {
             other.tags AS tags,
             other.reactions AS reactions,
             other.author_id AS authorId,
-            other.my_reaction AS myReaction,
+            
+            (
+                SELECT reaction
+                FROM reacted_post
+                WHERE reacted_post.post_id = paging.post_id
+                LIMIT 1
+            ) AS myReaction,
             
             EXISTS (
                 SELECT 1
@@ -197,7 +221,13 @@ interface PostDao {
             other.tags AS tags,
             other.reactions AS reactions,
             other.author_id AS authorId,
-            other.my_reaction AS myReaction,
+            
+            (
+                SELECT reaction
+                FROM reacted_post
+                WHERE reacted_post.post_id = other.post_id
+                LIMIT 1
+            ) AS myReaction,
             
             EXISTS (
                 SELECT 1

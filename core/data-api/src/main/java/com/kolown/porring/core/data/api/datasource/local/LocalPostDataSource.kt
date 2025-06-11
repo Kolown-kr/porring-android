@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import com.kolown.porring.core.data.model.MyPostData
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.PostsUsageType
+import com.kolown.porring.core.data.model.ReactedPostData
 import kotlinx.coroutines.flow.Flow
 
 interface LocalPostDataSource {
@@ -19,7 +20,7 @@ interface LocalPostDataSource {
     suspend fun deleteMyPost(postId: String)
 
     suspend fun getMyReaction(postId: String): Int?
-    suspend fun setPostReaction(postId: String, reaction: Int)
+    suspend fun setPostReaction(reactedPost: ReactedPostData)
     suspend fun deletePostReaction(postId: String)
     suspend fun insertMyPost(posts: List<MyPostData>)
     fun getMyPosts(): PagingSource<Int, MyPostData>

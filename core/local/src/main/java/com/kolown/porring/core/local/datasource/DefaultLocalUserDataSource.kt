@@ -1,16 +1,16 @@
 package com.kolown.porring.core.local.datasource
 
 import androidx.paging.PagingSource
-import com.kolown.porring.core.data.api.datasource.local.LocalFollowDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserDataSource
 import com.kolown.porring.core.data.model.FollowData
 import com.kolown.porring.core.local.dao.FollowDao
 import com.kolown.porring.core.local.mapper.toEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class DefaultLocalFollowDataSource @Inject constructor(
+class DefaultLocalUserDataSource @Inject constructor(
     private val followDao: FollowDao
-) : LocalFollowDataSource {
+) : LocalUserDataSource {
     override suspend fun insertFollows(follows: List<FollowData>) {
         followDao.insertFollows(follows.map { it.toEntity() })
     }
