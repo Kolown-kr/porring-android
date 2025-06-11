@@ -123,6 +123,7 @@ class PostRepositoryImpl @Inject constructor(
                     _uploadFeedBack.emit(UploadFeedBack.Success)
                 }
                 .onFailure {
+                    postDataSource.deletePost(postId)
                     _uploadFeedBack.emit(UploadFeedBack.Error(uploadModel))
                 }
         }
