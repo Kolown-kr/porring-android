@@ -11,13 +11,11 @@ import com.kolown.porring.core.data.utils.Constants.IMAGE_SHORT
 import com.kolown.porring.core.data.utils.retryWithLimit
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.ImageDataSource
-import com.kolown.porring.core.network.PostDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -59,9 +57,7 @@ class ImageRepositoryImpl @Inject constructor(
             val authorId = googleAuthDataSource.getUserId()
 
             retryWithLimit {
-                imageDataSource.getImageUrl(authorId, fileUri).getOrElse {
-                    throw IOException(it)
-                }
+                imageDataSource.getImageUrl(authorId, fileUri)
             }
         }
 
