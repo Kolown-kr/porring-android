@@ -30,7 +30,6 @@ import com.kolown.porring.core.network.TagDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,7 +44,7 @@ import javax.inject.Named
 
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
-    fun uploadPost(fileUri: String, description: String, tags: List<String>)
+    fun uploadPost(imageUrl: String, description: String, tags: List<String>)
 
     fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>>
 
@@ -83,59 +82,49 @@ class PostRepositoryImpl @Inject constructor(
     override fun getUploadFeedBack(): Flow<UploadFeedBack> = _uploadFeedBack.asSharedFlow()
 
     override fun uploadPost(
-        fileUri: String,
+        imageUrl: String,
         description: String,
         tags: List<String>,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            try {
-                _uploadFeedBack.emit(UploadFeedBack.Uploading)
+            _uploadFeedBack.emit(UploadFeedBack.Uploading)
 
-                val authorId = googleAuthDataSource.getUserId()
+            val authorId = googleAuthDataSource.getUserId()
+            val uploadModel = UploadModel(imageUrl, description, tags)
 
-                val postIdDeferred = async {
-                    retryWithLimit {
-                        postDataSource.uploadPost(authorId, description)
-                    }.getOrThrow()
-                }
-                val tagIdsDeferred = async {
-                    retryWithLimit {
-                        tagDataSource.uploadTags(tags)
-                    }.getOrThrow()
-                }
-
-                val (postId, tagIds) = postIdDeferred.await() to tagIdsDeferred.await()
-
-                val updateImageDeferred = async {
-                    retryWithLimit {
-                        val documentId = postId.substringAfter("-")
-                        postDataSource.updateImageUrl(documentId, fileUri)
-                    }.getOrThrow()
-                }
-
-                val uploadPostTagsDeferred = async {
-                    retryWithLimit {
-                        tagDataSource.uploadPostTags(tagIds, postId)
-                    }.getOrThrow()
-                }
-
-                awaitAll(
-                    updateImageDeferred,
-                    uploadPostTagsDeferred
-                )
-
-                _uploadFeedBack.emit(UploadFeedBack.Success)
-            } catch (e: Exception) {
-                _uploadFeedBack.emit(
-                    UploadFeedBack.Error(
-                        UploadModel(
-                            fileUri,
-                            description,
-                            tags
-                        )
-                    )
-                )
+            // 기존 imageUrl만 따로 업로드 하던 형태에서 함께 업로드 되도록 수정
+            val postIdDeferred = async {
+                retryWithLimit { postDataSource.uploadPost(authorId, description, imageUrl) }
             }
+            val tagIdsDeferred = async {
+                retryWithLimit { tagDataSource.uploadTags(tags) }
+            }
+
+            val (postResult, tagResult) = postIdDeferred.await() to tagIdsDeferred.await()
+
+            // postId와 tagId에 대한 작업 중 실패한 것이 존재할 때의 처리
+            if (postResult.isFailure || tagResult.isFailure) {
+                // 만약 post는 성공했고 post가 firestore에 등록이 되었으면 자원 관리를 위해 해당 포스트 삭제
+                // 해당 코드가 필요없으면 삭제 요망
+                val postId = postResult.getOrNull()
+                if(postId != null) {
+                    postDataSource.deletePost(postId)
+                }
+
+                _uploadFeedBack.emit(UploadFeedBack.Error(uploadModel))
+                return@launch
+            }
+
+            val postId = postResult.getOrThrow()
+            val tagIds = tagResult.getOrThrow()
+
+            tagDataSource.uploadPostTags(tagIds, postId)
+                .onSuccess {
+                    _uploadFeedBack.emit(UploadFeedBack.Success)
+                }
+                .onFailure {
+                    _uploadFeedBack.emit(UploadFeedBack.Error(uploadModel))
+                }
         }
     }
 

@@ -14,8 +14,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface PostDataSource {
-    suspend fun uploadPost(authorId: String, description: String): Result<String>
-    suspend fun updateImageUrl(documentId: String, imageUrl: String): Result<Unit>
+    suspend fun uploadPost(authorId: String, description: String, imageUrl: String): Result<String>
     suspend fun getRandomPost(uid: String, page: Long, perPage: Long): Result<List<PostModel>>
     suspend fun getRandomPost(
         uid: String,
@@ -93,26 +92,20 @@ class PostDataSourceImpl @Inject constructor(
 
     override suspend fun uploadPost(
         authorId: String,
-        description: String
+        description: String,
+        imageUrl: String
     ): Result<String> {
         return runCatching {
             val upload = PostDto(
                 authorId = authorId,
                 description = description,
+                imageUrl = imageUrl,
                 registerAt = PorringDateTime.getNowDateTimeUTCString(),
             )
             postCollection.add(upload).await().let { documentReference ->
                 documentReference.update("postId", "post-${documentReference.id}")
                 "post-${documentReference.id}"
             }
-        }
-    }
-
-    override suspend fun updateImageUrl(documentId: String, imageUrl: String): Result<Unit> {
-        return runCatching {
-            postCollection.document(documentId)
-                .update("imageUrl", imageUrl)
-                .await()
         }
     }
 

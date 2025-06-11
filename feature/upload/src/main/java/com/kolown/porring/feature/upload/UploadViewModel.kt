@@ -2,7 +2,6 @@ package com.kolown.porring.feature.upload
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -110,7 +109,7 @@ class UploadViewModel @Inject constructor(
 
     fun uploadPost() {
         postRepository.uploadPost(
-            fileUri = uploadImage.value,
+            imageUrl = uploadImage.value,
             description = uploadState.value.description,
             tags = uploadState.value.categoryItems
         )
