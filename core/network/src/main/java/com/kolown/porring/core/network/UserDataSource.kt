@@ -1,10 +1,8 @@
 package com.kolown.porring.core.network
 
-import android.util.Log
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.kolown.porring.core.model.Follow
+import com.kolown.porring.core.model.ReactedPost
 import com.kolown.porring.core.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -14,11 +12,11 @@ import javax.inject.Inject
 interface UserDataSource {
     suspend fun createUserData(user: User): Result<Unit>
 
-    suspend fun uploadFollow(
-        userId: String,
-        follow: Follow
-    ): Flow<Boolean>
+    suspend fun setReactedPost(userId: String, reactedPost: ReactedPost): Result<Unit>
+    suspend fun deleteReactedPost(userId: String, postId: String): Result<Unit>
+    suspend fun fetchAllReactedPost(userId: String): Result<List<ReactedPost>>
 
+    suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean>
     suspend fun fetchFollows(userId: String): List<Follow>
     suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
 }
@@ -31,6 +29,44 @@ class UserDataSourceImpl @Inject constructor(
     override suspend fun createUserData(user: User): Result<Unit> {
         return kotlin.runCatching {
             userCollection.document(user.userId).set(user).await()
+        }
+    }
+
+    override suspend fun setReactedPost(userId: String, reactedPost: ReactedPost): Result<Unit> {
+        return kotlin.runCatching {
+            val data = mapOf(
+                "reaction" to reactedPost.reaction,
+                "registerAt" to reactedPost.registerAt
+            )
+
+            userCollection
+                .document(userId)
+                .collection("reacted_post")
+                .document(reactedPost.postId)
+                .set(data)
+                .await()
+        }
+    }
+
+    override suspend fun deleteReactedPost(userId: String, postId: String): Result<Unit> {
+        return kotlin.runCatching {
+            userCollection
+                .document(userId)
+                .collection("reacted_post")
+                .document(postId)
+                .delete()
+        }
+    }
+
+    override suspend fun fetchAllReactedPost(userId: String): Result<List<ReactedPost>> {
+        return kotlin.runCatching {
+            userCollection
+                .document(userId)
+                .collection("reacted_post")
+                .get()
+                .await()
+                .documents
+                .mapNotNull { it.toObject(ReactedPost::class.java) }
         }
     }
 
@@ -52,7 +88,6 @@ class UserDataSourceImpl @Inject constructor(
         val followersCollection = userCollection
             .document(userId)
             .collection("followers")
-
         val followerDoc = followersCollection.document(followerId)
         val docResult = followerDoc.get().await()
 
@@ -80,21 +115,6 @@ class UserDataSourceImpl @Inject constructor(
                     name = it.getString("followerName") ?: "NULL"
                 )
             }
-        }
-    }
-
-    private suspend fun CollectionReference.contains(
-        userId: String,
-        followerId: String,
-    ): Result<QuerySnapshot> {
-        return runCatching {
-            this
-                .whereEqualTo("userId", userId)
-                .whereEqualTo("followerId", followerId)
-                .get()
-                .await()
-        }.onFailure {
-            Log.e("FollowContains", "contains: $it")
         }
     }
 }

@@ -31,9 +31,11 @@ class MainViewModel @Inject constructor(
     val loginState = authRepository.checkUserLoggedIn()
 
     init {
-        viewModelScope.launch { postRepository.fetchMyPosts() }
         loginState.onEach {
-            if (it) followRepository.fetchFollows()
+            if (it) {
+                postRepository.fetchMyPosts()
+                followRepository.fetchFollows()
+            }
         }.launchIn(viewModelScope)
     }
 

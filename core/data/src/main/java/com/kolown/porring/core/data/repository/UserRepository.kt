@@ -12,6 +12,7 @@ interface UserRepository {
     fun checkUserId(authorId: String): Boolean
     suspend fun getLatestUserEmail(): Flow<String>
     fun getUserData(): Result<String>
+    suspend fun fetchUserReactedPost(): Result<Unit>
 }
 
 class UserRepositoryImpl @Inject constructor(
@@ -24,6 +25,14 @@ class UserRepositoryImpl @Inject constructor(
             authDataSource.getUserInfo().let {
                 remoteUserDataSource.createUserData(it)
             }
+        }
+    }
+
+    override suspend fun fetchUserReactedPost(): Result<Unit> {
+        return kotlin.runCatching {
+            val currentUserId = authDataSource.getUserId()
+
+            remoteUserDataSource.fetchAllReactedPost(currentUserId)
         }
     }
 
