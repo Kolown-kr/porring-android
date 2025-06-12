@@ -42,9 +42,11 @@ class LoginViewModel @Inject constructor(
             authRepository.signInWithCredential(credential)
                 .onSuccess {
                     _loginState.update { UiState.Success("로그인 완료") }
+                    // TODO: UseCase생성 후 통합처리 하도록 이전해야 함
                     userRepository.createUserData()
                     followRepository.fetchFollows()
                     postRepository.fetchMyPosts()
+                    userRepository.fetchUserReactedPost()
                 }
                 .onFailure { e -> _loginState.update { UiState.Failure(e) } }
         }

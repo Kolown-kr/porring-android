@@ -58,7 +58,6 @@ interface PostRepository {
 
     suspend fun insertPagingItem(item: PostModel)
     suspend fun clearPagingItems()
-
     fun getPagingItemPosts(
         postType: PostType,
         pageState: StateFlow<PageState>?,
@@ -71,6 +70,7 @@ interface PostRepository {
     fun getMyPosts(): Flow<PagingData<MyPost>>
     suspend fun fetchMyPosts()
     suspend fun deletePost(postId: String): Result<Unit>
+    suspend fun clearMyPostCache()
 }
 
 class PostRepositoryImpl @Inject constructor(
@@ -343,6 +343,9 @@ class PostRepositoryImpl @Inject constructor(
         return postDataSource.deletePost(postId)
     }
 
+    override suspend fun clearMyPostCache() {
+        localPostDataSource.clearMyPost()
+    }
 
     override suspend fun insertPagingItem(item: PostModel) {
         localPostDataSource.insertItems(
