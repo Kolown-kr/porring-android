@@ -30,6 +30,7 @@ import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.PorringDateTime.Companion.getNowDateTimeUTCString
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.TagDataSource
+import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -74,6 +75,7 @@ interface PostRepository {
 class PostRepositoryImpl @Inject constructor(
     private val postDataSource: PostDataSource,
     private val tagDataSource: TagDataSource,
+    private val userDataSource: UserDataSource, // TODO: domain분리 후 useCase로 이관하며 삭제해야함
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
@@ -255,6 +257,7 @@ class PostRepositoryImpl @Inject constructor(
         )
     }
 
+    // TODO: domain생성후 useCase로 reactedPost를 유저 컬렉션에 등록하는 로직 이동해야함.
     override suspend fun updatePostReaction(postId: String, reaction: Reaction) {
         val myReaction = localPostDataSource.getMyReaction(postId)
         val currentTime = getNowDateTimeUTCString()
@@ -273,6 +276,12 @@ class PostRepositoryImpl @Inject constructor(
         prevReaction: Int?
     ): Result<Unit> {
         return kotlin.runCatching {
+            val currentUserId = googleAuthDataSource.getUserId()
+
+            userDataSource.setReactedPost(
+                userId = currentUserId,
+                reactedPost = reactedPost
+            )
             localPostDataSource.setPostReaction(reactedPost.toData())
             postDataSource.setPostReaction(
                 postId = reactedPost.postId,
@@ -284,6 +293,12 @@ class PostRepositoryImpl @Inject constructor(
 
     private suspend fun deletePostReaction(reactedPost: ReactedPost): Result<Unit> {
         return kotlin.runCatching {
+            val currentUserId = googleAuthDataSource.getUserId()
+
+            userDataSource.deleteReactedPost(
+                userId = currentUserId,
+                postId = reactedPost.postId
+            )
             localPostDataSource.deletePostReaction(reactedPost.postId)
             postDataSource.deletePostReaction(
                 postId = reactedPost.postId,
