@@ -17,7 +17,9 @@ interface UserRepository {
     fun checkUserId(authorId: String): Boolean
     suspend fun getLatestUserEmail(): Flow<String>
     fun getUserData(): Result<String>
+
     suspend fun fetchUserReactedPost(): Result<Unit>
+    suspend fun clearReactedPostCache()
 }
 
 class UserRepositoryImpl @Inject constructor(
@@ -34,16 +36,6 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchUserReactedPost(): Result<Unit> = withContext(Dispatchers.IO) {
-        return@withContext kotlin.runCatching {
-            val currentUserId = authDataSource.getUserId()
-            val reactedPosts =
-                remoteUserDataSource.fetchAllReactedPost(currentUserId).map { it.toModel() }
-
-            localUserCacheDataSource.insertReactedPosts(reactedPosts.map { it.toData() })
-        }
-    }
-
     override fun checkUserId(authorId: String): Boolean {
         return authDataSource.getUserId() == authorId
     }
@@ -56,5 +48,19 @@ class UserRepositoryImpl @Inject constructor(
         return runCatching {
             authDataSource.getUserId()
         }
+    }
+
+    override suspend fun fetchUserReactedPost(): Result<Unit> = withContext(Dispatchers.IO) {
+        return@withContext kotlin.runCatching {
+            val currentUserId = authDataSource.getUserId()
+            val reactedPosts =
+                remoteUserDataSource.fetchAllReactedPost(currentUserId).map { it.toModel() }
+
+            localUserCacheDataSource.insertReactedPosts(reactedPosts.map { it.toData() })
+        }
+    }
+
+    override suspend fun clearReactedPostCache() {
+        localUserCacheDataSource.clearReactedPost()
     }
 }
