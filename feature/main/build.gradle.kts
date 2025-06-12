@@ -22,6 +22,4 @@ dependencies {
     implementation(projects.feature.their)
     implementation(projects.feature.upload)
     implementation(projects.feature.imageEdit)
-    implementation(libs.firebase.common)
-    implementation(libs.firebase.firestore.ktx)
 }
