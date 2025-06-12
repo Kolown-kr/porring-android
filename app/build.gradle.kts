@@ -33,6 +33,7 @@ android {
 dependencies {
     implementation(projects.feature.main)
     implementation(projects.core.local)
+    implementation(projects.core.datastore)
 
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.firebase.crashlytics)

@@ -4,7 +4,7 @@ package com.kolown.porring.core.data.repository
 import androidx.credentials.Credential
 import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.kolown.porring.core.datastore.LocalUserDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserPrefDatasource
 import com.kolown.porring.core.network.AuthDataSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -20,7 +20,7 @@ interface AuthRepository {
 
 class AuthRepositoryImpl @Inject constructor(
     @Named("google") private val googleAuthDataSource: AuthDataSource,
-    private val localUserDataSource: LocalUserDataSource,
+    private val localUserPrefDatasourceImpl: LocalUserPrefDatasource,
 ) : AuthRepository {
     override suspend fun signInWithCredential(credential: Credential): Result<Unit> {
         return kotlin.runCatching {
@@ -48,7 +48,7 @@ class AuthRepositoryImpl @Inject constructor(
         return kotlin.runCatching {
             googleAuthDataSource.signInWithEmailAndPassword(email, password).getOrThrow()
                 .let { userDto ->
-                    localUserDataSource.createUserData(userDto)
+                    localUserPrefDatasourceImpl.createUserData(userDto)
                 }
         }
     }
@@ -57,7 +57,7 @@ class AuthRepositoryImpl @Inject constructor(
         return kotlin.runCatching {
             googleAuthDataSource.joinWithEmailAndPassword(email, password)
                 .onSuccess { userDto ->
-                    localUserDataSource.createUserData(userDto)
+                    localUserPrefDatasourceImpl.createUserData(userDto)
                     googleAuthDataSource.logout()
                 }
                 .onFailure { e -> throw e }

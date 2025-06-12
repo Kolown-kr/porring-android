@@ -7,6 +7,7 @@ import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.RemoteConfigRepository
+import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.feature.main.model.SnackBarNavigation
@@ -16,8 +17,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,18 +24,23 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     postRepository: PostRepository,
     authRepository: AuthRepository,
+    userRepository: UserRepository,
     followRepository: FollowRepository,
     private val remoteConfigRepository: RemoteConfigRepository
 ) : ViewModel() {
     val loginState = authRepository.checkUserLoggedIn()
 
     init {
-        loginState.onEach {
-            if (it) {
-                postRepository.fetchMyPosts()
-                followRepository.fetchFollows()
+        viewModelScope.launch {
+            loginState.collect {
+                if (it) {
+                    // TODO: UseCase생성 후 통합처리 하도록 이전해야 함
+                    userRepository.fetchUserReactedPost()
+                    postRepository.fetchMyPosts()
+                    followRepository.fetchFollows()
+                }
             }
-        }.launchIn(viewModelScope)
+        }
     }
 
     @Inject
