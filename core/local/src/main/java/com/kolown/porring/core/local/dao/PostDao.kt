@@ -278,4 +278,7 @@ interface PostDao {
 
     @Query("DELETE FROM my_post WHERE post_id = :postId")
     suspend fun deleteMyPost(postId: String)
+
+    @Query("DELETE FROM my_post")
+    suspend fun clearMyPost()
 }

@@ -15,7 +15,8 @@ android {
 
 dependencies {
     implementation(projects.core.common)
-    
+    implementation(projects.core.dataApi)
+
     // firebase
     implementation(platform(libs.google.firebase.bom))
     implementation(libs.google.firebase.firestore)

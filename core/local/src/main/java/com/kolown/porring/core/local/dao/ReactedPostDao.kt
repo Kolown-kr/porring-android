@@ -9,7 +9,7 @@ import com.kolown.porring.core.local.entity.ReactedPostEntity
 @Dao
 interface ReactedPostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReactedPost(reactedPost: ReactedPostEntity)
+    suspend fun insertReactedPosts(reactedPosts: List<ReactedPostEntity>)
 
     @Query(
         """
@@ -27,4 +27,8 @@ interface ReactedPostDao {
         """
     )
     suspend fun deleteReactedPost(postId: String)
+
+    @Query("DELETE FROM reacted_post")
+    suspend fun clearReactedPost()
+
 }

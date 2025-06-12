@@ -9,7 +9,6 @@ setNamespace("core.data")
 dependencies {
     implementation(projects.core.dataApi)
     implementation(projects.core.model)
-    implementation(projects.core.datastore)
     implementation(projects.core.network)
     implementation(projects.core.common)
 
@@ -20,6 +19,5 @@ dependencies {
 
     //paging
     implementation(libs.androidx.paging.runtime)
-    implementation(project(":core:ui"))
 }
 

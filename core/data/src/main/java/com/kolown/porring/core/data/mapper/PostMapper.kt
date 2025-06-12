@@ -1,5 +1,6 @@
 package com.kolown.porring.core.data.mapper
 
+import com.kolown.porring.core.data.dto.ReactedPostDto
 import com.kolown.porring.core.data.model.MyPostData
 import com.kolown.porring.core.data.model.OtherPostData
 import com.kolown.porring.core.data.model.ReactedPostData
@@ -51,6 +52,12 @@ internal fun MyPostData.toModel() = MyPost(
 )
 
 internal fun ReactedPost.toData() = ReactedPostData(
+    postId = this.postId,
+    reaction = this.reaction,
+    registerAt = this.registerAt
+)
+
+internal fun ReactedPostDto.toModel() = ReactedPost(
     postId = this.postId,
     reaction = this.reaction,
     registerAt = this.registerAt

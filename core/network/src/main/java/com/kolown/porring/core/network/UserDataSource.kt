@@ -1,6 +1,7 @@
 package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.kolown.porring.core.data.dto.ReactedPostDto
 import com.kolown.porring.core.model.Follow
 import com.kolown.porring.core.model.ReactedPost
 import com.kolown.porring.core.model.User
@@ -14,7 +15,7 @@ interface UserDataSource {
 
     suspend fun setReactedPost(userId: String, reactedPost: ReactedPost): Result<Unit>
     suspend fun deleteReactedPost(userId: String, postId: String): Result<Unit>
-    suspend fun fetchAllReactedPost(userId: String): Result<List<ReactedPost>>
+    suspend fun fetchAllReactedPost(userId: String): List<ReactedPostDto>
 
     suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean>
     suspend fun fetchFollows(userId: String): List<Follow>
@@ -58,16 +59,13 @@ class UserDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchAllReactedPost(userId: String): Result<List<ReactedPost>> {
-        return kotlin.runCatching {
-            userCollection
-                .document(userId)
-                .collection("reacted_post")
-                .get()
-                .await()
-                .documents
-                .mapNotNull { it.toObject(ReactedPost::class.java) }
-        }
+    override suspend fun fetchAllReactedPost(userId: String): List<ReactedPostDto> {
+        return userCollection
+            .document(userId)
+            .collection("reacted_post")
+            .get()
+            .await()
+            .map { it.toObject(ReactedPostDto::class.java).copy(postId = it.id) }
     }
 
     override suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean> = flow {

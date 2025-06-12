@@ -1,9 +1,14 @@
 package com.kolown.porring.core.data.repository
 
-import com.kolown.porring.core.datastore.LocalUserDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserCacheDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserPrefDatasource
+import com.kolown.porring.core.data.mapper.toData
+import com.kolown.porring.core.data.mapper.toModel
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.UserDataSource
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -18,7 +23,8 @@ interface UserRepository {
 class UserRepositoryImpl @Inject constructor(
     @Named("google") private val authDataSource: AuthDataSource,
     private val remoteUserDataSource: UserDataSource,
-    private val localUserDataSource: LocalUserDataSource,
+    private val localUserCacheDataSource: LocalUserCacheDataSource,
+    private val localUserPrefDatasourceImpl: LocalUserPrefDatasource,
 ) : UserRepository {
     override suspend fun createUserData(): Result<Unit> {
         return kotlin.runCatching {
@@ -28,11 +34,13 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchUserReactedPost(): Result<Unit> {
-        return kotlin.runCatching {
+    override suspend fun fetchUserReactedPost(): Result<Unit> = withContext(Dispatchers.IO) {
+        return@withContext kotlin.runCatching {
             val currentUserId = authDataSource.getUserId()
+            val reactedPosts =
+                remoteUserDataSource.fetchAllReactedPost(currentUserId).map { it.toModel() }
 
-            remoteUserDataSource.fetchAllReactedPost(currentUserId)
+            localUserCacheDataSource.insertReactedPosts(reactedPosts.map { it.toData() })
         }
     }
 
@@ -41,7 +49,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getLatestUserEmail(): Flow<String> {
-        return localUserDataSource.getUserEmail(authDataSource.getUserId())
+        return localUserPrefDatasourceImpl.getUserEmail(authDataSource.getUserId())
     }
 
     override fun getUserData(): Result<String> {

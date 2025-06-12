@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
+import com.kolown.porring.core.data.api.datasource.local.LocalUserCacheDataSource
 import com.kolown.porring.core.data.datasource.paging.PagingDataSource.Companion.createPager
 import com.kolown.porring.core.data.mapper.toData
 import com.kolown.porring.core.data.mapper.toModel
@@ -76,6 +77,7 @@ class PostRepositoryImpl @Inject constructor(
     private val postDataSource: PostDataSource,
     private val tagDataSource: TagDataSource,
     private val userDataSource: UserDataSource, // TODO: domain분리 후 useCase로 이관하며 삭제해야함
+    private val localUserCacheDataSource: LocalUserCacheDataSource, // TODO: domain분리 후 useCase로 이관하며 삭제해야함
     @Named("google") private val googleAuthDataSource: AuthDataSource,
     private val localPostDataSource: LocalPostDataSource,
     private val randomPostRemoteMediatorFactory: RandomPostRemoteMediatorFactory,
@@ -259,7 +261,7 @@ class PostRepositoryImpl @Inject constructor(
 
     // TODO: domain생성후 useCase로 reactedPost를 유저 컬렉션에 등록하는 로직 이동해야함.
     override suspend fun updatePostReaction(postId: String, reaction: Reaction) {
-        val myReaction = localPostDataSource.getMyReaction(postId)
+        val myReaction = localUserCacheDataSource.getMyReaction(postId)
         val currentTime = getNowDateTimeUTCString()
         val reactedPost =
             ReactedPost(postId = postId, reaction = reaction.value, registerAt = currentTime)
@@ -282,7 +284,7 @@ class PostRepositoryImpl @Inject constructor(
                 userId = currentUserId,
                 reactedPost = reactedPost
             )
-            localPostDataSource.setPostReaction(reactedPost.toData())
+            localUserCacheDataSource.insertReactedPosts(listOf(reactedPost.toData()))
             postDataSource.setPostReaction(
                 postId = reactedPost.postId,
                 reaction = reactedPost.reaction,
@@ -299,7 +301,7 @@ class PostRepositoryImpl @Inject constructor(
                 userId = currentUserId,
                 postId = reactedPost.postId
             )
-            localPostDataSource.deletePostReaction(reactedPost.postId)
+            localUserCacheDataSource.deleteReactedPost(reactedPost.postId)
             postDataSource.deletePostReaction(
                 postId = reactedPost.postId,
                 reaction = reactedPost.reaction
@@ -319,7 +321,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchMyPosts() {
+    override suspend fun fetchMyPosts() = withContext(Dispatchers.IO) {
         val uid = googleAuthDataSource.getUserId()
         val posts = postDataSource.getAllPostsByAuthorId(uid).getOrThrow()
 
