@@ -32,6 +32,6 @@ private fun buildGoogleOptions(): GetGoogleIdOption {
     return GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false)
         .setServerClientId(BuildConfig.GOOGLE_CLIENT_ID)
-        .setAutoSelectEnabled(true)
+        .setAutoSelectEnabled(false)
         .build()
 }

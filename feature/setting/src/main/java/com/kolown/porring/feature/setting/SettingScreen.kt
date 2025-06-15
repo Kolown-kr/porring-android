@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -20,6 +21,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.feature.setting.component.MenuDivider
 import com.kolown.porring.feature.setting.component.TextLabel
 import com.kolown.porring.feature.setting.component.TextMenu
@@ -28,6 +30,7 @@ import com.kolown.porring.feature.setting.component.TextMenu
 internal fun SettingRoute(
     popBackStack: () -> Unit,
     updateLoginState: () -> Unit,
+    navigateToDeletedAccount: () -> Unit = {},
     settingViewModel: SettingViewModel = hiltViewModel(),
     padding: PaddingValues,
 ) {
@@ -45,13 +48,17 @@ internal fun SettingRoute(
     }
 
     SettingScreen(
-        clickLogout = settingViewModel::logout, popBackStack = popBackStack, padding = padding
+        clickLogout = settingViewModel::logout,
+        deletedClick = navigateToDeletedAccount,
+        popBackStack = popBackStack,
+        padding = padding
     )
 }
 
 @Composable
 private fun SettingScreen(
     clickLogout: () -> Unit = {},
+    deletedClick: () -> Unit = {},
     popBackStack: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
@@ -74,16 +81,18 @@ private fun SettingScreen(
 
         TextLabel(stringResource(R.string.string_label_use_porring))
 
-        TextMenu(title = stringResource(R.string.string_menu_show_my_reaction),
-            onClick = { showUpcomingToast() })
         TextMenu(
-            title = stringResource(R.string.string_menu_notify),
+            title = stringResource(R.string.string_menu_show_my_reaction),
             onClick = { showUpcomingToast() })
+//        TextMenu(
+//            title = stringResource(R.string.string_menu_notify),
+//            onClick = { showUpcomingToast() })
 
         MenuDivider()
 
         TextLabel(stringResource(R.string.string_label_manage_account))
-        TextMenu(title = stringResource(R.string.string_menu_user_info),
+        TextMenu(
+            title = stringResource(R.string.string_menu_user_info),
             onClick = { showUpcomingToast() })
 
         MenuDivider()
@@ -93,8 +102,18 @@ private fun SettingScreen(
             color = Color.Red,
             onClick = clickLogout
         )
-        TextMenu(title = stringResource(R.string.string_menu_dropout_user),
+        TextMenu(
+            title = stringResource(R.string.string_menu_dropout_user),
             color = Color.Red,
-            onClick = { showUpcomingToast() })
+            onClick = deletedClick
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun Prev() {
+    PorringTheme(true) {
+        SettingScreen()
     }
 }
