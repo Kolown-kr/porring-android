@@ -36,6 +36,7 @@ fun PorringTheme(
     val view = LocalView.current
 
     SideEffect {
+        val activity = view.context as? Activity ?: return@SideEffect
         val window = (view.context as Activity).window
         val insetsController = WindowCompat.getInsetsController(window, view)
 

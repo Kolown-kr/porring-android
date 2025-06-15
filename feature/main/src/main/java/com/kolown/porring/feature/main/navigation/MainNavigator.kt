@@ -22,6 +22,7 @@ import com.kolown.porring.feature.join.navigation.navigateToJoin
 import com.kolown.porring.feature.login.navigation.navigateLogin
 import com.kolown.porring.feature.my.navigation.navigateMy
 import com.kolown.porring.feature.search.navigation.navigateSearch
+import com.kolown.porring.feature.setting.navigation.navigateDeletedAccount
 import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.upload.navigation.navigateUpload
@@ -98,6 +99,8 @@ internal class MainNavigator(
         authorId = tagId,
         navOptions = singleTopOptions
     )
+
+    fun navigateToDeletedAccount() = navController.navigateDeletedAccount(navOptions = singleTopOptions)
 
     fun popBackStack() {
         navController.previousBackStackEntry?.let {

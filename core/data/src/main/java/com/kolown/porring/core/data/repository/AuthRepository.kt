@@ -7,6 +7,7 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.kolown.porring.core.data.api.datasource.local.LocalUserPrefDatasource
 import com.kolown.porring.core.network.AuthDataSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -16,6 +17,7 @@ interface AuthRepository {
     fun logout(): Result<Unit>
     suspend fun joinWithEmailAndPassword(email: String, password: String): Result<Unit>
     suspend fun signInWithEmailAndPassword(email: String, password: String): Result<Unit>
+    suspend fun deleteAccount(password: String): Result<Unit>
 }
 
 class AuthRepositoryImpl @Inject constructor(
@@ -51,6 +53,12 @@ class AuthRepositoryImpl @Inject constructor(
                     localUserPrefDatasourceImpl.createUserData(userDto)
                 }
         }
+    }
+
+    override suspend fun deleteAccount(password: String): Result<Unit> {
+        val userId = googleAuthDataSource.getUserId()
+        val email = localUserDataSource.getUserEmail(userId).first()
+        return googleAuthDataSource.deleteAccount(email, password)
     }
 
     override suspend fun joinWithEmailAndPassword(email: String, password: String): Result<Unit> {
