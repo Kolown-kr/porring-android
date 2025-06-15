@@ -2,6 +2,7 @@ package com.kolown.porring.core.network
 
 import androidx.credentials.CustomCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.kolown.porring.core.model.User
@@ -23,6 +24,7 @@ interface AuthDataSource {
     fun logout(): Result<Unit>
     suspend fun joinWithEmailAndPassword(email: String, password: String): Result<User>
     suspend fun signInWithEmailAndPassword(email: String, password: String): Result<User>
+    suspend fun deleteAccount(email: String, password: String): Result<Unit>
 }
 
 @Named("google")
@@ -85,6 +87,19 @@ class AuthDataSourceImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteAccount(email: String, password: String): Result<Unit> =
+        kotlin.runCatching {
+            val user = auth.currentUser
+            val credential = EmailAuthProvider.getCredential(email, password)
+            user
+                ?.reauthenticate(credential)
+                ?.await()
+
+            user
+                ?.delete()
+                ?.await()
+        }
 
     override suspend fun joinWithEmailAndPassword(
         email: String,

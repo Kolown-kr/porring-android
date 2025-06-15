@@ -27,6 +27,9 @@ sealed interface Route {
 
     @Serializable
     data object DetailTheir : Route
+
+    @Serializable
+    data object DeletedAccount : Route
 }
 
 sealed interface MainMenuRoute : Route {
