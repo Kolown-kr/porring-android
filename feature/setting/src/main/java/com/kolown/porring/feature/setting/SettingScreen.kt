@@ -30,6 +30,7 @@ import com.kolown.porring.feature.setting.component.TextMenu
 internal fun SettingRoute(
     popBackStack: () -> Unit,
     updateLoginState: () -> Unit,
+    navigateToPrivacy: () -> Unit = {},
     navigateToDeletedAccount: () -> Unit = {},
     settingViewModel: SettingViewModel = hiltViewModel(),
     padding: PaddingValues,
@@ -49,6 +50,7 @@ internal fun SettingRoute(
 
     SettingScreen(
         clickLogout = settingViewModel::logout,
+        navigateToPrivacy = navigateToPrivacy,
         deletedClick = navigateToDeletedAccount,
         popBackStack = popBackStack,
         padding = padding
@@ -58,6 +60,7 @@ internal fun SettingRoute(
 @Composable
 private fun SettingScreen(
     clickLogout: () -> Unit = {},
+    navigateToPrivacy: () -> Unit = {},
     deletedClick: () -> Unit = {},
     popBackStack: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
@@ -83,7 +86,13 @@ private fun SettingScreen(
 
         TextMenu(
             title = stringResource(R.string.string_menu_show_my_reaction),
-            onClick = { showUpcomingToast() })
+            onClick = { showUpcomingToast() }
+        )
+
+        TextMenu(
+            title = "개인정보처리방침",
+            onClick = navigateToPrivacy
+        )
 //        TextMenu(
 //            title = stringResource(R.string.string_menu_notify),
 //            onClick = { showUpcomingToast() })

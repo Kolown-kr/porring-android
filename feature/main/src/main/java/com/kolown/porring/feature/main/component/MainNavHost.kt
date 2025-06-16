@@ -101,6 +101,7 @@ internal fun MainNavHost(
 
             settingNavGraph(
                 popBackStack = navigator::popBackStack,
+                navigateToPrivacy = navigator::navigateToPrivacy,
                 navigateToDeletedAccount = navigator::navigateToDeletedAccount,
                 padding = padding
             )
