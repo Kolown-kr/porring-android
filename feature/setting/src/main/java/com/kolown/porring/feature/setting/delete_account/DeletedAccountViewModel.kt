@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.setting
+package com.kolown.porring.feature.setting.delete_account
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

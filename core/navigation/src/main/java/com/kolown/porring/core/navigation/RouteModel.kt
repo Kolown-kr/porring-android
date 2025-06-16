@@ -30,6 +30,9 @@ sealed interface Route {
 
     @Serializable
     data object DeletedAccount : Route
+
+    @Serializable
+    data object Privacy : Route
 }
 
 sealed interface MainMenuRoute : Route {
