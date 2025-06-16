@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.setting
+package com.kolown.porring.feature.setting.delete_account
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +27,7 @@ import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.SurfaceError
+import com.kolown.porring.feature.setting.R
 
 @Composable
 internal fun DeletedAccountRoute(
