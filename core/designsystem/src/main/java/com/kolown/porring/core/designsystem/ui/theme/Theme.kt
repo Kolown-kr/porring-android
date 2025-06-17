@@ -7,7 +7,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -34,7 +33,6 @@ fun PorringTheme(
 ) {
     val colors: PorringColor = if (isDark) PorringDarkColor else PorringLightColor
 
-    val context = LocalContext.current
     val view = LocalView.current
 
     SideEffect {
@@ -51,6 +49,7 @@ fun PorringTheme(
 
     CompositionLocalProvider(
         LocalColor provides colors,
+        LocalTypography provides PorringTypography,
         content = content
     )
 }
@@ -58,4 +57,6 @@ fun PorringTheme(
 object PorringTheme {
     val colors: PorringColor
         @Composable get() = LocalColor.current
+    val typography: PorringTypography
+        @Composable get() = LocalTypography.current
 }
