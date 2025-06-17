@@ -34,7 +34,7 @@ internal fun MainNavHost(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(PorringTheme.colors.Background)
+            .background(PorringTheme.colors.background)
     ) {
         NavHost(
             navController = navigator.navController,
