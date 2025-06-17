@@ -5,27 +5,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 object PorringTypography {
-    val Headline = TextStyle(
+    val headline = TextStyle(
         fontSize = 24.sp,
         fontWeight = FontWeight.Bold
     )
-    val Title = TextStyle(
+    val title = TextStyle(
         fontSize = 18.sp,
         fontWeight = FontWeight.SemiBold
     )
-    val Body = TextStyle(
+    val body = TextStyle(
         fontSize = 14.sp,
         fontWeight = FontWeight.Normal
     )
-    val Caption = TextStyle(
+    val caption = TextStyle(
         fontSize = 10.sp,
         fontWeight = FontWeight.Normal
     )
-    val Label = TextStyle(
+    val label = TextStyle(
         fontSize = 12.sp,
         fontWeight = FontWeight.Medium
     )
-    val SubLabel = TextStyle(
+    val subLabel = TextStyle(
         fontSize = 10.sp,
         fontWeight = FontWeight.Medium
     )
