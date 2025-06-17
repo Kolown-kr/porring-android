@@ -1,11 +1,9 @@
 package com.kolown.porring.core.designsystem.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -31,14 +29,13 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun PorringTheme(
     isLightBars: Boolean,
+    isDark: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val colors: PorringColor = if (isDark) PorringDarkColor else PorringLightColor
+
     val context = LocalContext.current
     val view = LocalView.current
-    val colorScheme = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> dynamicLightColorScheme(context)
-        else -> LightColorScheme
-    }
 
     SideEffect {
         val window = (view.context as Activity).window
@@ -48,12 +45,17 @@ fun PorringTheme(
         insetsController.isAppearanceLightStatusBars = isLightBars
         insetsController.isAppearanceLightNavigationBars = isLightBars
         window.statusBarColor = Color.Transparent.toArgb()
-        window.navigationBarColor =
-            if (isLightBars) Background.toArgb() else BackgroundDark.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
+//            if (isLightBars) Background.toArgb() else BackgroundDark.toArgb()
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
+    CompositionLocalProvider(
+        LocalColor provides colors,
         content = content
     )
+}
+
+object PorringTheme {
+    val colors: PorringColor
+        @Composable get() = LocalColor.current
 }

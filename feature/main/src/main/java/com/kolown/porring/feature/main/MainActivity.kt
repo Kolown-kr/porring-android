@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.navigation.MainMenuRoute
@@ -25,12 +26,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val navigator: MainNavigator = rememberMainNavigator()
-            var isLightBars by remember { mutableStateOf(false) }
+            var isLightBars by rememberSaveable { mutableStateOf(false) }
 
             val currentRoute =
                 navigator.currentDestination?.route?.substringAfterLast(".").orEmpty()
@@ -53,7 +55,6 @@ class MainActivity : ComponentActivity() {
                     })
                 } else {
                     CompositionLocalProvider(LocalSnackBarBridge.provides(snackBarBridge)) {
-//                        AdminScreen()
                         MainScreen(
                             navigator = navigator,
                             mainViewModel
