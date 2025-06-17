@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
@@ -34,7 +34,7 @@ internal fun MainNavHost(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(PorringTheme.colors.Background)
     ) {
         NavHost(
             navController = navigator.navController,
