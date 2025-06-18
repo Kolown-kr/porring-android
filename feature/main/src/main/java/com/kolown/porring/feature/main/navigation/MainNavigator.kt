@@ -25,6 +25,7 @@ import com.kolown.porring.feature.search.navigation.navigateSearch
 import com.kolown.porring.feature.setting.navigation.navigateDeletedAccount
 import com.kolown.porring.feature.setting.navigation.navigatePrivacy
 import com.kolown.porring.feature.setting.navigation.navigateSetting
+import com.kolown.porring.feature.setting.navigation.navigateUserInfo
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.upload.navigation.navigateUpload
 
@@ -100,6 +101,8 @@ internal class MainNavigator(
         authorId = tagId,
         navOptions = singleTopOptions
     )
+
+    fun navigateToUserInfo() = navController.navigateUserInfo(navOptions = singleTopOptions)
 
     fun navigateToPrivacy() = navController.navigatePrivacy(navOptions = singleTopOptions)
 

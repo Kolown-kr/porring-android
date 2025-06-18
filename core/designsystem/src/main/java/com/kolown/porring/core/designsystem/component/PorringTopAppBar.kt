@@ -16,10 +16,10 @@ import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 
 @Composable
 fun PorringTopAppBar(
+    modifier: Modifier = Modifier,
     title: String? = null,
     navigationIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier = modifier
