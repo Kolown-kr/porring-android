@@ -33,6 +33,9 @@ sealed interface Route {
 
     @Serializable
     data object Privacy : Route
+
+    @Serializable
+    data object UserInfo : Route
 }
 
 sealed interface MainMenuRoute : Route {
