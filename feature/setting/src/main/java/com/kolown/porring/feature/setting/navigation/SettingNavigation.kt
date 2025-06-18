@@ -9,9 +9,14 @@ import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.setting.delete_account.DeletedAccountRoute
 import com.kolown.porring.feature.setting.SettingRoute
 import com.kolown.porring.feature.setting.privacy.PrivacyRoute
+import com.kolown.porring.feature.setting.user_info.UserInfoRoute
 
 fun NavController.navigateSetting(navOptions: NavOptions) {
     navigate(Route.Setting,navOptions = navOptions)
+}
+
+fun NavController.navigateUserInfo(navOptions: NavOptions) {
+    navigate(Route.UserInfo,navOptions = navOptions)
 }
 
 fun NavController.navigateDeletedAccount(navOptions: NavOptions) {
@@ -27,14 +32,21 @@ fun NavGraphBuilder.settingNavGraph(
     updateLoginState: () -> Unit = {},
     navigateToPrivacy: () -> Unit = {},
     navigateToDeletedAccount: () -> Unit = {},
+    navigateToUserInfo: () -> Unit = {},
     padding: PaddingValues,
 ) {
     composable<Route.Setting> {
         SettingRoute(
             popBackStack = popBackStack,
             updateLoginState = updateLoginState,
-            navigateToPrivacy = navigateToPrivacy,
-            navigateToDeletedAccount = navigateToDeletedAccount,
+            navigateToUserInfo = navigateToUserInfo,
+            padding = padding
+        )
+    }
+
+    composable<Route.UserInfo> {
+        UserInfoRoute(
+            popBackStack = popBackStack,
             padding = padding
         )
     }
