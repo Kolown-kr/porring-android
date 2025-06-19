@@ -4,6 +4,7 @@ data class OtherPostData(
     val postId: String,
     val authorId: String,
     val imageUrl: String,
+    val imageRatio: Float,
     val registerAt: String,
     val description: String,
     val tags: List<String>,

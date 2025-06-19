@@ -79,6 +79,7 @@ interface PostDao {
                 
                 other.author_id AS authorId,
                 other.image_url AS imageUrl,
+                other.image_ratio AS imageRatio,
                 other.register_at AS registerAt,
                 other.description AS description,
                 other.tags AS tags,
@@ -111,6 +112,7 @@ interface PostDao {
                 
                 other.author_id AS authorId,
                 other.image_url AS imageUrl,
+                other.image_ratio AS imageRatio,
                 other.register_at AS registerAt,
                 other.description AS description,
                 other.tags AS tags,
@@ -150,6 +152,7 @@ interface PostDao {
             paging.post_id AS postId,
 
             other.image_url AS imageUrl,
+            other.image_ratio AS imageRatio,
             other.register_at AS registerAt,
             other.description AS description,
             other.tags AS tags,
@@ -184,6 +187,7 @@ interface PostDao {
             paging.post_id AS postId,
 
             other.image_url AS imageUrl,
+            other.image_ratio AS imageRatio,
             other.register_at AS registerAt,
             other.description AS description,
             other.tags AS tags,
@@ -216,6 +220,7 @@ interface PostDao {
         SELECT 
             other.post_id AS postId,
             other.image_url AS imageUrl,
+            other.image_ratio AS imageRatio,
             other.register_at AS registerAt,
             other.description AS description,
             other.tags AS tags,
@@ -265,6 +270,7 @@ interface PostDao {
             SELECT
                 my.post_id AS postId,
                 my.image_url AS imageUrl,
+                my.image_ratio AS imageRatio,
                 my.register_at AS registerAt,
                 my.description AS description,
                 my.tags AS tags,

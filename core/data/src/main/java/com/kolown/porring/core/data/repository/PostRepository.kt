@@ -49,7 +49,7 @@ import javax.inject.Named
 
 interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
-    fun uploadPost(imageUrl: String, description: String, tags: List<String>)
+    fun uploadPost(fileUrl: String, uploadModel: UploadModel)
 
     fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>>
 
@@ -89,22 +89,29 @@ class PostRepositoryImpl @Inject constructor(
     override fun getUploadFeedBack(): Flow<UploadFeedBack> = _uploadFeedBack.asSharedFlow()
 
     override fun uploadPost(
-        imageUrl: String,
-        description: String,
-        tags: List<String>,
+        fileUrl: String,
+        uploadModel: UploadModel
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             _uploadFeedBack.emit(UploadFeedBack.Uploading)
 
             val authorId = googleAuthDataSource.getUserId()
-            val uploadModel = UploadModel(imageUrl, description, tags)
+            val failureModel = uploadModel.copy(imgUri = fileUrl)
 
             // 기존 imageUrl만 따로 업로드 하던 형태에서 함께 업로드 되도록 수정
             val postIdDeferred = async {
-                retryWithLimit { postDataSource.uploadPost(authorId, description, imageUrl, tags) }
+                retryWithLimit {
+                    postDataSource.uploadPost(
+                        authorId = authorId,
+                        description = uploadModel.description,
+                        imageUrl = uploadModel.imgUri,
+                        imageRatio = uploadModel.imageRatio,
+                        tags = uploadModel.categoryItems
+                    )
+                }
             }
             val tagIdsDeferred = async {
-                retryWithLimit { tagDataSource.uploadTags(tags) }
+                retryWithLimit { tagDataSource.uploadTags(uploadModel.categoryItems) }
             }
 
             val (postResult, tagResult) = postIdDeferred.await() to tagIdsDeferred.await()
@@ -118,7 +125,7 @@ class PostRepositoryImpl @Inject constructor(
                     postDataSource.deletePost(postId)
                 }
 
-                _uploadFeedBack.emit(UploadFeedBack.Error(uploadModel))
+                _uploadFeedBack.emit(UploadFeedBack.Error(failureModel))
                 return@launch
             }
 
@@ -131,7 +138,7 @@ class PostRepositoryImpl @Inject constructor(
                 }
                 .onFailure {
                     postDataSource.deletePost(postId)
-                    _uploadFeedBack.emit(UploadFeedBack.Error(uploadModel))
+                    _uploadFeedBack.emit(UploadFeedBack.Error(failureModel))
                 }
         }
     }

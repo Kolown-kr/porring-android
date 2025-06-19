@@ -23,7 +23,7 @@ import com.kolown.porring.core.local.util.Converter
         FollowEntity::class,
         ReactedPostEntity::class,
     ],
-    version = 19,
+    version = 20,
     exportSchema = true,
 )
 @TypeConverters(Converter::class)
