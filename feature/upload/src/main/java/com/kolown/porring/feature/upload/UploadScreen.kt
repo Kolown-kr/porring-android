@@ -65,11 +65,12 @@ import com.kolown.porring.feature.upload.component.CategoryGroup
 internal fun UploadRoute(
     viewModel: UploadViewModel = hiltViewModel(),
     imgUri: String,
+    imageRatio: Float,
     padding: PaddingValues,
     navigateToHome: () -> Unit,
 ) {
     val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
-    val uploadImageState by viewModel.uploadImage.collectAsStateWithLifecycle()
+    val fileUriState by viewModel.fileUri.collectAsStateWithLifecycle()
     val uploadAttempted by viewModel.uploadAttempted.collectAsStateWithLifecycle()
     val uploadEnable by viewModel.uploadEnable.collectAsStateWithLifecycle()
 
@@ -87,15 +88,15 @@ internal fun UploadRoute(
         navigateToHome()
     }
 
-    LaunchedEffect(uploadAttempted, uploadImageState) {
-        if (uploadAttempted && uploadImageState.isBlank()) {
+    LaunchedEffect(uploadAttempted, uploadState.imgUri) {
+        if (uploadAttempted && uploadState.imgUri.isBlank()) {
             snackBarBridge.postSnackBarString("업로드를 다시 시도해주세요.")
         }
     }
 
     LaunchedEffect(Unit) {
         if (imgUri.isNotBlank()) {
-            viewModel.getUriWebP(imgUri)
+            viewModel.setImageInfo(imgUri, imageRatio)
         }
     }
 
@@ -120,7 +121,7 @@ internal fun UploadRoute(
         scrollState = scrollState,
         focusManager = focusManager,
         focusRequester = focusRequester,
-        imgUri = imgUri.ifBlank { uploadState.imgUri },
+        imgUri = imgUri.ifBlank { fileUriState },
         categoryItems = uploadState.categoryItems,
         uploadPost = viewModel::uploadPost,
         addCategory = viewModel::addCategory,

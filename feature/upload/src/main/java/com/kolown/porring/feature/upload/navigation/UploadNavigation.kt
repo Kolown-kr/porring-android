@@ -35,10 +35,11 @@ val UploadType = object : NavType<UploadModel>(isNullableAllowed = false) {
 
 fun NavController.navigateUpload(
     imgUri: String,
+    imageRatio: Float,
     uploadModel: UploadModel,
     navOptions: NavOptions? = null
 ) {
-    navigate(Route.Upload(imgUri, uploadModel), navOptions)
+    navigate(Route.Upload(imgUri, imageRatio, uploadModel), navOptions)
 }
 
 fun NavGraphBuilder.uploadNavGraph(
@@ -49,9 +50,11 @@ fun NavGraphBuilder.uploadNavGraph(
         typeMap = mapOf(typeOf<UploadModel>() to UploadType)
     ) { navBackStackEntry ->
         val imgUri = navBackStackEntry.toRoute<Route.Upload>().imgUri
+        val imageRatio = navBackStackEntry.toRoute<Route.Upload>().imageRatio
 
         UploadRoute(
             imgUri = imgUri,
+            imageRatio = imageRatio,
             padding = padding,
             navigateToHome = navigateToHome,
         )

@@ -125,10 +125,11 @@ internal fun MainNavHost(
             imageEditNavGraph(
                 padding = padding,
                 navigateToHome = { navigator.navigate(MainMenu.HOME) },
-                navigateToUpload = { imgUri ->
+                navigateToUpload = { imgUri, imageRatio ->
                     navigator.navigateToUpload(
                         imgUri,
-                        UploadModel("", "", emptyList())
+                        imageRatio,
+                        UploadModel("", 0f, "", emptyList())
                     )
                 }
             )

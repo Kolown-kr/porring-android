@@ -92,7 +92,8 @@ internal fun MainScreen(
             when (nav) {
                 SnackBarNavigation.ToGallery -> navigator.navigate(MainMenu.MY)
                 is SnackBarNavigation.ToUpload -> navigator.navigateToUpload(
-                    nav.uploadModel.imgUri,
+                    "",
+                    0f,
                     nav.uploadModel
                 )
             }
