@@ -64,8 +64,8 @@ internal class MainNavigator(
     fun navigateToImageEdit(imgUri: String) =
         navController.navigateImageEdit(imgUri = imgUri, navOptions = singleTopOptions)
 
-    fun navigateToUpload(imgUri: String, uploadModel: UploadModel) =
-        navController.navigateUpload(imgUri, uploadModel)
+    fun navigateToUpload(imgUri: String, imageRatio: Float, uploadModel: UploadModel) =
+        navController.navigateUpload(imgUri, imageRatio, uploadModel)
 
     fun navigateToDetail(
         type: MainMenuRoute.Detail.Type,

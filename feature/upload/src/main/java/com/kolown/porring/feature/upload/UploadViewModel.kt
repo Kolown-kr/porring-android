@@ -33,13 +33,13 @@ class UploadViewModel @Inject constructor(
     private val _uploadState = MutableStateFlow(UploadModel())
     val uploadState = _uploadState.asStateFlow()
 
-    private val _uploadImage = MutableStateFlow("")
-    val uploadImage = _uploadImage.asStateFlow()
+    private val _fileUri = MutableStateFlow("")
+    val fileUri = _fileUri.asStateFlow()
 
     private val _uploadAttempted = MutableStateFlow(false)
     val uploadAttempted = _uploadAttempted.asStateFlow()
 
-    val uploadEnable = combine(uploadState, uploadImage) { state, imageUrl ->
+    val uploadEnable = combine(uploadState, fileUri) { state, imageUrl ->
         state.description.isNotBlank() &&
                 state.categoryItems.isNotEmpty() &&
                 state.imgUri.isNotBlank() &&
@@ -47,7 +47,10 @@ class UploadViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
-        _uploadState.value = extractUploadModel()
+        val uploadModel = extractUploadModel()
+
+        _uploadState.value = uploadModel.copy(imgUri = "")
+        _fileUri.value = uploadModel.imgUri
     }
 
     fun changeDescription(description: String) {
@@ -73,7 +76,7 @@ class UploadViewModel @Inject constructor(
         }
     }
 
-    fun getUriWebP(uri: String) {
+    fun setImageInfo(uri: String, ratio: Float) {
         viewModelScope.launch {
             val bitmap = retry(times = 3) {
                 repository.decodeSampledBitmapFromUri(
@@ -89,19 +92,29 @@ class UploadViewModel @Inject constructor(
                 80
             ) ?: return@launch
 
+            _fileUri.value = webPUri.toString()
+
             _uploadState.update {
                 it.copy(
-                    imgUri = webPUri.toString()
+                    imageRatio = ratio
                 )
             }
 
             repository.getImageUrl(fileUri = webPUri)
-                .onSuccess {
-                    _uploadImage.value = it
+                .onSuccess { storageUri ->
+                    _uploadState.update {
+                        it.copy(
+                            imgUri = storageUri
+                        )
+                    }
                     _uploadAttempted.value = true
                 }
                 .onFailure {
-                    _uploadImage.value = ""
+                    _uploadState.update {
+                        it.copy(
+                            imgUri = ""
+                        )
+                    }
                     _uploadAttempted.value = true
                 }
         }
@@ -109,9 +122,8 @@ class UploadViewModel @Inject constructor(
 
     fun uploadPost() {
         postRepository.uploadPost(
-            imageUrl = uploadImage.value,
-            description = uploadState.value.description,
-            tags = uploadState.value.categoryItems
+            fileUrl = fileUri.value,
+            uploadModel = uploadState.value
         )
     }
 

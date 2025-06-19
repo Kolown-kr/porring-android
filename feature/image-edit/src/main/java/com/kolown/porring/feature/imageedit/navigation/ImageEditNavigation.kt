@@ -16,7 +16,7 @@ fun NavController.navigateImageEdit(imgUri: String, navOptions: NavOptions? = nu
 fun NavGraphBuilder.imageEditNavGraph(
     padding: PaddingValues,
     navigateToHome: () -> Unit,
-    navigateToUpload: (String) -> Unit
+    navigateToUpload: (String, Float) -> Unit
 ) {
     composable<Route.ImageEdit> { navBackStackEntry ->
         val imgUri = navBackStackEntry.toRoute<Route.ImageEdit>().imgUri

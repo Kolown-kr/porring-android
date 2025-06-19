@@ -58,6 +58,7 @@ import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.ui.R.drawable
 import com.kolown.porring.feature.imageedit.component.boundedTransformGestures
+import com.kolown.porring.feature.imageedit.model.CropRatio
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -69,7 +70,7 @@ internal fun ImageEditRoute(
     imgUri: String = "",
     padding: PaddingValues = PaddingValues(),
     navigateToHome: () -> Unit = {},
-    navigateToUpload: (String) -> Unit = {}
+    navigateToUpload: (String, Float) -> Unit = { _, _ -> }
 ) {
     val editedUri by viewModel.imageUri.collectAsStateWithLifecycle()
 
@@ -89,7 +90,7 @@ internal fun ImageEditRoute(
     }
 
     LaunchedEffect(editedUri) {
-        editedUri?.let { navigateToUpload(it) }
+        editedUri?.let { navigateToUpload(it, cropRatio.ratio) }
     }
 
     ImageEditScreen(
@@ -303,8 +304,6 @@ private fun calcMinScale(boxSize: Size, imageSize: Size): Float {
     val (imgW, imgH) = imageSize
     return if ((imgW / imgH) > (boxW / boxH)) boxH / imgH else boxW / imgW
 }
-
-enum class CropRatio(val ratio: Float) { PORTRAIT(4f / 5f), LANDSCAPE(5f / 4f) }
 
 @Composable
 @Preview(showBackground = true)
