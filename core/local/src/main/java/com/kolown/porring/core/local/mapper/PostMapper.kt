@@ -10,6 +10,7 @@ import com.kolown.porring.core.local.entity.ReactedPostEntity
 internal fun OtherPostData.toEntity(): OtherPostEntity = OtherPostEntity(
     postId = postId,
     imageUrl = imageUrl,
+    imageRatio = imageRatio,
     registerAt = registerAt,
     description = description,
     tags = tags,
@@ -21,6 +22,7 @@ internal fun OtherPostData.toEntity(): OtherPostEntity = OtherPostEntity(
 internal fun MyPostData.toEntity() = MyPostEntity(
     postId = this.postId,
     imageUrl = this.imageUrl,
+    imageRatio = this.imageRatio,
     registerAt = this.registerAt,
     description = this.description,
     tags = this.tags,

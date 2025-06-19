@@ -15,6 +15,7 @@ interface PostDataSource {
         authorId: String,
         description: String,
         imageUrl: String,
+        imageRatio: Float,
         tags: List<String>
     ): Result<String>
 
@@ -67,6 +68,7 @@ class PostDataSourceImpl @Inject constructor(
         authorId: String,
         description: String,
         imageUrl: String,
+        imageRatio: Float,
         tags: List<String>
     ): Result<String> {
         return runCatching {
@@ -74,6 +76,7 @@ class PostDataSourceImpl @Inject constructor(
                 authorId = authorId,
                 description = description,
                 imageUrl = imageUrl,
+                imageRatio = imageRatio,
                 tags = tags,
                 registerAt = PorringDateTime.getNowDateTimeUTCString(),
             )

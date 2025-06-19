@@ -11,6 +11,7 @@ data class OtherPostEntity(
     val postId: String,
     @ColumnInfo("author_id") val authorId: String,
     @ColumnInfo("image_url") val imageUrl: String,
+    @ColumnInfo("image_ratio") val imageRatio: Float,
     @ColumnInfo("register_at") val registerAt: String,
     @ColumnInfo("description") val description: String,
     @ColumnInfo("tags") val tags: List<String>,
