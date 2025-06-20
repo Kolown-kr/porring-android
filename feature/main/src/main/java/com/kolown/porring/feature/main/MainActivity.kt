@@ -9,13 +9,8 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.navigation.MainMenuRoute
-import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.SnackBarBridge
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
@@ -32,23 +27,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navigator: MainNavigator = rememberMainNavigator()
-            var isLightBars by rememberSaveable { mutableStateOf(false) }
+            val currentRoute = navigator.currentDestination?.route?.substringAfterLast(".") ?: ""
 
-            val currentRoute =
-                navigator.currentDestination?.route?.substringAfterLast(".").orEmpty()
-            isLightBars = when (currentRoute) {
-                MainMenuRoute.Detail.toString() -> false
-                MainMenuRoute.Camera.toString() -> false
-                Route.DetailMy.toString() -> false
-                Route.DetailSearch.toString() -> false
-                Route.DetailTheir.toString() -> false
-                else -> true
-            }
             val versionNameState by mainViewModel.versionNameFlow.collectAsState("")
-
             val vName = this.packageManager.getPackageInfo(this.packageName, 0).versionName
             val snackBarBridge = remember { SnackBarBridge(mainViewModel::postSnackBarData) }
-            PorringTheme(isLightBars = isLightBars) {
+
+            PorringTheme(currentRoute = currentRoute) {
                 if (versionNameState.isNotBlank() && vName != versionNameState) {
                     NotAvailableVersionScreen(onExitAppButtonClicked = {
                         finishAndRemoveTask()
