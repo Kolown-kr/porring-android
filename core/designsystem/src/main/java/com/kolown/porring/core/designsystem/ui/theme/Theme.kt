@@ -1,39 +1,30 @@
 package com.kolown.porring.core.designsystem.ui.theme
 
 import android.app.Activity
-import androidx.compose.material3.lightColorScheme
+import android.os.Build
+import android.view.Window
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
-    primary = Primary,
-    background = Background,
-    surface = Surface,
-
-    /* Other default colors to override
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
-
 @Composable
 fun PorringTheme(
-    isLightBars: Boolean,
-    isDark: Boolean = false,
+    currentRoute: String,
     content: @Composable () -> Unit,
 ) {
-    val colors: PorringColor = if (isDark) PorringDarkColor else PorringLightColor
+    val isDarkMode = isSystemInDarkTheme()
+    val colors: PorringColor = if (isDarkMode) PorringDarkColor else PorringLightColor
+    val isLightSystemBars = currentRoute.getSystemBarIconColor(isDarkMode)
 
     val view = LocalView.current
+    val window = (view.context as Activity).window
+    val insetsController = WindowCompat.getInsetsController(window, view)
 
     SideEffect {
         val activity = view.context as? Activity ?: return@SideEffect
@@ -41,11 +32,12 @@ fun PorringTheme(
         val insetsController = WindowCompat.getInsetsController(window, view)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        insetsController.isAppearanceLightStatusBars = isLightBars
-        insetsController.isAppearanceLightNavigationBars = isLightBars
-        window.statusBarColor = Color.Transparent.toArgb()
-        window.navigationBarColor = Color.Transparent.toArgb()
-//            if (isLightBars) Background.toArgb() else BackgroundDark.toArgb()
+        window.setSystemBarBackground()
+    }
+
+    LaunchedEffect(isLightSystemBars) {
+        insetsController.isAppearanceLightStatusBars = isLightSystemBars
+        insetsController.isAppearanceLightNavigationBars = isLightSystemBars
     }
 
     CompositionLocalProvider(
@@ -53,6 +45,23 @@ fun PorringTheme(
         LocalTypography provides PorringTypography,
         content = content
     )
+}
+
+private fun Window.setSystemBarBackground() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        this.isNavigationBarContrastEnforced = false
+    }
+
+    this.statusBarColor = Color.Transparent.toArgb()
+    this.navigationBarColor = Color.Transparent.toArgb()
+}
+
+private fun String.getSystemBarIconColor(isDark: Boolean): Boolean {
+    return when {
+        this.startsWith("Detail") -> false
+        this.startsWith("Camera") -> false
+        else -> isDark.not()
+    }
 }
 
 object PorringTheme {

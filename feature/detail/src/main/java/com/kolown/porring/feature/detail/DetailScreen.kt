@@ -190,7 +190,7 @@ private fun DetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundDark)
-            .padding(padding)
+//            .padding(padding)
     ) {
         PorringTopAppBar(
             navigationIcon = {
