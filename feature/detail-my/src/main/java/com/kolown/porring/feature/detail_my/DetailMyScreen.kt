@@ -47,7 +47,6 @@ internal fun DetailMyRoute(
 ) {
     val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
     val pagerState = rememberPagerState(
         initialPage = uiState.initialPage,
         pageCount = { pagingItems.itemCount }
@@ -65,8 +64,6 @@ internal fun DetailMyRoute(
             padding = padding,
             popBackStack = popBackStack,
             pagingItems = pagingItems,
-            imageRatioMap = imageRatioMap,
-            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
             onAction = viewModel::onAction,
         )
     }
@@ -76,8 +73,6 @@ internal fun DetailMyRoute(
 private fun DetailMyScreen(
     pagerState: PagerState = rememberPagerState { 0 },
     pagingItems: LazyPagingItems<MyPost>,
-    imageRatioMap: Map<Int, Float> = mapOf(),
-    onUpdateRatio: (Int, Float) -> Unit = { _, _ -> },
     popBackStack: () -> Unit = {},
     onAction: (DetailMyIntent) -> Unit = {},
     padding: PaddingValues = PaddingValues()
@@ -112,8 +107,6 @@ private fun DetailMyScreen(
 
             DetailContent(
                 post = post,
-                imageRatio = imageRatioMap[page] ?: (4f / 5f),
-                onUpdateRatio = { onUpdateRatio(page, it) },
                 onAction = onAction
             )
         }
@@ -123,8 +116,6 @@ private fun DetailMyScreen(
 @Composable
 private fun DetailContent(
     post: MyPost,
-    imageRatio: Float = 4f / 5f,
-    onUpdateRatio: (Float) -> Unit = {},
     onAction: (DetailMyIntent) -> Unit = {},
 ) {
     Column(
@@ -141,16 +132,15 @@ private fun DetailContent(
                 modifier = Modifier
                     .fillMaxWidth(),
                 imageUrl = post.imageUrl,
-                imageRatio = imageRatio,
+                imageRatio = post.imageRatio,
                 onClick = {
                     onAction(
                         DetailMyIntent.ChangeToFocusMode(
                             url = post.imageUrl,
-                            ratio = imageRatio
+                            ratio = post.imageRatio
                         )
                     )
                 },
-                updateImageRatio = onUpdateRatio
             )
         }
 

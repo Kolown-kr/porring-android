@@ -86,8 +86,6 @@ internal fun DetailRoute(
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
-    val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
-
     LaunchedEffect(Unit) {
         viewModel.initViewModel(
             type = type,
@@ -143,11 +141,13 @@ internal fun DetailRoute(
     }
 
     if (reelsModePostUrl != null) {
+        val currentPost = posts[pagerState.currentPage]
+
         FullScreenEffect()
         BackHandler(onBack = { reelsModePostUrl = null })
         FocusScreen(
             postUrl = reelsModePostUrl ?: "",
-            imageRatio = imageRatioMap[pagerState.currentPage] ?: (4f / 5f),
+            imageRatio = currentPost?.imageRatio ?: (4f / 5f),
             onDismiss = { reelsModePostUrl = null }
         )
     } else {
@@ -155,10 +155,8 @@ internal fun DetailRoute(
             posts = posts,
             pagerState = pagerState,
             padding = padding,
-            imageRatioMap = imageRatioMap,
             eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
             galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
-            onUpdateRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
             onShowReelsMode = { reelsModePostUrl = it },
             onReactionClick = viewModel::onReactionClick,
             onGalleryClick = navigateToTheir,
@@ -173,10 +171,8 @@ private fun DetailScreen(
     posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
     padding: PaddingValues = PaddingValues(),
-    imageRatioMap: Map<Int, Float> = mapOf(),
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
-    onUpdateRatio: (Int, Float) -> Unit = { _, _ -> },
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
@@ -215,8 +211,6 @@ private fun DetailScreen(
                 postUiModel = post,
                 eventRowVisible = eventRowVisible,
                 galleryVisible = galleryVisible,
-                imageRatio = imageRatioMap[page] ?: (4f / 5f),
-                onUpdateRatio = { onUpdateRatio(page, it) },
                 onShowReelsMode = onShowReelsMode,
                 onReactionClick = onReactionClick,
                 onGalleryClick = onGalleryClick,
@@ -231,8 +225,6 @@ private fun DetailContent(
     postUiModel: PostUiModel = PostUiModel.EMPTY,
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
-    imageRatio: Float = 4f / 5f,
-    onUpdateRatio: (Float) -> Unit = {},
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
     onGalleryClick: (String) -> Unit = {},
@@ -251,9 +243,8 @@ private fun DetailContent(
                 modifier = Modifier
                     .fillMaxWidth(),
                 imageUrl = postUiModel.imageUrl,
-                imageRatio = imageRatio,
+                imageRatio = postUiModel.imageRatio,
                 onClick = { onShowReelsMode(postUiModel.imageUrl) },
-                updateImageRatio = onUpdateRatio
             )
         }
 

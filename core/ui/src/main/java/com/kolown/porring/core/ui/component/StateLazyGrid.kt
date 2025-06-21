@@ -75,8 +75,6 @@ private fun GalleryItem(
     onClickImage: () -> Unit = {},
     longClickEnabled: Boolean = true
 ) {
-    val imageRatio = rememberSaveable { mutableFloatStateOf(4f / 5f) }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,8 +84,7 @@ private fun GalleryItem(
             onClick = onClickImage,
             onLongClick = { if (longClickEnabled) onLongClickImage() },
             imageUrl = postUiModel.imageUrl,
-            imageRatio = imageRatio.floatValue,
-            updateImageRatio = { imageRatio.floatValue = it }
+            imageRatio = postUiModel.imageRatio,
         )
     }
 }

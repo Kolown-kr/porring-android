@@ -78,7 +78,6 @@ internal fun HomeRoute(
 
     var isRefreshing by remember { mutableStateOf(false) }
     var isShowErrorScreen by remember { mutableStateOf(false) }
-    val imageRatioMap = remember { mutableStateMapOf<Int, Float>() }
     val refreshState = rememberPullToRefreshState()
 
     val scaleFraction = {
@@ -133,12 +132,10 @@ internal fun HomeRoute(
     HomeScreen(
         padding = padding,
         uiState = uiState,
-        imageRatioMap = imageRatioMap,
         isRefreshing = isRefreshing,
         isShowErrorScreen = isShowErrorScreen,
         scaleFraction = scaleFraction,
         refreshState = refreshState,
-        updateImageRatio = { page, newRatio -> imageRatioMap[page] = newRatio },
         updateIsShowErrorScreen = { isShowErrorScreen = it },
         navigateToDetail = {
             viewModel.onClickItem(it)
@@ -157,12 +154,10 @@ internal fun HomeRoute(
 private fun HomeScreen(
     padding: PaddingValues = PaddingValues(),
     uiState: UiState<List<PostUiModel>> = UiState.Loading,
-    imageRatioMap: Map<Int, Float> = mapOf(),
     isRefreshing: Boolean = false,
     isShowErrorScreen: Boolean = false,
     scaleFraction: () -> Float = { 1f },
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
-    updateImageRatio: (Int, Float) -> Unit = { _, _ -> },
     updateIsShowErrorScreen: (Boolean) -> Unit = {},
     navigateToDetail: (PostUiModel) -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
@@ -204,13 +199,11 @@ private fun HomeScreen(
                             .fillMaxSize()
                             .align(Alignment.Center)
                             .verticalScroll(rememberScrollState()),
-                        imageRatioMap = imageRatioMap,
                         pagerState = pagerState,
                         onReactionClick = onReactionClick,
                         onImageClick = navigateToDetail,
                         onGalleryClick = navigateToTheir,
                         onFollowClick = onFollowClick,
-                        updateImageRatio = updateImageRatio
                     )
                 }
             }
@@ -222,13 +215,11 @@ private fun HomeScreen(
 private fun HomeContent(
     postUiModels: List<PostUiModel>,
     modifier: Modifier = Modifier,
-    imageRatioMap: Map<Int, Float> = mapOf(),
     pagerState: PagerState = rememberPagerState(pageCount = { 1 }),
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
     onImageClick: (PostUiModel) -> Unit = {},
     onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostUiModel) -> Unit = {},
-    updateImageRatio: (Int, Float) -> Unit = { _, _ -> }
 ) {
     HorizontalPager(
         modifier = modifier,
@@ -252,8 +243,7 @@ private fun HomeContent(
             ) {
                 CoilImage(
                     imageUrl = post.imageUrl,
-                    imageRatio = imageRatioMap[page] ?: (4f / 5f),
-                    updateImageRatio = { updateImageRatio(page, it) },
+                    imageRatio = post.imageRatio,
                     onClick = { onImageClick(post) }
                 )
             }

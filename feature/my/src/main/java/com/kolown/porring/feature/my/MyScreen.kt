@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -228,7 +227,7 @@ private fun MyContent(
 
             if (pagingItem != null) {
                 GalleryItem(
-                    postContentModel = pagingItem,
+                    post = pagingItem,
                     longClickEnabled = longClickEnabled,
                     onLongClickImage = { onLongClick(pagingItem.postId) },
                     onClickImage = { navigateToDetail(index) }
@@ -252,13 +251,11 @@ private fun MyContent(
 
 @Composable
 private fun GalleryItem(
-    postContentModel: MyPost,
+    post: MyPost,
     onLongClickImage: () -> Unit = {},
     onClickImage: () -> Unit = {},
     longClickEnabled: Boolean = true
 ) {
-    val imageRatio = rememberSaveable { mutableFloatStateOf(4f / 5f) }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -267,9 +264,8 @@ private fun GalleryItem(
         CoilImage(
             onClick = onClickImage,
             onLongClick = { if (longClickEnabled) onLongClickImage() },
-            imageUrl = postContentModel.imageUrl,
-            imageRatio = imageRatio.floatValue,
-            updateImageRatio = { imageRatio.floatValue = it }
+            imageUrl = post.imageUrl,
+            imageRatio = post.imageRatio,
         )
     }
 }

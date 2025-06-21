@@ -27,6 +27,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import com.kolown.porring.core.ui.model.PostUiModel
@@ -49,7 +50,6 @@ internal fun TheirRoute(
     val refreshState = rememberPullToRefreshState()
 
     val onRefresh: () -> Unit = {
-        // TODO: 리프레시 동작 구현해야함
         isRefreshing = true
         pagingItems.refresh()
     }
@@ -137,19 +137,8 @@ private fun TheirScreen(
             }
 
             pagingItems.loadState.refresh is LoadState.Loading -> {
-//                updateShowErrorScreen(false)
-//                LoadingScreen()
-                CompositionLocalProvider(
-                    LocalOverscrollConfiguration provides null
-                ) {
-                    StateLazyGrid(
-                        listState = listState,
-                        longClickEnabled = false,
-                        pagingItems = pagingItems,
-                        navigateToDetail = navigateToDetail,
-                        setPage = setPage
-                    )
-                }
+                updateShowErrorScreen(false)
+                LoadingScreen()
             }
 
             pagingItems.loadState.refresh is LoadState.NotLoading -> {
