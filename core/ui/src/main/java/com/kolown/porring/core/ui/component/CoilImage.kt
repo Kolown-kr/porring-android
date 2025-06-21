@@ -40,13 +40,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun CoilImage(
     modifier: Modifier = Modifier,
-    delay: Long = 0L,
     imageUrl: String,
     isTextExist: Boolean = true,
     isClickedEnabled: Boolean = true,
     isRipple: Boolean = true,
     imageRatio: Float = 4f / 5f,
-    updateImageRatio: (Float) -> Unit = {},
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
     onDoubleClick: () -> Unit = {},
@@ -111,16 +109,6 @@ fun CoilImage(
                 },
                 onSuccess = {
                     coroutineScope.launch {
-                        val height = it.result.image.height
-                        val width = it.result.image.width
-
-                        if (height > width) {
-                            updateImageRatio(4f / 5f)
-                        } else {
-                            updateImageRatio(5f / 4f)
-                        }
-
-                        delay(delay)
                         isLoading = false
                         isError = false
                     }

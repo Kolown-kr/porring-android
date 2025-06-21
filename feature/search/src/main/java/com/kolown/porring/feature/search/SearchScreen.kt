@@ -213,7 +213,7 @@ private fun SearchImages(
                         .aspectRatio(1f),
                     onClick = { onImageClicked(image.postId) },
                     imageUrl = image.imageUrl,
-                    delay = 1500,
+                    imageRatio = 1f,
                     isTextExist = false
                 )
             } else {

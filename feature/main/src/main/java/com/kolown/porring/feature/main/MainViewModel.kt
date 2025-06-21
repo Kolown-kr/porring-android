@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.main
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
@@ -12,7 +11,6 @@ import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.feature.main.model.SnackBarNavigation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -42,10 +40,6 @@ class MainViewModel @Inject constructor(
             }
         }
     }
-
-    @Inject
-    @ApplicationContext
-    lateinit var appContext: Context
 
     private val _versionNameFlow = MutableSharedFlow<String>()
     val versionNameFlow = _versionNameFlow.asSharedFlow()
