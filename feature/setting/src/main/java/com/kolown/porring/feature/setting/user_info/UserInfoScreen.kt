@@ -43,7 +43,8 @@ internal fun UserInfoRoute(
 ) {
 
     UserInfoScreen(
-
+        popBackStack = popBackStack,
+        padding = padding
     )
 }
 
