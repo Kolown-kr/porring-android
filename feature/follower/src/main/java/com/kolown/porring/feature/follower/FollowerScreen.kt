@@ -33,7 +33,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.model.FollowWithThumbnail
-import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
