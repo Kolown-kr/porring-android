@@ -6,13 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.SnackBarBridge
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator
@@ -28,10 +24,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navigator: MainNavigator = rememberMainNavigator()
             val currentRoute = navigator.currentDestination?.route?.substringAfterLast(".") ?: ""
-
             val versionNameState by mainViewModel.versionNameFlow.collectAsState("")
             val vName = this.packageManager.getPackageInfo(this.packageName, 0).versionName
-            val snackBarBridge = remember { SnackBarBridge(mainViewModel::postSnackBarData) }
 
             PorringTheme(currentRoute = currentRoute) {
                 if (versionNameState.isNotBlank() && vName != versionNameState) {
@@ -39,15 +33,14 @@ class MainActivity : ComponentActivity() {
                         finishAndRemoveTask()
                     })
                 } else {
-                    CompositionLocalProvider(LocalSnackBarBridge.provides(snackBarBridge)) {
-                        MainScreen(
-                            navigator = navigator,
-                            mainViewModel
-                        )
-                    }
+                    MainRoute(
+                        navigator = navigator,
+                        mainViewModel
+                    )
                 }
             }
         }
+
         if (!BuildConfig.DEBUG) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
