@@ -4,9 +4,12 @@ import com.kolown.porring.core.data.api.datasource.local.LocalUserCacheDataSourc
 import com.kolown.porring.core.data.api.datasource.local.LocalUserPrefDatasource
 import com.kolown.porring.core.data.mapper.toData
 import com.kolown.porring.core.data.mapper.toModel
+import com.kolown.porring.core.datastore.LocalUserDataSource
+import com.kolown.porring.core.model.User
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.Dispatchers
+import com.kolown.porring.core.network.RemoteUserDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -20,6 +23,13 @@ interface UserRepository {
 
     suspend fun fetchUserReactedPost(): Result<Unit>
     suspend fun clearReactedPostCache()
+
+    suspend fun getCurrentUser(): Result<User>
+    suspend fun changeReceiverEmailEmail(email: String): Result<Unit>
+    suspend fun deleteAccount(
+        email: String,
+        password: String
+    ): Result<Unit>
 }
 
 class UserRepositoryImpl @Inject constructor(
@@ -43,6 +53,15 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getLatestUserEmail(): Flow<String> {
         return localUserPrefDatasourceImpl.getUserEmail(authDataSource.getUserId())
     }
+
+    override suspend fun getCurrentUser() =
+        remoteUserDataSource.getUser(authDataSource.getUserId())
+
+    override suspend fun changeReceiverEmailEmail(email: String): Result<Unit> =
+        remoteUserDataSource.changeReceiverEmail(authDataSource.getUserId(), email)
+
+    override suspend fun deleteAccount(email: String, password: String): Result<Unit> =
+        authDataSource.deleteAccount(email, password)
 
     override fun getUserData(): Result<String> {
         return runCatching {

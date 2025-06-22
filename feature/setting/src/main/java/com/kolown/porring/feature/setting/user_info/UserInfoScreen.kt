@@ -15,25 +15,39 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
+import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.ErrorContainer
 import com.kolown.porring.core.designsystem.ui.theme.OnBackground
 import com.kolown.porring.core.designsystem.ui.theme.OnErrorContainer
+import com.kolown.porring.core.designsystem.ui.theme.OnSurface
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.Secondary
+import com.kolown.porring.core.ui.ext.noRippleClickable
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 internal fun UserInfoRoute(
@@ -41,16 +55,52 @@ internal fun UserInfoRoute(
     popBackStack: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.init()
+    }
+
+    if (state.isEmailDialogVisible) {
+        ChangeDialog(
+            title = "이메일 변경",
+            description = "중요 알림과 계정 정보를 수신할" +
+                    "이메일 주소를 입력해 주세요.",
+            hint = "이메일 주소를 입력해 주세요.",
+            textValue = state.dialogEmailAddress,
+            onValueChange = viewModel::onEmailChange,
+            onDismissRequest = viewModel::onEmailChangeDismiss,
+            onConfirmClick = viewModel::requestEmailChange
+        )
+    }
+
+    if (state.isDeleteDialogVisible) {
+        ChangeDialog(
+            title = "비밀번호 확인",
+            description = "탈퇴를 위해 비밀번호를 확인해주세요.",
+            hint = "비밀번호를 입력해 주세요.",
+            textValue = state.dialogPassword,
+            onValueChange = viewModel::onDeletePasswordChange,
+            onDismissRequest = viewModel::onDeletePasswordDismiss,
+            onConfirmClick = viewModel::requestDelete
+        )
+    }
 
     UserInfoScreen(
+        state = state,
         popBackStack = popBackStack,
+        onEmailChangeClick = viewModel::onEmailChangeClick,
+        onDeleteClick = viewModel::onDeleteClick,
         padding = padding
     )
 }
 
 @Composable
 private fun UserInfoScreen(
+    state: UserInfoViewModel.State = UserInfoViewModel.State(),
     popBackStack: () -> Unit = {},
+    onEmailChangeClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
     Column(
@@ -81,14 +131,16 @@ private fun UserInfoScreen(
         ) {
             Section(
                 title = "사용자 ID",
-                description = "user1234@example.com"
+                description = state.user.email
             )
 
             Section(
                 title = "사용자 이메일",
-                description = "user1234@example.com"
+                description = state.user.receiverEmail
             ) {
                 Text(
+                    modifier = Modifier
+                        .noRippleClickable(onEmailChangeClick),
                     text = "변경하기",
                     style = MaterialTheme.typography.labelMedium,
                     color = Primary
@@ -97,7 +149,7 @@ private fun UserInfoScreen(
 
             Section(
                 title = "사용자 통계",
-                description = "2000년 00월 00일 가입"
+                description = state.user.createAt.formatText()
             )
 
             Row(
@@ -108,12 +160,12 @@ private fun UserInfoScreen(
             ) {
                 StatColumn(
                     label = "올린 사진",
-                    value = 0,
+                    value = state.user.posts.size,
                     unit = "개"
                 )
                 StatColumn(
                     label = "팔로우 수",
-                    value = 0,
+                    value = state.user.follows.size,
                     unit = "명"
                 )
             }
@@ -132,7 +184,7 @@ private fun UserInfoScreen(
                     containerColor = ErrorContainer,
                     contentColor = OnErrorContainer,
                 ),
-                onClick = {}
+                onClick = onDeleteClick
             ) {
                 Text(
                     text = "탈퇴하기",
@@ -210,10 +262,106 @@ private fun RowScope.StatColumn(
     }
 }
 
+@Composable
+private fun ChangeDialog(
+    title: String,
+    description: String,
+    hint: String,
+    textValue: String = "",
+    onValueChange: (String) -> Unit = {},
+    onConfirmClick: () -> Unit = {},
+    onDismissRequest: () -> Unit = {},
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(Background)
+                .padding(
+                    top = 32.dp,
+                    bottom = 20.dp,
+                    start = 24.dp,
+                    end = 24.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) { 
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineSmall,
+                color = Primary
+            )
+
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = OnSurface
+            )
+
+            Spacer(Modifier)
+
+            PorringTextField(
+                value = textValue,
+                onValueChange = onValueChange,
+                hint = hint
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onDismissRequest
+                ) {
+                    Text(
+                        text = "취소",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Error
+                    )
+                }
+
+                TextButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onConfirmClick
+                ) {
+                    Text(
+                        text = "변경 하기",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun ZonedDateTime.formatText(): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 '가입'", Locale.KOREAN)
+    return format(formatter)
+}
+
 @Preview
 @Composable
 private fun Preview() {
     PorringTheme(true) {
         UserInfoScreen()
+    }
+}
+
+@Preview
+@Composable
+private fun Preview2() {
+    PorringTheme(true) {
+        ChangeDialog(
+            title = "이메일 변경",
+            description = "중요 알림과 계정 정보를 수신할" +
+                    "이메일 주소를 입력해 주세요.",
+            hint = ""
+        )
     }
 }
