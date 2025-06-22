@@ -47,6 +47,7 @@ import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.ext.noRippleClickable
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -57,7 +58,7 @@ internal fun UserInfoRoute(
     viewModel: UserInfoViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
     navigateToHome: () -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var toastMessage by remember { mutableStateOf<String?>(null) }
@@ -431,7 +432,7 @@ private fun ZonedDateTime.formatText(): String {
 @Preview
 @Composable
 private fun Preview() {
-    PorringTheme(true) {
+    PorringTheme("") {
         UserInfoScreen()
     }
 }

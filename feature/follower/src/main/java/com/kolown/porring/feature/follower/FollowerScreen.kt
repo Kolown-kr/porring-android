@@ -35,7 +35,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.model.FollowWithThumbnail
-import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
@@ -47,7 +46,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FollowerRoute(
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
     viewModel: FollowerViewModel = hiltViewModel(),
     navigateToLogin: () -> Unit,
     navigateToTheir: (String) -> Unit,
@@ -152,7 +151,10 @@ private fun FollowerScreen(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         scaleFraction = scaleFraction,
-        topBar = { Spacer(modifier = Modifier.height(16.dp)) }
+        topBar = { PorringCenterAlignTopAppBar(title = stringResource(R.string.string_follow)) },
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = padding.calculateTopPadding())
     ) {
         when {
             showErrorScreen -> {
@@ -174,8 +176,7 @@ private fun FollowerScreen(
             pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount != 0 -> {
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp),
+                        .fillMaxSize(),
                     state = pagerState,
                 ) {
                     items(pagingItems.itemCount) { index ->
@@ -197,6 +198,10 @@ private fun FollowerScreen(
                                 pagingItems.retry()
                             }
                         }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(padding.calculateBottomPadding()))
                     }
                 }
             }

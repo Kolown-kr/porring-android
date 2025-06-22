@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,7 +75,6 @@ internal fun DetailRoute(
     order: Int,
     authorId: String,
     postId: String?,
-    padding: PaddingValues = PaddingValues(),
     viewModel: DetailViewModel = hiltViewModel(),
     navigateToTheir: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
@@ -161,7 +162,6 @@ internal fun DetailRoute(
         DetailScreen(
             posts = posts,
             pagerState = pagerState,
-            padding = padding,
             eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
             galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
             onShowReelsMode = { reelsModePostUrl = it },
@@ -177,7 +177,6 @@ internal fun DetailRoute(
 private fun DetailScreen(
     posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
-    padding: PaddingValues = PaddingValues(),
     eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
@@ -189,8 +188,7 @@ private fun DetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
-//            .padding(padding)
+            .systemBarsPadding()
     ) {
         PorringTopAppBar(
             navigationIcon = {

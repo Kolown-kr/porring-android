@@ -1,8 +1,6 @@
 package com.kolown.porring.feature.main.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -29,114 +27,97 @@ import com.kolown.porring.feature.upload.navigation.uploadNavGraph
 @Composable
 internal fun MainNavHost(
     navigator: MainNavigator,
-    padding: PaddingValues,
 ) {
-    Box(
+    NavHost(
         modifier = Modifier
             .fillMaxSize()
-            .background(PorringTheme.colors.background)
+            .background(PorringTheme.colors.background),
+        navController = navigator.navController,
+        startDestination = navigator.startDestination,
     ) {
-        NavHost(
-            navController = navigator.navController,
-            startDestination = navigator.startDestination,
-        ) {
-            homeNavGraph(
-                padding = padding,
-                navigateToTheir = navigator::navigateToTheir,
-                navigateToDetail = {
-                    navigator.navigateToDetail(
-                        MainMenuRoute.Detail.Type.DEFAULT,
-                        0
-                    )
-                },
-            )
+        homeNavGraph(
+            navigateToTheir = navigator::navigateToTheir,
+            navigateToDetail = {
+                navigator.navigateToDetail(
+                    MainMenuRoute.Detail.Type.DEFAULT,
+                    0
+                )
+            },
+        )
 
-            searchNavGraph(
-                padding = padding,
-                navigateToSearchDetail = navigator::navigateToDetailSearch,
-            )
+        searchNavGraph(
+            navigateToSearchDetail = navigator::navigateToDetailSearch,
+        )
 
-            cameraNavGraph(
-                navigateToImageEdit = { imgUri ->
-                    navigator.navigateToImageEdit(imgUri)
-                },
-                padding = padding,
-                popBackStack = navigator::popBackStack
-            )
+        cameraNavGraph(
+            navigateToImageEdit = { imgUri ->
+                navigator.navigateToImageEdit(imgUri)
+            },
+            popBackStack = navigator::popBackStack
+        )
 
-            followerNavGraph(
-                padding = padding,
-                navigateToLogin = navigator::navigateToLogin,
-                navigateToTheir = navigator::navigateToTheir
-            )
+        followerNavGraph(
+            navigateToLogin = navigator::navigateToLogin,
+            navigateToTheir = navigator::navigateToTheir
+        )
 
-            myNavGraph(
-                padding = padding,
-                navigateToLogin = navigator::navigateToLogin,
-                navigateToSetting = navigator::navigateToSetting,
-                navigateToDetail = navigator::navigateToDetailMy,
-            )
+        myNavGraph(
+            navigateToLogin = navigator::navigateToLogin,
+            navigateToSetting = navigator::navigateToSetting,
+            navigateToDetail = navigator::navigateToDetailMy,
+        )
 
-            detailNavGraph(
-                padding = padding,
-                navigateToTheir = navigator::navigateToTheir,
-                popBackStack = navigator::popBackStack
-            )
+        detailNavGraph(
+            navigateToTheir = navigator::navigateToTheir,
+            popBackStack = navigator::popBackStack
+        )
 
-            detailMyNavGraph(
-                padding = padding,
-                popBackStack = navigator::popBackStack
-            )
+        detailMyNavGraph(
+            popBackStack = navigator::popBackStack
+        )
 
-            uploadNavGraph(
-                padding = padding,
-                navigateToHome = { navigator.navigate(MainMenu.HOME) }
-            )
+        uploadNavGraph(
+            navigateToHome = { navigator.navigate(MainMenu.HOME) }
+        )
 
-            loginNavGraph(
-                popBackStack = navigator::popBackStack,
-                navigateToJoin = navigator::navigateToJoin,
-                padding = padding
-            )
+        loginNavGraph(
+            popBackStack = navigator::popBackStack,
+            navigateToJoin = navigator::navigateToJoin,
+        )
 
-            settingNavGraph(
-                popBackStack = navigator::popBackStack,
-                navigateToUserInfo = navigator::navigateToUserInfo,
-                navigateToHome = { navigator.popBackStack(MainMenuRoute.My) },
-                navigateToPrivacy = navigator::navigateToPrivacy,
-                navigateToDeletedAccount = navigator::navigateToDeletedAccount,
-                padding = padding
-            )
+        settingNavGraph(
+            popBackStack = navigator::popBackStack,
+            navigateToUserInfo = navigator::navigateToUserInfo,
+            navigateToHome = { navigator.popBackStack(MainMenuRoute.My) },
+            navigateToPrivacy = navigator::navigateToPrivacy,
+            navigateToDeletedAccount = navigator::navigateToDeletedAccount,
+        )
 
-            theirNavGraph(
-                popBackStack = navigator::popBackStack,
-                navigateToDetail = { authorId, postId ->
-                    navigator.navigateToDetail(
-                        type = MainMenuRoute.Detail.Type.FOLLOW,
-                        order = 0,
-                        authorId = authorId,
-                        postId = postId
-                    )
-                },
-                padding = padding
-            )
+        theirNavGraph(
+            popBackStack = navigator::popBackStack,
+            navigateToDetail = { authorId, postId ->
+                navigator.navigateToDetail(
+                    type = MainMenuRoute.Detail.Type.FOLLOW,
+                    order = 0,
+                    authorId = authorId,
+                    postId = postId
+                )
+            },
+        )
 
-            joinNavGraph(
-                popBackStack = navigator::popBackStack,
-                padding = padding
-            )
+        joinNavGraph(
+            popBackStack = navigator::popBackStack,
+        )
 
-            imageEditNavGraph(
-                padding = padding,
-                navigateToHome = { navigator.navigate(MainMenu.HOME) },
-                navigateToUpload = { imgUri, imageRatio ->
-                    navigator.navigateToUpload(
-                        imgUri,
-                        imageRatio,
-                        UploadModel("", 0f, "", emptyList())
-                    )
-                }
-            )
-        }
+        imageEditNavGraph(
+            navigateToHome = { navigator.navigate(MainMenu.HOME) },
+            navigateToUpload = { imgUri, imageRatio ->
+                navigator.navigateToUpload(
+                    imgUri,
+                    imageRatio,
+                    UploadModel("", 0f, "", emptyList())
+                )
+            }
+        )
     }
 }

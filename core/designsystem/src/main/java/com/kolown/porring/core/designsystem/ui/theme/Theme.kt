@@ -18,9 +18,11 @@ fun PorringTheme(
     currentRoute: String,
     content: @Composable () -> Unit,
 ) {
-    val isDarkMode = isSystemInDarkTheme()
+    val isForcedDarkMode = currentRoute.shouldForceDarkMode()
+    val isDarkMode = if (isForcedDarkMode) true else isSystemInDarkTheme()
+
     val colors: PorringColor = if (isDarkMode) PorringDarkColor else PorringLightColor
-    val isLightSystemBars = currentRoute.getSystemBarIconColor(isDarkMode)
+    val isLightSystemBars = isDarkMode.not()
 
     val view = LocalView.current
     val window = (view.context as Activity).window
@@ -56,11 +58,11 @@ private fun Window.setSystemBarBackground() {
     this.navigationBarColor = Color.Transparent.toArgb()
 }
 
-private fun String.getSystemBarIconColor(isDark: Boolean): Boolean {
+private fun String.shouldForceDarkMode(): Boolean {
     return when {
-        this.startsWith("Detail") -> false
-        this.startsWith("Camera") -> false
-        else -> isDark.not()
+        this.startsWith("Detail") -> true
+        this.startsWith("Camera") -> true
+        else -> false
     }
 }
 

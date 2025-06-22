@@ -21,14 +21,14 @@ fun PullToRefreshColumn(
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     isRefreshing: Boolean = false,
     onRefresh: () -> Unit = {},
+    modifier: Modifier = Modifier,
     scaleFraction: () -> Float = { 1f },
     topBar: @Composable () -> Unit,
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-//            .padding(padding)
             .pullToRefresh(
                 state = refreshState,
                 isRefreshing = isRefreshing,

@@ -18,8 +18,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -44,7 +44,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.feature.camera.R
 import com.kolown.porring.feature.camera.getImagePickerLauncher
 import com.kolown.porring.feature.camera.getSuspendedResult
@@ -58,7 +58,7 @@ internal fun CameraContent(
     isFlashOn: Boolean = false,
     viewModel: CameraScreenViewModel = hiltViewModel(),
     navigateToImageEdit: (String) -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current
@@ -122,7 +122,7 @@ internal fun CameraContent(
 
     val onShutterClick = {
         lifecycle.lifecycleScope.launch {
-            //MediaActionSound.mustPlayShutterSound()
+//            MediaActionSound.mustPlayShutterSound()
             MediaActionSound().play(MediaActionSound.SHUTTER_CLICK)
         }
     }
@@ -134,14 +134,12 @@ internal fun CameraContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
-            .padding(bottom = padding.calculateBottomPadding())
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .background(BackgroundDark),
+                .systemBarsPadding(),
         )
 
         if (capturedImage != null) {
@@ -192,8 +190,7 @@ internal fun CameraContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .background(BackgroundDark),
+                .height(48.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

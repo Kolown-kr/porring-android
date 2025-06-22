@@ -15,11 +15,12 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 
 @Composable
 internal fun PrivacyRoute(
     popBackStack: () -> Unit = {},
-    padding: PaddingValues = PaddingValues()
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
 
     PrivacyScreen(

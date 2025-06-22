@@ -36,7 +36,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TheirRoute(
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
     viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
     navigateToDetail: (String, String) -> Unit = { _, _ -> },
@@ -107,51 +107,67 @@ private fun TheirScreen(
     scaleFraction: () -> Float = { 1f },
     updateShowErrorScreen: (Boolean) -> Unit = {}
 ) {
-    PullToRefreshColumn(
-        padding = padding,
-        refreshState = refreshState,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        scaleFraction = scaleFraction,
-        topBar = {
-            PorringCenterAlignTopAppBar(
-                title = title,
-                navigationIcon = {
-                    PorringIconButton(
-                        icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
-                        onClick = popBackStack,
-                        contentDescription = stringResource(R.string.string_go_back)
-                    )
-                }
-            )
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        when {
-            showErrorScreen -> {
-                ErrorScreen()
+        PullToRefreshColumn(
+            refreshState = refreshState,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.padding(top = padding.calculateTopPadding()),
+            scaleFraction = scaleFraction,
+            topBar = {
+                PorringCenterAlignTopAppBar(
+                    title = title,
+                    navigationIcon = {
+                        PorringIconButton(
+                            icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
+                            onClick = popBackStack,
+                            contentDescription = stringResource(R.string.string_go_back)
+                        )
+                    }
+                )
             }
+        ) {
+            when {
+                showErrorScreen -> {
+                    ErrorScreen()
+                }
 
-            pagingItems.loadState.refresh is LoadState.Error -> {
-                updateShowErrorScreen(false)
-                ErrorScreen()
-            }
+                pagingItems.loadState.refresh is LoadState.Error -> {
+                    updateShowErrorScreen(false)
+                    ErrorScreen()
+                }
 
-            pagingItems.loadState.refresh is LoadState.Loading -> {
-                updateShowErrorScreen(false)
-                LoadingScreen()
-            }
+                pagingItems.loadState.refresh is LoadState.Loading -> {
+                    CompositionLocalProvider(
+                        LocalOverscrollConfiguration provides null
+                    ) {
+                        StateLazyGrid(
+                            padding = padding,
+                            listState = listState,
+                            longClickEnabled = false,
+                            pagingItems = pagingItems,
+                            navigateToDetail = navigateToDetail,
+                            setPage = setPage
+                        )
+                    }
+                }
 
-            pagingItems.loadState.refresh is LoadState.NotLoading -> {
-                CompositionLocalProvider(
-                    LocalOverscrollConfiguration provides null
-                ) {
-                    StateLazyGrid(
-                        listState = listState,
-                        longClickEnabled = false,
-                        pagingItems = pagingItems,
-                        navigateToDetail = navigateToDetail,
-                        setPage = setPage
-                    )
+                pagingItems.loadState.refresh is LoadState.NotLoading -> {
+                    CompositionLocalProvider(
+                        LocalOverscrollConfiguration provides null
+                    ) {
+                        StateLazyGrid(
+                            padding = padding,
+                            listState = listState,
+                            longClickEnabled = false,
+                            pagingItems = pagingItems,
+                            navigateToDetail = navigateToDetail,
+                            setPage = setPage
+                        )
+                    }
                 }
             }
         }

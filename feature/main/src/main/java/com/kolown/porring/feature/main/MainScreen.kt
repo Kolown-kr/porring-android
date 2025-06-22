@@ -163,25 +163,24 @@ private fun MainScreen(
     onMenuSelected: (MainMenu) -> Unit = {},
     onCameraSelected: () -> Unit = {},
 ) {
-    Box(
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Scaffold(
+        snackbarHost = { CustomSnackBar(snackBarHostState) },
+        bottomBar = {
+
+        }
+    ) { paddingValues ->
+        val bottomBarHeight = 92.dp
+        val newPaddingValues = PaddingValues(
+            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+            end = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+            bottom = paddingValues.calculateBottomPadding() + bottomBarHeight,
+            top = paddingValues.calculateTopPadding()
+        )
+        Box(
             modifier = Modifier.fillMaxSize(),
-            snackbarHost = { CustomSnackBar(snackBarHostState) },
-            bottomBar = {
-
-            }
-        ) { paddingValues ->
-            val bottomBarHeight = 92.dp
-            val newPaddingValues = PaddingValues(
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                bottom = paddingValues.calculateBottomPadding() + bottomBarHeight,
-                top = paddingValues.calculateTopPadding()
-            )
-
+            contentAlignment = Alignment.BottomCenter
+        ) {
             CompositionLocalProvider(
                 LocalPaddingValues provides newPaddingValues,
                 LocalSnackBarBridge provides snackBarBridge
@@ -190,15 +189,15 @@ private fun MainScreen(
                     navigator = navigator,
                 )
             }
-        }
 
-        MainBottomBar(
-            visible = navigator.isShowBottomBar(),
-            menus = MainMenu.entries.toPersistentList(),
-            currentMenu = navigator.currentMenu,
-            onMenuSelected = onMenuSelected,
-            onCameraSelected = onCameraSelected,
-        )
+            MainBottomBar(
+                visible = navigator.isShowBottomBar(),
+                menus = MainMenu.entries.toPersistentList(),
+                currentMenu = navigator.currentMenu,
+                onMenuSelected = onMenuSelected,
+                onCameraSelected = onCameraSelected,
+            )
+        }
     }
 }
 

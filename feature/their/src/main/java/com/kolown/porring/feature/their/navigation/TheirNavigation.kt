@@ -1,13 +1,11 @@
 package com.kolown.porring.feature.their.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.kolown.porring.core.navigation.MainMenuRoute
-import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.their.TheirRoute
 
 fun NavController.navigateTheir(authorId: String, navOptions: NavOptions? = null) {
@@ -17,11 +15,9 @@ fun NavController.navigateTheir(authorId: String, navOptions: NavOptions? = null
 fun NavGraphBuilder.theirNavGraph(
     popBackStack: () -> Unit,
     navigateToDetail: (String, String) -> Unit,
-    padding: PaddingValues,
 ) {
     composable<MainMenuRoute.Their> { navBackStackEntry ->
         TheirRoute(
-            padding = padding,
             viewModel = hiltViewModel(),
             navigateToDetail = navigateToDetail,
             popBackStack = popBackStack

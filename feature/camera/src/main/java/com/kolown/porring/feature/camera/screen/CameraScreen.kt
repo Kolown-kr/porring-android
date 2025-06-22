@@ -1,9 +1,8 @@
 package com.kolown.porring.feature.camera.screen
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,13 +21,11 @@ import com.kolown.porring.feature.camera.R
 @Composable
 internal fun CameraRoute(
     navigateToImageEdit: (String) -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
     popBackStack: () -> Unit = {},
 ) {
     CameraScreen(
         navigateToImageEdit = navigateToImageEdit,
         popBackStack = popBackStack,
-        padding = padding
     )
 }
 
@@ -36,18 +33,17 @@ internal fun CameraRoute(
 private fun CameraScreen(
     navigateToImageEdit: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
 ) {
     var cameraFlashState by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .systemBarsPadding()
     ) {
         CameraContent(
             isFlashOn = cameraFlashState,
             navigateToImageEdit = navigateToImageEdit,
-            padding = padding
         )
 
         PorringTopAppBar(
@@ -67,7 +63,6 @@ private fun CameraScreen(
                     color = Color.White
                 )
             },
-            modifier = Modifier.padding(top = padding.calculateTopPadding())
         )
     }
 }

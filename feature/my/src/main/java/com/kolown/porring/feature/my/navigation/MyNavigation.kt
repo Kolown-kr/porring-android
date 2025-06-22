@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.my.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -14,7 +13,6 @@ fun NavController.navigateMy(navOptions: NavOptions) {
 }
 
 fun NavGraphBuilder.myNavGraph(
-    padding: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToSetting: () -> Unit,
     navigateToDetail: (Int) -> Unit,
@@ -24,7 +22,6 @@ fun NavGraphBuilder.myNavGraph(
             navigateToLogin = navigateToLogin,
             navigateToSetting = navigateToSetting,
             navigateToDetail = navigateToDetail,
-            padding = padding,
             viewModel = hiltViewModel()
         )
     }

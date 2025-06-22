@@ -27,6 +27,7 @@ import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.SurfaceError
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.feature.setting.R
 
 @Composable
@@ -34,7 +35,7 @@ internal fun DeletedAccountRoute(
     viewModel: DeletedAccountViewModel = hiltViewModel(),
     navigateToHome: () -> Unit = {},
     popBackStack: () -> Unit = {},
-    padding: PaddingValues
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     

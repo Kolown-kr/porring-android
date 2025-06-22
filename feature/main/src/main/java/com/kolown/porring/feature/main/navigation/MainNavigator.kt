@@ -120,7 +120,9 @@ internal class MainNavigator(
 
     @Composable
     fun isShowBottomBar() = MainMenu.contains {
-        currentDestination?.hasRoute(it::class) == true
+        currentDestination?.hasRoute(it::class) == true || currentDestination?.hasRoute(
+            MainMenuRoute.Their::class
+        ) ?: false
     }
 }
 

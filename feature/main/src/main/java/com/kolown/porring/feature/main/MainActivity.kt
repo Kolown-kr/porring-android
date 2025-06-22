@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                 } else {
                     MainRoute(
                         navigator = navigator,
-                        mainViewModel
+                        mainViewModel = mainViewModel
                     )
                 }
             }
