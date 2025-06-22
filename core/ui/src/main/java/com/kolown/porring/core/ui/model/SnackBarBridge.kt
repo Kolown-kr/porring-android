@@ -1,4 +1,4 @@
-package com.kolown.porring.core.ui.component
+package com.kolown.porring.core.ui.model
 
 import com.kolown.porring.core.model.SnackBarEvent
 
