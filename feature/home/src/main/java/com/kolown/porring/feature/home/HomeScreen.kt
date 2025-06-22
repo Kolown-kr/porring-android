@@ -56,17 +56,18 @@ import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 import com.kolown.porring.core.ui.component.toImage
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
+import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HomeRoute(
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
     viewModel: HomeViewModel = hiltViewModel(),
     navigateToDetail: () -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
@@ -166,6 +167,9 @@ private fun HomeScreen(
 ) {
     PullToRefreshColumn(
         padding = padding,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding),
         refreshState = refreshState,
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,

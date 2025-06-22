@@ -1,16 +1,15 @@
 package com.kolown.porring.feature.detail_my
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -34,14 +33,12 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FullscreenImageViewer
 
 @Composable
 internal fun DetailMyRoute(
-    padding: PaddingValues,
     popBackStack: () -> Unit,
     viewModel: DetailMyViewModel = hiltViewModel()
 ) {
@@ -61,7 +58,6 @@ internal fun DetailMyRoute(
     } else {
         DetailMyScreen(
             pagerState = pagerState,
-            padding = padding,
             popBackStack = popBackStack,
             pagingItems = pagingItems,
             onAction = viewModel::onAction,
@@ -75,13 +71,11 @@ private fun DetailMyScreen(
     pagingItems: LazyPagingItems<MyPost>,
     popBackStack: () -> Unit = {},
     onAction: (DetailMyIntent) -> Unit = {},
-    padding: PaddingValues = PaddingValues()
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundDark)
-            .padding(padding)
+            .systemBarsPadding()
     ) {
         PorringTopAppBar(
             navigationIcon = {

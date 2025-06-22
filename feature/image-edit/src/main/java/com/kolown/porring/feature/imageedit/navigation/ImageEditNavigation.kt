@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.imageedit.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -14,7 +13,6 @@ fun NavController.navigateImageEdit(imgUri: String, navOptions: NavOptions? = nu
 }
 
 fun NavGraphBuilder.imageEditNavGraph(
-    padding: PaddingValues,
     navigateToHome: () -> Unit,
     navigateToUpload: (String, Float) -> Unit
 ) {
@@ -23,7 +21,6 @@ fun NavGraphBuilder.imageEditNavGraph(
 
         ImageEditRoute(
             imgUri = imgUri,
-            padding = padding,
             navigateToHome = navigateToHome,
             navigateToUpload = navigateToUpload
         )

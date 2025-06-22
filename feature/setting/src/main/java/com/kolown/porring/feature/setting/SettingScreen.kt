@@ -6,12 +6,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +34,9 @@ import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+import com.kolown.porring.feature.setting.component.MenuDivider
+import com.kolown.porring.feature.setting.component.TextLabel
+import com.kolown.porring.feature.setting.component.TextMenu
 
 @Composable
 internal fun SettingRoute(
@@ -41,7 +44,6 @@ internal fun SettingRoute(
     updateLoginState: () -> Unit,
     navigateToUserInfo: () -> Unit = {},
     settingViewModel: SettingViewModel = hiltViewModel(),
-    padding: PaddingValues,
 ) {
     val lifecycle = LocalLifecycleOwner.current
 
@@ -60,7 +62,6 @@ internal fun SettingRoute(
         clickLogout = settingViewModel::logout,
         navigateToUserInfo = navigateToUserInfo,
         popBackStack = popBackStack,
-        padding = padding
     )
 }
 
@@ -69,13 +70,11 @@ private fun SettingScreen(
     clickLogout: () -> Unit = {},
     navigateToUserInfo: () -> Unit = {},
     popBackStack: () -> Unit = {},
-    padding: PaddingValues = PaddingValues(),
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = PorringTheme.colors.background)
-            .padding(padding),
+            .systemBarsPadding(),
     ) {
         val context = LocalContext.current
         val showToast = { msg: String -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() }
@@ -179,7 +178,7 @@ private fun TextMenu(
 @Preview
 @Composable
 private fun Prev() {
-    PorringTheme(true) {
+    PorringTheme("") {
         SettingScreen()
     }
 }

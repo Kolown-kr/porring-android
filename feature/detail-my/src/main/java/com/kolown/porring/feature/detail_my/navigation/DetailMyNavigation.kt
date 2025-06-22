@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.detail_my.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -16,12 +15,10 @@ fun NavController.navigateToDetailMy(
 }
 
 fun NavGraphBuilder.detailMyNavGraph(
-    padding: PaddingValues,
     popBackStack: () -> Unit,
 ) {
     composable<Route.DetailMy> {
         DetailMyRoute(
-            padding = padding,
             popBackStack = popBackStack
         )
     }

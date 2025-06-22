@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
@@ -52,18 +51,20 @@ import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.model.UiState
 import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
+import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 
 @Composable
 internal fun JoinRoute(
     popBackStack: (Route) -> Unit,
     joinViewModel: JoinViewModel = hiltViewModel(),
-    padding: PaddingValues,
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val joinState by joinViewModel.joinState.collectAsStateWithLifecycle()
     var isProgress by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val snackBarBridge= LocalSnackBarBridge.current
+    val snackBarBridge = LocalSnackBarBridge.current
     LaunchedEffect(joinState) {
         when (joinState) {
             is UiState.Idle -> {
@@ -83,9 +84,12 @@ internal fun JoinRoute(
                 val exception = (joinState as UiState.Failure).error
 
                 when (exception) {
-                    is FirebaseAuthUserCollisionException -> snackBarBridge.postSnackBarString(context.getString(
-                        R.string.string_already_exist
-                    ))
+                    is FirebaseAuthUserCollisionException -> snackBarBridge.postSnackBarString(
+                        context.getString(
+                            R.string.string_already_exist
+                        )
+                    )
+
                     else -> Log.e(
                         "JoinScreen",
                         "fatal: ${(joinState as UiState.Failure).error}"

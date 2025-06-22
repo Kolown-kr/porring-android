@@ -43,7 +43,6 @@ fun NavController.navigateUpload(
 }
 
 fun NavGraphBuilder.uploadNavGraph(
-    padding: PaddingValues,
     navigateToHome: () -> Unit,
 ) {
     composable<Route.Upload>(
@@ -55,7 +54,6 @@ fun NavGraphBuilder.uploadNavGraph(
         UploadRoute(
             imgUri = imgUri,
             imageRatio = imageRatio,
-            padding = padding,
             navigateToHome = navigateToHome,
         )
     }

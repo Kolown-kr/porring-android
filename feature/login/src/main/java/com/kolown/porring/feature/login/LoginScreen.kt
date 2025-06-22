@@ -58,13 +58,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
+import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
+import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.feature.login.R.drawable
 import com.kolown.porring.feature.login.R.string
 import com.kolown.porring.feature.login.component.LoginButtonGroup
@@ -73,7 +75,6 @@ import com.kolown.porring.feature.login.util.LoginButton.PainterIconButton
 import com.kolown.porring.feature.login.util.LoginButton.VectorIconButton
 import com.kolown.porring.feature.login.util.LoginPlatform
 import com.kolown.porring.feature.login.util.getCredential
-import com.kolown.porring.core.model.UiState
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,7 +83,7 @@ internal fun LoginRoute(
     popBackStack: () -> Unit,
     navigateToJoin: () -> Unit,
     loginViewModel: LoginViewModel = hiltViewModel(),
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val context = LocalContext.current
     val isEmailLogin by loginViewModel.isEmailLogin.collectAsStateWithLifecycle()
@@ -113,8 +114,18 @@ internal fun LoginRoute(
                 when (val error = (loginState as UiState.Failure).error) {
                     is FirebaseAuthInvalidCredentialsException -> {
                         when (error.errorCode) {
-                            "ERROR_INVALID_EMAIL" -> snackBarBridge.postSnackBarString(context.getString(string.string_need_email_form))
-                            "ERROR_INVALID_CREDENTIAL" -> snackBarBridge.postSnackBarString(context.getString(string.string_need_to_check_email_or_pw))
+                            "ERROR_INVALID_EMAIL" -> snackBarBridge.postSnackBarString(
+                                context.getString(
+                                    string.string_need_email_form
+                                )
+                            )
+
+                            "ERROR_INVALID_CREDENTIAL" -> snackBarBridge.postSnackBarString(
+                                context.getString(
+                                    string.string_need_to_check_email_or_pw
+                                )
+                            )
+
                             else -> snackBarBridge.postSnackBarString(context.getString(string.string_check_email_pw))
                         }
                     }
@@ -173,33 +184,32 @@ private fun LoginScreen(
     popBackStack: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
+
+    Image(
+        contentScale = ContentScale.Crop,
+        painter = painterResource(drawable.bg_login),
+        contentDescription = null
+    )
+
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding),
     ) {
-        Image(
-            contentScale = ContentScale.Crop,
-            painter = painterResource(drawable.bg_login),
-            contentDescription = null
+
+        LoginContent(
+            latestEmail = latestEmail,
+            isEmailLogin = isEmailLogin,
+            isLoginProgress = isLoginProgress,
+            navigateToJoin = navigateToJoin,
+            onClickGoogleLogin = onClickGoogleLogin,
+            onClickEmailLogin = onClickEmailLogin,
+            onClickEmailMode = onClickEmailMode
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-
-            LoginContent(
-                latestEmail = latestEmail,
-                isEmailLogin = isEmailLogin,
-                isLoginProgress = isLoginProgress,
-                navigateToJoin = navigateToJoin,
-                onClickGoogleLogin = onClickGoogleLogin,
-                onClickEmailLogin = onClickEmailLogin,
-                onClickEmailMode = onClickEmailMode
-            )
-
-            if (loginState is UiState.Idle || loginState is UiState.Failure) {
-                PorringTopAppBar(navigationIcon = {
+        if (loginState is UiState.Idle || loginState is UiState.Failure) {
+            PorringTopAppBar(
+                navigationIcon = {
                     if (isEmailLogin) {
                         PorringIconButton(
                             icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
@@ -213,8 +223,8 @@ private fun LoginScreen(
                         onClick = popBackStack,
                         contentDescription = stringResource(string.string_go_back)
                     )
-                })
-            }
+                }
+            )
         }
     }
 }
@@ -252,7 +262,9 @@ fun LoginContent(
                         text = stringResource(string.start_with_google),
                         onClick = onClickGoogleLogin
                     ), VectorIconButton(
-                        icon = Icons.Default.Email, text = stringResource(string.string_email_login), onClick = onClickEmailMode
+                        icon = Icons.Default.Email,
+                        text = stringResource(string.string_email_login),
+                        onClick = onClickEmailMode
                     ), visible = isEmailLogin.not()
                 )
 
@@ -358,7 +370,9 @@ fun EmailLoginContent(
                 onClick = { navigateToJoin() },
             ) {
                 Text(
-                    text = stringResource(string.string_signup), color = Primary, style = MaterialTheme.typography.labelLarge
+                    text = stringResource(string.string_signup),
+                    color = Primary,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
         }

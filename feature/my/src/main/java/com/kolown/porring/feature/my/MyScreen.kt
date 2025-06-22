@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -57,13 +59,14 @@ import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PageItemFooter
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.RestrictedLoginContent
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MyRoute(
     viewModel: MyViewModel = hiltViewModel(),
-    padding: PaddingValues = PaddingValues(),
+    padding: PaddingValues = LocalPaddingValues.current,
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
     navigateToDetail: (Int) -> Unit = { _ -> },
@@ -156,6 +159,9 @@ private fun MyScreen(
         padding = padding,
         refreshState = refreshState,
         isRefreshing = isRefreshing,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = padding.calculateTopPadding()),
         onRefresh = onRefresh,
         scaleFraction = scaleFraction,
         topBar = {
@@ -198,6 +204,7 @@ private fun MyScreen(
                         listState = listState,
                         pagingItems = pagingItems,
                         navigateToDetail = navigateToDetail,
+                        bottomPadding = padding.calculateBottomPadding(),
                         onLongClick = updateDeletingPostId
                     )
                 }
@@ -211,6 +218,7 @@ private fun MyContent(
     listState: LazyStaggeredGridState = rememberLazyStaggeredGridState(),
     longClickEnabled: Boolean = true,
     pagingItems: LazyPagingItems<MyPost>,
+    bottomPadding: Dp,
     navigateToDetail: (Int) -> Unit = {},
     onLongClick: (String) -> Unit = {}
 ) {
@@ -245,6 +253,10 @@ private fun MyContent(
                     onRetryClicked = pagingItems::retry
                 )
             }
+        }
+
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Spacer(Modifier.height(bottomPadding))
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.kolown.porring.feature.search
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,9 +36,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.ui.theme.Gray
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.ui.component.CoilImage
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.core.ui.util.LaunchSideEffect
 import com.kolown.porring.feature.search.component.TagSearchBar
@@ -48,7 +51,7 @@ import com.kolown.porring.feature.search.model.SearchUiState
 
 @Composable
 internal fun SearchRoute(
-    padding: PaddingValues,
+    padding: PaddingValues = LocalPaddingValues.current,
     viewModel: SearchViewModel = hiltViewModel(),
     navigateToDetail: (String, String) -> Unit = { _, _ -> }
 ) {
@@ -117,7 +120,7 @@ private fun SearchScreen(
                         stringResource(R.string.string_input_keyword),
                         fontSize = 16.sp,
                         modifier = Modifier.align(Alignment.Center),
-                        color = Gray
+                        color = PorringTheme.colors.onBackground
                     )
                 }
             }

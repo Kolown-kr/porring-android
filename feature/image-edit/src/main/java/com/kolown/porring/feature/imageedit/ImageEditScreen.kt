@@ -1,7 +1,6 @@
 package com.kolown.porring.feature.imageedit
 
 import androidx.activity.compose.BackHandler
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.Canvas
@@ -18,10 +17,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,9 +50,9 @@ import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.ui.R.drawable
 import com.kolown.porring.feature.imageedit.component.boundedTransformGestures
 import com.kolown.porring.feature.imageedit.model.CropRatio
-import com.kolown.porring.feature.imageEdit.R.drawable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -139,7 +136,7 @@ private fun ImageEditScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
+            .systemBarsPadding()
     ) {
         PorringTopAppBar(
             navigationIcon = {
@@ -281,11 +278,15 @@ private fun ButtonGroup(
     selectedRatio: CropRatio,
     updateCropRatio: (CropRatio) -> Unit
 ) {
-    val portraitIconResId = if (selectedRatio == CropRatio.PORTRAIT) drawable.ic_portrait_active else drawable.ic_portrait_default
-    val landscapeIconResId = if (selectedRatio == CropRatio.LANDSCAPE) drawable.ic_landscape_active else drawable.ic_landscape_default
+    val portraitIconResId =
+        if (selectedRatio == CropRatio.PORTRAIT) drawable.ic_portrait_active else drawable.ic_portrait_default
+    val landscapeIconResId =
+        if (selectedRatio == CropRatio.LANDSCAPE) drawable.ic_landscape_active else drawable.ic_landscape_default
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 36.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 36.dp),
         horizontalArrangement = Arrangement.Center
     ) {
         PorringIconButton(

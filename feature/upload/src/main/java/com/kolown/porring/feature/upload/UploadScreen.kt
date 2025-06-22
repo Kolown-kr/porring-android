@@ -117,7 +117,6 @@ internal fun UploadRoute(
         description = uploadState.description,
         uploadEnable = uploadEnable,
         isDescriptionMax = isDescriptionMax,
-        padding = padding,
         scrollState = scrollState,
         focusManager = focusManager,
         focusRequester = focusRequester,
@@ -139,7 +138,6 @@ private fun UploadScreen(
     description: String = "",
     uploadEnable: Boolean = false,
     isDescriptionMax: Boolean = false,
-    padding: PaddingValues = PaddingValues(),
     scrollState: ScrollState = rememberScrollState(),
     focusManager: FocusManager = LocalFocusManager.current,
     focusRequester: FocusRequester = remember { FocusRequester() },
@@ -156,7 +154,7 @@ private fun UploadScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
+            .systemBarsPadding()
     ) {
         PorringTopAppBar(
             title = stringResource(R.string.string_new_post),
