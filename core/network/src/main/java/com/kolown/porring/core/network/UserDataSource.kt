@@ -115,4 +115,17 @@ class UserDataSourceImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun getUserEmail(userId: String): String =
+        userCollection.document(userId).get().await().getString(EMAIL).orEmpty()
+
+    override suspend fun changeReceiverEmail(userId: String, email: String): Result<Unit> = kotlin.runCatching {
+        userCollection.document(userId).update(RECEIVER_EMAIL, email).await()
+    }
+
+    companion object {
+        private const val USER = "user"
+        private const val EMAIL = "email"
+        private const val RECEIVER_EMAIL = "receiverEmail"
+    }
 }

@@ -1,7 +1,11 @@
 package com.kolown.porring.core.ui.ext
 
 import android.graphics.BlurMaskFilter
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -40,5 +44,14 @@ fun Modifier.shadow(
         canvas.translate(offsetX.toPx(), offsetY.toPx())
         canvas.drawOutline(shadowOutline, paint)
         canvas.restore()
+    }
+}
+
+inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+    clickable(
+        indication = null,
+        interactionSource = remember { MutableInteractionSource() }
+    ) {
+        onClick()
     }
 }

@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -50,7 +53,15 @@ class AuthDataSourceImpl @Inject constructor(
     override fun getUserInfo(): User {
         val currentUser = auth.currentUser ?: throw Exception("로그인 안된 유저")
 
-        return User(userId = "user-${currentUser.uid}", email = currentUser.email.orEmpty())
+        return User(
+            userId = "user-${currentUser.uid}", email = currentUser.email.orEmpty(),
+            createAt = currentUser.metadata?.creationTimestamp?.let {
+                ZonedDateTime.ofInstant(
+                    Instant.ofEpochMilli(it),
+                    ZoneId.systemDefault()
+                )
+            } ?: ZonedDateTime.now()
+        )
     }
 
     override fun checkUserLoggedIn(): Flow<Boolean> = callbackFlow {
@@ -82,7 +93,13 @@ class AuthDataSourceImpl @Inject constructor(
             auth.signInWithEmailAndPassword(email, password).await().let { user ->
                 User(
                     userId = "user-${user.user?.uid}",
-                    email = user.user?.email.orEmpty()
+                    email = user.user?.email.orEmpty(),
+                    createAt = user.user?.metadata?.creationTimestamp?.let {
+                        ZonedDateTime.ofInstant(
+                            Instant.ofEpochMilli(it),
+                            ZoneId.systemDefault()
+                        )
+                    } ?: ZonedDateTime.now()
                 )
             }
         }
