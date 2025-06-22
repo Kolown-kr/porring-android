@@ -1,6 +1,13 @@
 package com.kolown.porring.feature.main.component
 
 import android.content.res.Resources
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,12 +17,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
@@ -34,11 +42,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
@@ -55,46 +65,67 @@ internal fun MainBottomBar(
     onMenuSelected: (MainMenu) -> Unit = {},
     onCameraSelected: () -> Unit = {},
 ) {
-    if (visible) {
-        Box(
-            modifier = Modifier.navigationBarsPadding()
-        ) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-            ) {
-                GradientFloatingActionButton(
-                    item = menus[2],
-                    onClick = onCameraSelected
-                )
+    val density = LocalDensity.current
+    val insets = WindowInsets.systemBars
+    val navBarHeight = with(density) { insets.getBottom(this).toDp() }
 
-                Spacer(modifier = Modifier.height(30.dp))
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically(
+            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+            initialOffsetY = { it }
+        ) + fadeIn(),
+        exit = slideOutVertically(
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+            targetOffsetY = { it }
+        ) + fadeOut()
+    ) {
+        Column {
+            Box {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                ) {
+                    GradientFloatingActionButton(
+                        item = menus[2],
+                        onClick = onCameraSelected
+                    )
+
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .align(Alignment.BottomCenter)
+                        .shadow(
+                            color = Color(0xFF598AFF).copy(alpha = 0.1f),
+                            blur = 8.dp,
+                            offsetY = (-5).dp,
+                            shape = menuBarShape(isShadow = true),
+                        )
+                        .background(
+                            color = PorringTheme.colors.surface,
+                            shape = menuBarShape()
+                        ),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
+                    BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
+                    Spacer(modifier = Modifier.weight(1f))
+                    BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
+                    BottomBarItem(menus[4], currentMenu == menus[4], onMenuSelected)
+                }
             }
 
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .align(Alignment.BottomCenter)
-                    .shadow(
-                        color = Color(0xFF598AFF).copy(alpha = 0.1f),
-                        blur = 8.dp,
-                        offsetY = (-5).dp,
-                        shape = menuBarShape(isShadow = true),
-                    )
-                    .background(
-                        color = Color.White,
-                        shape = menuBarShape()
-                    ),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
-                BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
-                Spacer(modifier = Modifier.weight(1f))
-                BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
-                BottomBarItem(menus[4], currentMenu == menus[4], onMenuSelected)
-            }
+                    .height(navBarHeight)
+                    .background(PorringTheme.colors.surface)
+            )
         }
     }
 }
@@ -112,7 +143,7 @@ private fun RowScope.BottomBarItem(
                 onClick = { onNavigateTo(item) },
                 role = Role.Tab,
                 interactionSource = remember { MutableInteractionSource() },
-                indication = remember { ripple(radius = 32.dp) }
+                indication = null
             )
             .fillMaxHeight()
             .weight(1f),
@@ -121,7 +152,7 @@ private fun RowScope.BottomBarItem(
         Icon(
             imageVector = ImageVector.vectorResource(item.iconResId),
             contentDescription = item.contentDescription,
-            tint = if (isSelected) Primary else PrimaryUnActive,
+            tint = if (isSelected) PorringTheme.colors.primary else PorringTheme.colors.tertiary,
         )
     }
 }

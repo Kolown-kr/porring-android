@@ -7,30 +7,40 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.SnackBarContainer
 import com.kolown.porring.core.model.SnackBarEvent
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
-import com.kolown.porring.core.ui.component.showSnackBarWithData
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
+import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
+import com.kolown.porring.core.ui.compositionlocal.showSnackBarWithData
+import com.kolown.porring.core.ui.model.SnackBarBridge
 import com.kolown.porring.feature.main.component.MainBottomBar
 import com.kolown.porring.feature.main.component.MainNavHost
 import com.kolown.porring.feature.main.component.PorringAlertDialog
@@ -41,14 +51,16 @@ import com.kolown.porring.feature.main.navigation.rememberMainNavigator
 import kotlinx.collections.immutable.toPersistentList
 
 @Composable
-internal fun MainScreen(
+internal fun MainRoute(
     navigator: MainNavigator = rememberMainNavigator(),
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
+    val snackBarBridge = remember { SnackBarBridge(mainViewModel::postSnackBarData) }
+
     val isLoggedIn by mainViewModel.loginState.collectAsStateWithLifecycle(false)
     val activity = LocalView.current.context as Activity
-    val snackBarBridge = LocalSnackBarBridge.current
+
     var showRationale by remember { mutableStateOf(false) }
     var showSetting by remember { mutableStateOf(false) }
 
@@ -132,9 +144,10 @@ internal fun MainScreen(
         )
     }
 
-    MainScreenContent(
+    MainScreen(
         navigator = navigator,
         snackBarHostState = snackBarHostState,
+        snackBarBridge = snackBarBridge,
         onMenuSelected = navigator::navigate,
         onCameraSelected = {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -143,32 +156,50 @@ internal fun MainScreen(
 }
 
 @Composable
-private fun MainScreenContent(
+private fun MainScreen(
     navigator: MainNavigator,
     snackBarHostState: SnackbarHostState,
-    modifier: Modifier = Modifier,
+    snackBarBridge: SnackBarBridge,
     onMenuSelected: (MainMenu) -> Unit = {},
     onCameraSelected: () -> Unit = {},
 ) {
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { CustomSnackBar(snackBarHostState) },
-        content = { padding ->
-            MainNavHost(
-                navigator = navigator,
-                padding = padding,
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            snackbarHost = { CustomSnackBar(snackBarHostState) },
+            bottomBar = {
+
+            }
+        ) { paddingValues ->
+            val bottomBarHeight = 92.dp
+            val newPaddingValues = PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                bottom = paddingValues.calculateBottomPadding() + bottomBarHeight,
+                top = paddingValues.calculateTopPadding()
             )
-        },
-        bottomBar = {
-            MainBottomBar(
-                visible = navigator.isShowBottomBar(),
-                menus = MainMenu.entries.toPersistentList(),
-                currentMenu = navigator.currentMenu,
-                onMenuSelected = onMenuSelected,
-                onCameraSelected = onCameraSelected,
-            )
+
+            CompositionLocalProvider(
+                LocalPaddingValues provides newPaddingValues,
+                LocalSnackBarBridge provides snackBarBridge
+            ) {
+                MainNavHost(
+                    navigator = navigator,
+                )
+            }
         }
-    )
+
+        MainBottomBar(
+            visible = navigator.isShowBottomBar(),
+            menus = MainMenu.entries.toPersistentList(),
+            currentMenu = navigator.currentMenu,
+            onMenuSelected = onMenuSelected,
+            onCameraSelected = onCameraSelected,
+        )
+    }
 }
 
 @Composable
