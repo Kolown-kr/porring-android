@@ -34,8 +34,6 @@ import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.feature.setting.component.MenuDivider
-import com.kolown.porring.feature.setting.component.TextLabel
 import com.kolown.porring.feature.setting.component.TextMenu
 
 @Composable

@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -63,7 +62,6 @@ import kotlinx.coroutines.launch
 internal fun ImageEditRoute(
     viewModel: ImageEditViewModel = hiltViewModel(),
     imgUri: String = "",
-    padding: PaddingValues = PaddingValues(),
     navigateToHome: () -> Unit = {},
     navigateToUpload: (String, Float) -> Unit = { _, _ -> }
 ) {
@@ -89,7 +87,6 @@ internal fun ImageEditRoute(
     }
 
     ImageEditScreen(
-        padding = padding,
         imgUri = imgUri,
         minScale = minScale,
         boxSize = boxSize,
@@ -119,7 +116,6 @@ internal fun ImageEditRoute(
 
 @Composable
 private fun ImageEditScreen(
-    padding: PaddingValues = PaddingValues(),
     imgUri: String = "",
     minScale: Float = 1f,
     boxSize: Size = Size.Zero,
