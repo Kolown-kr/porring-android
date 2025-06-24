@@ -1,6 +1,7 @@
 package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.porring.core.model.Tag
 import com.kolown.porring.core.model.TagModel
@@ -13,82 +14,35 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface TagDataSource {
-    suspend fun uploadPostTags(tagIds: List<String>, postId: String): Result<Unit>
-    suspend fun uploadTags(tags: List<String>): Result<List<String>>
-    suspend fun getPostTag(postId: String): Result<List<TagModel>>
+    suspend fun uploadTags(tags: List<String>, postId: String): Result<Unit>
     suspend fun getPostTagByTagId(tagId: String): Result<List<String>>
     suspend fun getTagBySearch(searchText: String,key:String?,perPage:Long) : Result<List<Tag>>
-    suspend fun deletePostTag(postId: String): Result<Unit>
 }
 
 class TagDataSourceImpl @Inject constructor(
-    firestore: FirebaseFirestore,
+    private val firestore: FirebaseFirestore,
 ) : TagDataSource {
-
     private val postTagCollection = firestore.collection("postTag")
     private val tagCollection = firestore.collection("tag")
 
-    override suspend fun uploadPostTags(tagIds: List<String>, postId: String): Result<Unit> {
+    override suspend fun uploadTags(tags: List<String>, postId: String): Result<Unit> {
         return runCatching {
-            tagIds.forEach { tagId ->
-                val uploadData = mapOf(
-                    "postId" to postId,
-                    "tagId" to tagId
-                )
+            for (tagName in tags) {
+                val docRef = tagCollection.document(tagName)
 
-                postTagCollection
-                    .add(uploadData)
-                    .await()
-                    .let {
-                        it.update("postTagId", "postTag-${it.id}")
+                firestore.runTransaction {  transaction ->
+                    val snapshot = transaction.get(docRef)
+
+                    if(!snapshot.exists()) {
+                        val newTag = mapOf(
+                            "tagName" to tagName,
+                            "postIds" to listOf(postId)
+                        )
+                        transaction.set(docRef, newTag)
+                    } else {
+                        transaction.update(docRef, "postIds", FieldValue.arrayUnion(postId))
                     }
-            }
-        }
-    }
-
-    override suspend fun uploadTags(tags: List<String>): Result<List<String>> {
-        return runCatching {
-            tags.map { tag ->
-                // tag name이 존재하면 그 tag의 id를 반환
-                if (tagCollection.contains("tagName", tag).getOrThrow()) {
-                    tagCollection
-                        .whereEqualTo("tagName", tag)
-                        .get()
-                        .await()
-                        .first()
-                        .data["tagId"].toString()
-                } else {
-                    // 존재하지 않으면 tag를 추가해서 id 반환
-                    tagCollection
-                        .add(mapOf("tagName" to tag))
-                        .await()
-                        .let {
-                            it.update("tagId", "tag-${it.id}")
-                            "tag-${it.id}"
-                        }
-                }
-            }
-        }
-    }
-
-    override suspend fun getPostTag(postId: String): Result<List<TagModel>> {
-        return runCatching {
-            val tagIds = postTagCollection
-                .whereEqualTo("postId", postId)
-                .get()
-                .await()
-                .map { it.data["tagId"].toString() }
-
-            coroutineScope {
-                tagIds.map { tagId ->
-                    async {
-                        tagCollection
-                            .whereEqualTo("tagId", tagId)
-                            .get()
-                            .await()
-                            .map { it.toObject(TagDto::class.java).toTagModel() }.first()
-                    }
-                }.awaitAll()
+                }.await()
             }
         }
     }
@@ -137,34 +91,6 @@ class TagDataSourceImpl @Inject constructor(
                 }
             }
             tags.toList()
-        }
-    }
-
-    override suspend fun deletePostTag(postId: String): Result<Unit> {
-        return runCatching {
-            val postTags = postTagCollection.whereEqualTo("postId", postId).get().await()
-
-            coroutineScope {
-                postTags.documents.map {
-                    async {
-                        postTagCollection.document(it.id).delete().await()
-                    }
-                }.awaitAll()
-            }
-        }
-    }
-
-    private suspend fun CollectionReference.contains(
-        field: String,
-        value: String,
-    ): Result<Boolean> {
-        return kotlin.runCatching {
-            this
-                .whereEqualTo(field, value)
-                .get()
-                .await()
-                .isEmpty
-                .not()
         }
     }
 

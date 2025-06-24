@@ -1,5 +1,6 @@
 package com.kolown.porring.core.data.repository
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -98,48 +99,28 @@ class PostRepositoryImpl @Inject constructor(
             val authorId = googleAuthDataSource.getUserId()
             val failureModel = uploadModel.copy(imgUri = fileUrl)
 
-            // 기존 imageUrl만 따로 업로드 하던 형태에서 함께 업로드 되도록 수정
-            val postIdDeferred = async {
+            retryWithLimit {
+                postDataSource.uploadPost(
+                    authorId = authorId,
+                    description = uploadModel.description,
+                    imageUrl = uploadModel.imgUri,
+                    imageRatio = uploadModel.imageRatio,
+                    tags = uploadModel.categoryItems
+                )
+            }.onSuccess { postId ->
                 retryWithLimit {
-                    postDataSource.uploadPost(
-                        authorId = authorId,
-                        description = uploadModel.description,
-                        imageUrl = uploadModel.imgUri,
-                        imageRatio = uploadModel.imageRatio,
-                        tags = uploadModel.categoryItems
-                    )
-                }
-            }
-            val tagIdsDeferred = async {
-                retryWithLimit { tagDataSource.uploadTags(uploadModel.categoryItems) }
-            }
-
-            val (postResult, tagResult) = postIdDeferred.await() to tagIdsDeferred.await()
-
-            // postId와 tagId에 대한 작업 중 실패한 것이 존재할 때의 처리
-            if (postResult.isFailure || tagResult.isFailure) {
-                // 만약 post는 성공했고 post가 firestore에 등록이 되었으면 자원 관리를 위해 해당 포스트 삭제
-                // 해당 코드가 필요없으면 삭제 요망
-                val postId = postResult.getOrNull()
-                if (postId != null) {
-                    postDataSource.deletePost(postId)
-                }
-
-                _uploadFeedBack.emit(UploadFeedBack.Error(failureModel))
-                return@launch
-            }
-
-            val postId = postResult.getOrThrow()
-            val tagIds = tagResult.getOrThrow()
-
-            tagDataSource.uploadPostTags(tagIds, postId)
-                .onSuccess {
+                    tagDataSource.uploadTags(uploadModel.categoryItems, postId)
+                }.onSuccess {
                     _uploadFeedBack.emit(UploadFeedBack.Success)
-                }
-                .onFailure {
+                }.onFailure {
+                    Log.e("uploadPost", it.message.toString())
                     postDataSource.deletePost(postId)
                     _uploadFeedBack.emit(UploadFeedBack.Error(failureModel))
                 }
+            }.onFailure {
+                Log.e("uploadPost", it.message.toString())
+                _uploadFeedBack.emit(UploadFeedBack.Error(failureModel))
+            }
         }
     }
 
