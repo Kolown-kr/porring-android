@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -127,7 +129,7 @@ private fun FollowerScreen(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
         scaleFraction = scaleFraction,
-        topBar = { PorringCenterAlignTopAppBar(title = stringResource(R.string.string_following)) }
+        topBar = { Spacer(modifier = Modifier.height(16.dp)) }
     ) {
         when {
             showErrorScreen -> {
@@ -150,7 +152,7 @@ private fun FollowerScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Background),
+                        .padding(horizontal = 12.dp),
                     state = pagerState,
                 ) {
                     items(pagingItems.itemCount) { index ->
@@ -160,6 +162,8 @@ private fun FollowerScreen(
                                 navigateToTheir = { navigateToTheir(it.id) },
                                 updateFollowerThumbnail = updateFollowerThumbnail
                             )
+
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
 

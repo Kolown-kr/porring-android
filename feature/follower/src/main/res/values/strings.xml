@@ -6,4 +6,5 @@
     <string name="string_error">오류가 발생하였습니다!</string>
     <string name="string_retry">Retry</string>
     <string name="string_edit">수정</string>
+    <string name="string_un_follow">언팔로우</string>
 </resources>
