@@ -35,7 +35,6 @@ import com.kolown.porring.core.network.TagDataSource
 import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -352,7 +351,7 @@ class PostRepositoryImpl @Inject constructor(
             return Result.failure(it)
         }
 
-        if(postIds.isEmpty()) return Result.success(emptyList())
+        if (postIds.isEmpty()) return Result.success(emptyList())
 
         val posts = postDataSource.getPostBySearch(
             currentUserId = currentUserId,
