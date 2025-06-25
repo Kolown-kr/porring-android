@@ -52,7 +52,7 @@ interface PostRepository {
     fun getUploadFeedBack(): Flow<UploadFeedBack>
     fun uploadPost(fileUrl: String, uploadModel: UploadModel)
 
-    fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>>
+    fun getPostBySearch(tagName: String): Flow<PagingData<PostModel>>
 
     suspend fun getHomeItemPosts(): Flow<List<PostModel>>
     suspend fun fetchHomeItemPosts()
@@ -316,12 +316,12 @@ class PostRepositoryImpl @Inject constructor(
         localPostDataSource.insertMyPost(posts.map { it.toMyData() })
     }
 
-    override fun getPostBySearch(tagId: String): Flow<PagingData<PostModel>> {
+    override fun getPostBySearch(tagName: String): Flow<PagingData<PostModel>> {
         return createPager(
             pageSize = SEARCH_PER_PAGE,
             keySelector = { it.postId }
         ) { startKey, perPage ->
-            fetchPostContentModelsByTagId(tagId, startKey, perPage)
+            fetchPostContentModelsByTagName(tagName, startKey, perPage)
         }
     }
 
@@ -342,15 +342,18 @@ class PostRepositoryImpl @Inject constructor(
         )
     }
 
-    private suspend fun fetchPostContentModelsByTagId(
-        tagId: String,
+    private suspend fun fetchPostContentModelsByTagName(
+        tagName: String,
         startKey: String?,
         perPage: Int
     ): Result<List<PostModel>> {
         val currentUserId = googleAuthDataSource.getUserId()
-        val postIds = tagDataSource.getPostTagByTagId(tagId).getOrElse {
+        val postIds = tagDataSource.getPostIdsByTagName(tagName).getOrElse {
             return Result.failure(it)
         }
+
+        if(postIds.isEmpty()) return Result.success(emptyList())
+
         val posts = postDataSource.getPostBySearch(
             currentUserId = currentUserId,
             postIds = postIds,
@@ -362,7 +365,6 @@ class PostRepositoryImpl @Inject constructor(
 
         return Result.success(posts)
     }
-
 
     companion object {
         const val DETAIL_PER_PAGE = 5
