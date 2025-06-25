@@ -1,7 +1,6 @@
 package com.kolown.porring.core.network
 
 import com.google.firebase.firestore.FieldPath
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.porring.core.model.Tag
 import kotlinx.coroutines.tasks.await
@@ -21,19 +20,19 @@ class TagDataSourceImpl @Inject constructor(
     override suspend fun uploadTags(tags: List<String>, postId: String): Result<Unit> {
         return runCatching {
             for (tagName in tags) {
-                val docRef = tagCollection.document(tagName)
+                val tagRef = tagCollection.document(tagName)
+                val postIdsRef = tagRef.collection("postIds").document(postId)
 
                 firestore.runTransaction { transaction ->
-                    val snapshot = transaction.get(docRef)
+                    val tagSnapshot = transaction.get(tagRef)
+                    val postSnapshot = transaction.get(postIdsRef)
 
-                    if (!snapshot.exists()) {
-                        val newTag = mapOf(
-                            "tagName" to tagName,
-                            "postIds" to listOf(postId)
-                        )
-                        transaction.set(docRef, newTag)
-                    } else {
-                        transaction.update(docRef, "postIds", FieldValue.arrayUnion(postId))
+                    if (!tagSnapshot.exists()) {
+                        transaction.set(tagRef, mapOf("tagName" to tagName))
+                    }
+
+                    if (!postSnapshot.exists()) {
+                        transaction.set(postIdsRef, mapOf(postId to postId))
                     }
                 }.await()
             }
@@ -42,15 +41,13 @@ class TagDataSourceImpl @Inject constructor(
 
     override suspend fun getPostIdsByTagName(tagName: String): Result<List<String>> {
         return runCatching {
-            val snapshot = tagCollection.document(tagName).get().await()
-            if (!snapshot.exists()) {
-                emptyList()
-            } else {
-                snapshot.get("postIds")
-                    ?.let { it as? List<*> }
-                    ?.filterIsInstance<String>()
-                    ?: emptyList()
-            }
+            val snapshot = tagCollection
+                .document(tagName)
+                .collection("postIds")
+                .get()
+                .await()
+
+            snapshot.documents.map { it.id }
         }
     }
 
@@ -65,17 +62,16 @@ class TagDataSourceImpl @Inject constructor(
                 .orderBy(FieldPath.documentId())
                 .startAt(searchText)
                 .endAt(searchText + "\uf8ff")
-                .let { q ->
-                    if (key != null) q.startAfter(key) else q
-                }
+                .let { if (key != null) it.startAfter(key) else it }
                 .limit(perPage)
 
             val documents = query.get().await()
+
             for (doc in documents) {
                 val tagName = doc.id
-                val postIds = doc.get("postIds") as? List<*> ?: emptyList<Any>()
+                val postRef = doc.reference.collection("postIds").limit(1).get().await()
 
-                if (postIds.isNotEmpty()) {
+                if (!postRef.isEmpty) {
                     tags.add(Tag(name = tagName))
                 }
             }
