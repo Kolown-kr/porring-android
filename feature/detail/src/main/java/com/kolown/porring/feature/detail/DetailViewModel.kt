@@ -1,5 +1,6 @@
 package com.kolown.porring.feature.detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -124,13 +124,17 @@ internal class DetailViewModel @Inject constructor(
         _followEvent.emit(postUiModel)
     }
 
-    fun cancelFollow(authorId: String) = viewModelScope.launch {
-        followRepository.unFollowUser(authorId).launchIn(viewModelScope)
+    fun unFollowUser(authorId: String) = viewModelScope.launch {
+        followRepository.unFollowUser(authorId)
+            .onFailure { Log.e("UnFollowUpload", "viewModel: $it") }
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
-        followRepository.followUser(authorId, name).launchIn(viewModelScope)
+        followRepository.followUser(authorId, name)
+            .onFailure {
+                Log.e("Follow", "registerFollow: $it")
+            }
     }
 }

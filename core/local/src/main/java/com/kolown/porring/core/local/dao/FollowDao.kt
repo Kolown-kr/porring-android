@@ -20,6 +20,9 @@ interface FollowDao {
     @Query("SELECT name FROM follow WHERE id = :id")
     fun getFollowName(id: String): Flow<String?>
 
+    @Query("UPDATE follow SET name = :newName WHERE id = :id")
+    suspend fun updateName(id: String, newName: String)
+
     @Query("DELETE FROM follow")
     suspend fun clearFollows()
 

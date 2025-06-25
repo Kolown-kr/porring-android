@@ -1,5 +1,6 @@
 package com.kolown.porring.feature.follower
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -28,6 +29,22 @@ class FollowerViewModel @Inject constructor(
         viewModelScope.launch {
             followerRepository.getFollowsWithPaging()
                 .collectLatest(_followerItems::emit)
+        }
+    }
+
+    fun updateFollowerName(id: String, newName: String) {
+        viewModelScope.launch {
+            followerRepository.updateFollowerName(id, newName)
+                .onFailure {
+                    Log.e("Follow", "viewModel: $it")
+                }
+        }
+    }
+
+    fun unFollowUser(id: String) {
+        viewModelScope.launch {
+            followerRepository.unFollowUser(id)
+                .onFailure { Log.e("UnFollowUpload", "viewModel: $it") }
         }
     }
 }

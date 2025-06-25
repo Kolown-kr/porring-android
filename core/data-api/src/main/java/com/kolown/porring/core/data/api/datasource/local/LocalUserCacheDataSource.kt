@@ -13,6 +13,7 @@ interface LocalUserCacheDataSource {
 
     suspend fun insertFollows(follows: List<FollowData>)
     fun getFollowName(id: String): Flow<String?>
+    suspend fun updateFollowName(id: String, newName: String)
     fun getFollows(): PagingSource<Int, FollowData>
     suspend fun deleteFollow(id: String)
     suspend fun clearFollows()
