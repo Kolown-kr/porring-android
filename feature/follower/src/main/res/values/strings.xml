@@ -7,4 +7,8 @@
     <string name="string_retry">Retry</string>
     <string name="string_edit">수정</string>
     <string name="string_un_follow">언팔로우</string>
+    <string name="string_unfollow">팔로우 취소</string>
+    <string name="string_unfollow_description">팔로우를 취소하시겠습니까?</string>
+    <string name="string_cancel">취소</string>
+    <string name="string_confirm">확인</string>
 </resources>

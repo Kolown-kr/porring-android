@@ -35,6 +35,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.model.FollowWithThumbnail
+import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
@@ -56,6 +57,7 @@ internal fun FollowerRoute(
     val pagerState = rememberLazyListState()
 
     var followWithThumbnail by remember { mutableStateOf<FollowWithThumbnail?>(null) }
+    var unFollowTargetId by remember { mutableStateOf<String?>(null) }
     var showErrorScreen by remember { mutableStateOf(false) }
 
     var isRefreshing by remember { mutableStateOf(false) }
@@ -81,10 +83,29 @@ internal fun FollowerRoute(
         }
     }
 
-    followWithThumbnail?.let {
+    unFollowTargetId?.let { id ->
+        BetaPorringAlertDialog(
+            title = stringResource(R.string.string_unfollow),
+            description = stringResource(R.string.string_unfollow_description),
+            dismissText = stringResource(R.string.string_cancel),
+            confirmText = stringResource(R.string.string_confirm),
+            onConfirm = {
+                viewModel.unFollowUser(id)
+                unFollowTargetId = null
+            },
+            onDismissRequest = {
+                unFollowTargetId = null
+            }
+        )
+    }
+
+    followWithThumbnail?.let { followThumbnail ->
         FollowDialog(
             isAddFollow = false,
-            onClickConfirm = { },
+            onClickConfirm = { name ->
+                viewModel.updateFollowerName(followThumbnail.id, name)
+                followWithThumbnail = null
+            },
             onClickCancel = { followWithThumbnail = null }
         )
     }
@@ -99,6 +120,7 @@ internal fun FollowerRoute(
             refreshState = refreshState,
             onRefresh = onRefresh,
             scaleFraction = scaleFraction,
+            onClickUnfollow = { unFollowTargetId = it },
             navigateToTheir = navigateToTheir,
             updateFollowerThumbnail = { followWithThumbnail = it }
         )
@@ -120,6 +142,7 @@ private fun FollowerScreen(
     refreshState: PullToRefreshState = rememberPullToRefreshState(),
     onRefresh: () -> Unit = {},
     scaleFraction: () -> Float = { 1f },
+    onClickUnfollow: (String) -> Unit = {},
     navigateToTheir: (String) -> Unit = {},
     updateFollowerThumbnail: (FollowWithThumbnail) -> Unit = {}
 ) {
@@ -159,6 +182,7 @@ private fun FollowerScreen(
                         pagingItems[index]?.let {
                             FollowContent(
                                 followWithThumbnail = it,
+                                onClickUnfollow = onClickUnfollow,
                                 navigateToTheir = { navigateToTheir(it.id) },
                                 updateFollowerThumbnail = updateFollowerThumbnail
                             )

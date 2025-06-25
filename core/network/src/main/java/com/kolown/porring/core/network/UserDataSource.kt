@@ -1,5 +1,6 @@
 package com.kolown.porring.core.network
 
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.porring.core.data.dto.ReactedPostDto
 import com.kolown.porring.core.model.Follow
@@ -17,9 +18,9 @@ interface UserDataSource {
     suspend fun deleteReactedPost(userId: String, postId: String): Result<Unit>
     suspend fun fetchAllReactedPost(userId: String): List<ReactedPostDto>
 
-    suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean>
+    suspend fun uploadFollow(userId: String, follow: Follow): Result<Unit>
     suspend fun fetchFollows(userId: String): List<Follow>
-    suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean>
+    suspend fun removeFollow(userId: String, followerId: String): Result<Unit>
 }
 
 class UserDataSourceImpl @Inject constructor(
@@ -68,32 +69,31 @@ class UserDataSourceImpl @Inject constructor(
             .map { it.toObject(ReactedPostDto::class.java).copy(postId = it.id) }
     }
 
-    override suspend fun uploadFollow(userId: String, follow: Follow): Flow<Boolean> = flow {
-        userCollection
-            .document(userId)
-            .collection("followers")
-            .document(follow.id)
-            .set(mapOf("followerName" to follow.name))
-            .await()
-            .runCatching {
-                emit(true)
-            }.onFailure { _ ->
-                emit(false)
-            }
+    override suspend fun uploadFollow(userId: String, follow: Follow): Result<Unit> {
+        return runCatching {
+            userCollection
+                .document(userId)
+                .collection("followers")
+                .document(follow.id)
+                .set(mapOf("followerName" to follow.name))
+                .await()
+        }
     }
 
-    override suspend fun removeFollow(userId: String, followerId: String): Flow<Boolean> = flow {
-        val followersCollection = userCollection
-            .document(userId)
-            .collection("followers")
-        val followerDoc = followersCollection.document(followerId)
-        val docResult = followerDoc.get().await()
+    override suspend fun removeFollow(userId: String, followerId: String): Result<Unit> {
+        return runCatching {
+            val followerDoc = userCollection
+                .document(userId)
+                .collection("followers")
+                .document(followerId)
 
-        if (docResult.exists().not()) {
-            emit(false)
-        } else {
+            val docResult = followerDoc.get().await()
+
+            if(!docResult.exists()) {
+                throw IllegalStateException("팔로워 문서가 존재하지 않음")
+            }
+
             followerDoc.delete().await()
-            emit(true)
         }
     }
 

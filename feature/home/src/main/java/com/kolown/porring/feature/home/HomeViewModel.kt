@@ -1,5 +1,6 @@
 package com.kolown.porring.feature.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -80,14 +80,18 @@ class HomeViewModel @Inject constructor(
         _followEvent.emit(postUiModel)
     }
 
-    fun cancelFollow(authorId: String) = viewModelScope.launch {
-        followRepository.unFollowUser(authorId).launchIn(viewModelScope)
+    fun unFollowUser(authorId: String) = viewModelScope.launch {
+        followRepository.unFollowUser(authorId)
+            .onFailure { Log.e("UnFollowUpload", "viewModel: $it") }
     }
 
     fun registerFollow(authorId: String, name: String) = viewModelScope.launch {
         if (checkedLogIn().not()) return@launch
 
-        followRepository.followUser(authorId, name).launchIn(viewModelScope)
+        followRepository.followUser(authorId, name)
+            .onFailure {
+                Log.e("Follow", "registerFollow: $it")
+            }
     }
 
     fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
