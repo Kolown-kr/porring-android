@@ -111,7 +111,7 @@ internal class SearchViewModel @Inject constructor(
     }
 
     private fun onTagClicked(tag: Tag) = launch {
-        tagSelectedFlow.emit(tag.id)
+        tagSelectedFlow.emit(tag.name)
         reduce {
             SearchUiState.Content(
                 data = data.copy(

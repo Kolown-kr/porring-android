@@ -149,17 +149,35 @@ class PostDataSourceImpl @Inject constructor(
         perPage: Long
     ): Result<List<PostModel>> {
         return runCatching {
-            // 쿼리 초기화
-            val query = postCollection
-                .whereIn("postId", postIds)
-                .orderBy("postId", Query.Direction.ASCENDING)
-                .let { if (key != null) it.startAfter(key) else it }
-                .limit(perPage)
-                .get()
-                .await()
-                .mapNotNull { it.toObject(PostDto::class.java).toPostModel(randomType) }
+            if (postIds.isEmpty()) return@runCatching emptyList()
 
-            query
+            val chunkSize = 10 // Firestore whereIn 안전 한계
+            val allPosts = mutableListOf<PostModel>()
+
+            // chunk를 나눠서 호출(느려질 수는 있으나 안전)
+            postIds.chunked(chunkSize).forEach { chunk ->
+                val snapshot = postCollection
+                    .whereIn("postId", chunk)
+                    .get()
+                    .await()
+
+                val posts = snapshot.mapNotNull {
+                    it.toObject(PostDto::class.java).toPostModel(randomType)
+                }
+
+                allPosts.addAll(posts)
+            }
+
+            val sorted = allPosts.sortedBy { it.postId }
+
+            val paginated = if (key == null) {
+                sorted.take(perPage.toInt())
+            } else {
+                sorted.dropWhile { it.postId <= key }
+                    .take(perPage.toInt())
+            }
+
+            paginated
         }
     }
 

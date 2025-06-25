@@ -164,7 +164,7 @@ private fun SearchTags(
     ) {
         items(
             items = tags.itemSnapshotList,
-            key = { it?.id.orEmpty() }
+            key = { it?.name.orEmpty() }
         ) { tag ->
             Text(
                 modifier = Modifier
