@@ -1,10 +1,9 @@
 package com.kolown.porring.feature.imageedit
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -19,11 +18,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,13 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
@@ -55,13 +53,10 @@ import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.ui.R.drawable
 import com.kolown.porring.feature.imageedit.component.boundedTransformGestures
 import com.kolown.porring.feature.imageedit.model.CropRatio
+import com.kolown.porring.feature.imageEdit.R.drawable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 @Composable
@@ -149,26 +144,28 @@ private fun ImageEditScreen(
         PorringTopAppBar(
             navigationIcon = {
                 PorringIconButton(
-                    icon = ImageVector.vectorResource(drawable.ic_close),
+                    icon = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_close),
                     onClick = navigateToHome,
                     contentDescription = stringResource(R.string.string_go_back)
                 )
             },
             trailingIcon = {
                 PorringIconButton(
-                    icon = ImageVector.vectorResource(drawable.ic_arrow_forward),
+                    icon = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_arrow_forward),
                     onClick = cropImage,
                     contentDescription = stringResource(R.string.string_upload_image)
                 )
             }
         )
 
+        Spacer(modifier = Modifier.height(70.dp))
+
         Box(
             modifier = Modifier
-                .padding(top = 8.dp)
                 .fillMaxWidth()
                 .aspectRatio(CropRatio.PORTRAIT.ratio)
                 .clip(RectangleShape)
+                .clipToBounds()
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, zoom, _ ->
                         coroutineScope.launch {
@@ -216,7 +213,10 @@ private fun ImageEditScreen(
             )
         }
 
-        ButtonGroup(updateCropRatio = updateCropRatio)
+        ButtonGroup(
+            selectedRatio = cropRatio,
+            updateCropRatio = updateCropRatio
+        )
     }
 }
 
@@ -277,25 +277,32 @@ private fun GridBox(
 }
 
 @Composable
-private fun ButtonGroup(updateCropRatio: (CropRatio) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        CropRatioButton("4:5 (세로)", CropRatio.PORTRAIT, updateCropRatio)
-        Spacer(Modifier.width(16.dp))
-        CropRatioButton("5:4 (가로)", CropRatio.LANDSCAPE, updateCropRatio)
-    }
-}
+private fun ButtonGroup(
+    selectedRatio: CropRatio,
+    updateCropRatio: (CropRatio) -> Unit
+) {
+    val portraitIconResId = if (selectedRatio == CropRatio.PORTRAIT) drawable.ic_portrait_active else drawable.ic_portrait_default
+    val landscapeIconResId = if (selectedRatio == CropRatio.LANDSCAPE) drawable.ic_landscape_active else drawable.ic_landscape_default
 
-@Composable
-private fun CropRatioButton(text: String, ratio: CropRatio, updateCropRatio: (CropRatio) -> Unit) {
-    Button(
-        modifier = Modifier
-            .padding(16.dp)
-            .height(40.dp),
-        onClick = { updateCropRatio(ratio) },
-        shape = RoundedCornerShape(10.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Primary)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 36.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
-        Text(text)
+        PorringIconButton(
+            icon = ImageVector.vectorResource(portraitIconResId),
+            onClick = { updateCropRatio(CropRatio.PORTRAIT) },
+            contentDescription = "4:5 (세로)",
+            color = Color.Unspecified
+        )
+
+        Spacer(modifier = Modifier.width(32.dp))
+
+        PorringIconButton(
+            icon = ImageVector.vectorResource(landscapeIconResId),
+            onClick = { updateCropRatio(CropRatio.LANDSCAPE) },
+            contentDescription = "4:5 (세로)",
+            color = Color.Unspecified
+        )
     }
 }
 
