@@ -22,7 +22,7 @@ import javax.inject.Named
 interface AuthDataSource {
     suspend fun signInWithCredential(credential: CustomCredential): Result<Unit>
     fun getUserId(): String
-    fun getUserInfo(): User
+    fun getUserInfo(): Result<User>
     fun checkUserLoggedIn(): Flow<Boolean>
     fun logout(): Result<Unit>
     suspend fun joinWithEmailAndPassword(email: String, password: String): Result<User>
@@ -50,10 +50,10 @@ class AuthDataSourceImpl @Inject constructor(
         return "user-${currentUser.uid}"
     }
 
-    override fun getUserInfo(): User {
+    override fun getUserInfo(): Result<User> = runCatching {
         val currentUser = auth.currentUser ?: throw Exception("로그인 안된 유저")
 
-        return User(
+        User(
             userId = "user-${currentUser.uid}", email = currentUser.email.orEmpty(),
             createAt = currentUser.metadata?.creationTimestamp?.let {
                 ZonedDateTime.ofInstant(
