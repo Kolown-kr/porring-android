@@ -1,5 +1,6 @@
 package com.kolown.porring.feature.setting.user_info
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,13 +23,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,12 +56,27 @@ import java.util.Locale
 internal fun UserInfoRoute(
     viewModel: UserInfoViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
+    navigateToHome: () -> Unit = {},
     padding: PaddingValues = PaddingValues(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var toastMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.init()
+
+        viewModel.showToast.collect { msg ->
+            toastMessage = msg
+        }
+    }
+
+    val context = LocalContext.current
+    if (toastMessage != null) {
+        toastMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        }
+        toastMessage = null
+        navigateToHome()
     }
 
     if (state.isEmailDialogVisible) {
@@ -64,6 +86,7 @@ internal fun UserInfoRoute(
                     "이메일 주소를 입력해 주세요.",
             hint = "이메일 주소를 입력해 주세요.",
             confirmText = "변경 하기",
+            guidText = state.emailGuid,
             textValue = state.dialogEmailAddress,
             onValueChange = viewModel::onEmailChange,
             onDismissRequest = viewModel::onEmailChangeDismiss,
@@ -78,7 +101,8 @@ internal fun UserInfoRoute(
             hint = "비밀번호를 입력해 주세요.",
             textValue = state.dialogPassword,
             confirmText = "탈퇴",
-            isEmailAddress = false,
+            guidText = state.passwordGuid,
+            isPassword = true,
             onValueChange = viewModel::onDeletePasswordChange,
             onDismissRequest = viewModel::onDeletePasswordDismiss,
             onConfirmClick = viewModel::requestDelete
@@ -268,14 +292,15 @@ private fun ChangeDialog(
     hint: String,
     confirmText: String,
     textValue: String = "",
-    isEmailAddress: Boolean = false,
+    guidText: String? = null,
+    isPassword: Boolean = false,
     onValueChange: (String) -> Unit = {},
     onConfirmClick: () -> Unit = {},
     onDismissRequest: () -> Unit = {},
 ) {
-    val titleColor = if (isEmailAddress) PorringTheme.colors.primary else PorringTheme.colors.error
-    val cancelColor = if (isEmailAddress) PorringTheme.colors.error else PorringTheme.colors.onSurface
-    val confirmColor = if (isEmailAddress) PorringTheme.colors.primary else PorringTheme.colors.error
+    val titleColor = if (!isPassword) PorringTheme.colors.primary else PorringTheme.colors.error
+    val cancelColor = if (!isPassword) PorringTheme.colors.error else PorringTheme.colors.onSurface
+    val confirmColor = if (!isPassword) PorringTheme.colors.primary else PorringTheme.colors.error
 
     Dialog(
         onDismissRequest = onDismissRequest
@@ -313,7 +338,9 @@ private fun ChangeDialog(
                 value = textValue,
                 onValueChange = onValueChange,
                 hint = hint,
-                onDeleteClick = { onValueChange("") }
+                onDeleteClick = { onValueChange("") },
+                isPassword = isPassword,
+                guidText = guidText
             )
 
             Row(
@@ -351,36 +378,49 @@ private fun DialogTextField(
     value: String,
     onValueChange: (String) -> Unit,
     hint: String,
+    isPassword: Boolean,
     onDeleteClick: () -> Unit,
+    guidText: String? = null
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        textStyle = PorringTheme.typography.body,
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = PorringTheme.colors.primaryContainer,
-            focusedContainerColor = PorringTheme.colors.primaryContainer,
-            unfocusedBorderColor = PorringTheme.colors.primaryContainer,
-            focusedBorderColor = PorringTheme.colors.primaryContainer,
-        ),
-        shape = RoundedCornerShape(8.dp),
-        placeholder = {
+    Column {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = PorringTheme.typography.body,
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = PorringTheme.colors.primaryContainer,
+                focusedContainerColor = PorringTheme.colors.primaryContainer,
+                unfocusedBorderColor = PorringTheme.colors.primaryContainer,
+                focusedBorderColor = PorringTheme.colors.primaryContainer,
+            ),
+            shape = RoundedCornerShape(8.dp),
+            placeholder = {
+                Text(
+                    text = hint,
+                    style = PorringTheme.typography.body,
+                    color = PorringTheme.colors.tertiary
+                )
+            },
+            suffix = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(com.kolown.porring.feature.setting.R.drawable.ic_delete),
+                    contentDescription = "delete text",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(16.dp)
+                        .noRippleClickable(onDeleteClick),
+                )
+            }
+        )
+
+        guidText?.let {
             Text(
-                text = hint,
-                style = PorringTheme.typography.body,
-                color = PorringTheme.colors.tertiary
-            )
-        },
-        suffix = {
-            Icon(
-                imageVector = ImageVector.vectorResource(com.kolown.porring.feature.setting.R.drawable.ic_delete),
-                contentDescription = "delete text",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(16.dp)
-                    .noRippleClickable(onDeleteClick),
+                text = it,
+                style = PorringTheme.typography.label,
+                color = PorringTheme.colors.error
             )
         }
-    )
+    }
 }
 
 private fun ZonedDateTime.formatText(): String {

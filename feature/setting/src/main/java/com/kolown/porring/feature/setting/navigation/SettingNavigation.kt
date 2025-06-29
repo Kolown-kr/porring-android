@@ -30,6 +30,7 @@ fun NavController.navigatePrivacy(navOptions: NavOptions) {
 fun NavGraphBuilder.settingNavGraph(
     popBackStack: () -> Unit,
     updateLoginState: () -> Unit = {},
+    navigateToHome: () -> Unit = {},
     navigateToPrivacy: () -> Unit = {},
     navigateToDeletedAccount: () -> Unit = {},
     navigateToUserInfo: () -> Unit = {},
@@ -47,6 +48,7 @@ fun NavGraphBuilder.settingNavGraph(
     composable<Route.UserInfo> {
         UserInfoRoute(
             popBackStack = popBackStack,
+            navigateToHome = navigateToHome,
             padding = padding
         )
     }
