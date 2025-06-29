@@ -59,8 +59,7 @@ class FollowRepositoryImpl @Inject constructor(
     override suspend fun followUser(
         id: String,
         name: String,
-    ): Result<Unit> {
-        return runCatching {
+    ): Result<Unit> = runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
             localUserCacheDataSource.insertFollows(
@@ -78,23 +77,37 @@ class FollowRepositoryImpl @Inject constructor(
                     id = id,
                     name = name
                 )
-            ).getOrThrow()
-        }
-    }
+            )
+        }.fold(
+            onSuccess = {
+                it
+            },
+            onFailure = {
+                localUserCacheDataSource.deleteFollow(id)
+                throw it
+            }
+        )
+
 
     override suspend fun unFollowUser(
         id: String,
-    ): Result<Unit> {
-        return runCatching {
+    ): Result<Unit> = runCatching {
             val currentUserId = googleAuthDataSource.getUserId()
 
             localUserCacheDataSource.deleteFollow(id)
             userDataSource.removeFollow(
                 userId = currentUserId,
                 followerId = id
-            ).getOrThrow()
-        }
-    }
+            )
+        }.fold(
+            onSuccess = {
+                it
+            },
+            onFailure = {
+                throw it
+            }
+        )
+
 
     override suspend fun fetchFollows() = withContext(Dispatchers.IO) {
         val userId = googleAuthDataSource.getUserId()
