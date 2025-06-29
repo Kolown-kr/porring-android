@@ -57,7 +57,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun deleteAccount(password: String): Result<Unit> {
         val userId = googleAuthDataSource.getUserId()
-        val email = localUserDataSource.getUserEmail(userId).first()
+        val email = localUserPrefDatasourceImpl.getUserEmail(userId).first()
         return googleAuthDataSource.deleteAccount(email, password)
     }
 

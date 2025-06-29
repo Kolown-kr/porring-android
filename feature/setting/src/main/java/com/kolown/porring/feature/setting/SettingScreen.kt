@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,12 +33,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.designsystem.ui.theme.Secondary
-import com.kolown.porring.core.designsystem.ui.theme.Surface
-import com.kolown.porring.feature.setting.component.MenuDivider
-import com.kolown.porring.feature.setting.component.TextLabel
 
 @Composable
 internal fun SettingRoute(
@@ -80,7 +74,7 @@ private fun SettingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Background)
+            .background(color = PorringTheme.colors.background)
             .padding(padding),
     ) {
         val context = LocalContext.current
@@ -107,6 +101,15 @@ private fun SettingScreen(
             ) {
                 TextMenu(
                     title = stringResource(R.string.string_menu_show_my_reaction),
+                    onClick = { showUpcomingToast() }
+                )
+            }
+
+            Section(
+                title = stringResource(R.string.string_menu_notify)
+            ) {
+                TextMenu(
+                    title = "알림 설정",
                     onClick = { showUpcomingToast() }
                 )
             }
@@ -140,8 +143,8 @@ private fun Section(
         Text(
             modifier = Modifier.padding(),
             text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = Secondary
+            style = PorringTheme.typography.label,
+            color = PorringTheme.colors.secondary
         )
 
         content()
@@ -160,13 +163,13 @@ private fun TextMenu(
             .fillMaxWidth()
             .size(48.dp)
             .clip(RoundedCornerShape(4.dp))
-            .background(color = Surface)
+            .background(color = PorringTheme.colors.surface)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            style = MaterialTheme.typography.bodyLarge,
+            style = PorringTheme.typography.body,
             text = title,
             color = color,
         )

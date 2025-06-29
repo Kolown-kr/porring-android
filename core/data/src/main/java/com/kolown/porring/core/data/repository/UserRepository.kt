@@ -4,14 +4,10 @@ import com.kolown.porring.core.data.api.datasource.local.LocalUserCacheDataSourc
 import com.kolown.porring.core.data.api.datasource.local.LocalUserPrefDatasource
 import com.kolown.porring.core.data.mapper.toData
 import com.kolown.porring.core.data.mapper.toModel
-import com.kolown.porring.core.datastore.LocalUserDataSource
 import com.kolown.porring.core.model.User
 import com.kolown.porring.core.network.AuthDataSource
 import com.kolown.porring.core.network.UserDataSource
-import kotlinx.coroutines.Dispatchers
-import com.kolown.porring.core.network.RemoteUserDataSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -40,8 +36,10 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     override suspend fun createUserData(): Result<Unit> {
         return kotlin.runCatching {
-            authDataSource.getUserInfo().let {
-                remoteUserDataSource.createUserData(it)
+            authDataSource.getUserInfo().let { user ->
+                user.onSuccess {
+                    remoteUserDataSource.createUserData(it)
+                }
             }
         }
     }
@@ -55,7 +53,7 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCurrentUser() =
-        remoteUserDataSource.getUser(authDataSource.getUserId())
+        authDataSource.getUserInfo()
 
     override suspend fun changeReceiverEmailEmail(email: String): Result<Unit> =
         remoteUserDataSource.changeReceiverEmail(authDataSource.getUserId(), email)
@@ -69,14 +67,12 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchUserReactedPost(): Result<Unit> = withContext(Dispatchers.IO) {
-        return@withContext kotlin.runCatching {
-            val currentUserId = authDataSource.getUserId()
-            val reactedPosts =
-                remoteUserDataSource.fetchAllReactedPost(currentUserId).map { it.toModel() }
+    override suspend fun fetchUserReactedPost(): Result<Unit> = kotlin.runCatching {
+        val currentUserId = authDataSource.getUserId()
+        val reactedPosts =
+            remoteUserDataSource.fetchAllReactedPost(currentUserId).map { it.toModel() }
 
-            localUserCacheDataSource.insertReactedPosts(reactedPosts.map { it.toData() })
-        }
+        localUserCacheDataSource.insertReactedPosts(reactedPosts.map { it.toData() })
     }
 
     override suspend fun clearReactedPostCache() {
