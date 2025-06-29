@@ -2,7 +2,7 @@ default_platform(:android)
 
 platform :android do
   desc "Deploy Beta Release to Firebase App Distribution"
-  lane :beta do
+  lane :deploy do
     gradle(
           task: "assemble",
           build_type: "Debug",
