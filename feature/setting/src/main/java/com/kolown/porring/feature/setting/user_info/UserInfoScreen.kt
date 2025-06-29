@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,14 +35,7 @@ import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
-import com.kolown.porring.core.designsystem.ui.theme.Error
-import com.kolown.porring.core.designsystem.ui.theme.ErrorContainer
-import com.kolown.porring.core.designsystem.ui.theme.OnBackground
-import com.kolown.porring.core.designsystem.ui.theme.OnErrorContainer
-import com.kolown.porring.core.designsystem.ui.theme.OnSurface
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.designsystem.ui.theme.Secondary
 import com.kolown.porring.core.ui.ext.noRippleClickable
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -142,8 +134,8 @@ private fun UserInfoScreen(
                     modifier = Modifier
                         .noRippleClickable(onEmailChangeClick),
                     text = "변경하기",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Primary
+                    style = PorringTheme.typography.label,
+                    color = PorringTheme.colors.primary
                 )
             }
 
@@ -160,12 +152,12 @@ private fun UserInfoScreen(
             ) {
                 StatColumn(
                     label = "올린 사진",
-                    value = state.user.posts.size,
+                    value = 0,
                     unit = "개"
                 )
                 StatColumn(
                     label = "팔로우 수",
-                    value = state.user.follows.size,
+                    value = 0,
                     unit = "명"
                 )
             }
@@ -181,14 +173,14 @@ private fun UserInfoScreen(
                     vertical = 16.dp
                 ),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = ErrorContainer,
-                    contentColor = OnErrorContainer,
+                    containerColor = PorringTheme.colors.errorContainer,
+                    contentColor = PorringTheme.colors.onErrorContainer,
                 ),
                 onClick = onDeleteClick
             ) {
                 Text(
                     text = "탈퇴하기",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = PorringTheme.typography.body
                 )
             }
         }
@@ -210,8 +202,8 @@ private fun Section(
             modifier = Modifier
                 .padding(vertical = 4.dp),
             text = title,
-            style = MaterialTheme.typography.labelMedium,
-            color = Secondary
+            style = PorringTheme.typography.label,
+            color = PorringTheme.colors.secondary
         )
 
         Row(
@@ -223,8 +215,8 @@ private fun Section(
         ) {
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = OnBackground,
+                style = PorringTheme.typography.body,
+                color = PorringTheme.colors.onBackground,
             )
 
             trailingIcon?.invoke()
@@ -249,15 +241,15 @@ private fun RowScope.StatColumn(
             modifier = Modifier
                 .padding(vertical = 4.dp),
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = Secondary
+            style = PorringTheme.typography.label,
+            color = PorringTheme.colors.secondary
         )
         Text(
             modifier = Modifier
                 .padding(vertical = 8.dp),
             text = value.toString() + unit,
-            style = MaterialTheme.typography.titleMedium,
-            color = Primary
+            style = PorringTheme.typography.title,
+            color = PorringTheme.colors.primary
         )
     }
 }
@@ -279,7 +271,7 @@ private fun ChangeDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Background)
+                .background(PorringTheme.colors.background)
                 .padding(
                     top = 32.dp,
                     bottom = 20.dp,
@@ -288,18 +280,18 @@ private fun ChangeDialog(
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        ) { 
+        ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall,
-                color = Primary
+                style = PorringTheme.typography.headline,
+                color = PorringTheme.colors.primary
             )
 
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodyMedium,
+                style = PorringTheme.typography.body,
                 textAlign = TextAlign.Center,
-                color = OnSurface
+                color = PorringTheme.colors.onSurface
             )
 
             Spacer(Modifier)
@@ -320,8 +312,8 @@ private fun ChangeDialog(
                 ) {
                     Text(
                         text = "취소",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Error
+                        style = PorringTheme.typography.label,
+                        color = PorringTheme.colors.error
                     )
                 }
 
@@ -331,8 +323,8 @@ private fun ChangeDialog(
                 ) {
                     Text(
                         text = "변경 하기",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Primary
+                        style = PorringTheme.typography.label,
+                        color = PorringTheme.colors.primary
                     )
                 }
             }

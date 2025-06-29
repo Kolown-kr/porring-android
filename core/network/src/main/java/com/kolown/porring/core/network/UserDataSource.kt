@@ -21,6 +21,9 @@ interface UserDataSource {
     suspend fun uploadFollow(userId: String, follow: Follow): Result<Unit>
     suspend fun fetchFollows(userId: String): List<Follow>
     suspend fun removeFollow(userId: String, followerId: String): Result<Unit>
+
+    suspend fun getUserEmail(userId: String): String
+    suspend fun changeReceiverEmail(userId: String, email: String): Result<Unit>
 }
 
 class UserDataSourceImpl @Inject constructor(
