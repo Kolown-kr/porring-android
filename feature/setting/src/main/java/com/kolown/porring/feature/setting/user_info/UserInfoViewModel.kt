@@ -42,7 +42,11 @@ internal class UserInfoViewModel @Inject constructor(
     }
 
     fun onEmailChangeDismiss() = updateState {
-        copy(isEmailDialogVisible = false)
+        copy(
+            isEmailDialogVisible = false,
+            emailGuid = null,
+            dialogEmailAddress = ""
+        )
     }
 
     fun requestEmailChange() = launch {
@@ -70,7 +74,11 @@ internal class UserInfoViewModel @Inject constructor(
     }
 
     fun onDeletePasswordDismiss() = updateState {
-        copy(isDeleteDialogVisible = false)
+        copy(
+            dialogPassword = "",
+            passwordGuid = null,
+            isDeleteDialogVisible = false,
+        )
     }
 
     fun requestDelete() = launch {
@@ -83,6 +91,9 @@ internal class UserInfoViewModel @Inject constructor(
                 updateState {
                     copy(isDeleteDialogVisible = false)
                 }
+                _showToast.emit(
+                    "탈퇴가 완료되었습니다."
+                )
             }
             .onFailure {
                 updateState {

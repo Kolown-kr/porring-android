@@ -102,6 +102,7 @@ internal fun MainNavHost(
             settingNavGraph(
                 popBackStack = navigator::popBackStack,
                 navigateToUserInfo = navigator::navigateToUserInfo,
+                navigateToHome = { navigator.popBackStack(MainMenuRoute.My) },
                 navigateToPrivacy = navigator::navigateToPrivacy,
                 navigateToDeletedAccount = navigator::navigateToDeletedAccount,
                 padding = padding
