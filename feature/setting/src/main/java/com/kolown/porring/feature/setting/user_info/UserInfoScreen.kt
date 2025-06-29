@@ -10,9 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -21,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -32,7 +37,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
-import com.kolown.porring.core.designsystem.component.PorringTextField
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
@@ -59,6 +63,7 @@ internal fun UserInfoRoute(
             description = "중요 알림과 계정 정보를 수신할" +
                     "이메일 주소를 입력해 주세요.",
             hint = "이메일 주소를 입력해 주세요.",
+            confirmText = "변경 하기",
             textValue = state.dialogEmailAddress,
             onValueChange = viewModel::onEmailChange,
             onDismissRequest = viewModel::onEmailChangeDismiss,
@@ -72,6 +77,8 @@ internal fun UserInfoRoute(
             description = "탈퇴를 위해 비밀번호를 확인해주세요.",
             hint = "비밀번호를 입력해 주세요.",
             textValue = state.dialogPassword,
+            confirmText = "탈퇴",
+            isEmailAddress = false,
             onValueChange = viewModel::onDeletePasswordChange,
             onDismissRequest = viewModel::onDeletePasswordDismiss,
             onConfirmClick = viewModel::requestDelete
@@ -259,11 +266,17 @@ private fun ChangeDialog(
     title: String,
     description: String,
     hint: String,
+    confirmText: String,
     textValue: String = "",
+    isEmailAddress: Boolean = false,
     onValueChange: (String) -> Unit = {},
     onConfirmClick: () -> Unit = {},
     onDismissRequest: () -> Unit = {},
 ) {
+    val titleColor = if (isEmailAddress) PorringTheme.colors.primary else PorringTheme.colors.error
+    val cancelColor = if (isEmailAddress) PorringTheme.colors.error else PorringTheme.colors.onSurface
+    val confirmColor = if (isEmailAddress) PorringTheme.colors.primary else PorringTheme.colors.error
+
     Dialog(
         onDismissRequest = onDismissRequest
     ) {
@@ -284,7 +297,7 @@ private fun ChangeDialog(
             Text(
                 text = title,
                 style = PorringTheme.typography.headline,
-                color = PorringTheme.colors.primary
+                color = titleColor
             )
 
             Text(
@@ -296,10 +309,11 @@ private fun ChangeDialog(
 
             Spacer(Modifier)
 
-            PorringTextField(
+            DialogTextField(
                 value = textValue,
                 onValueChange = onValueChange,
-                hint = hint
+                hint = hint,
+                onDeleteClick = { onValueChange("") }
             )
 
             Row(
@@ -313,7 +327,7 @@ private fun ChangeDialog(
                     Text(
                         text = "취소",
                         style = PorringTheme.typography.label,
-                        color = PorringTheme.colors.error
+                        color = cancelColor
                     )
                 }
 
@@ -322,14 +336,51 @@ private fun ChangeDialog(
                     onClick = onConfirmClick
                 ) {
                     Text(
-                        text = "변경 하기",
+                        text = confirmText,
                         style = PorringTheme.typography.label,
-                        color = PorringTheme.colors.primary
+                        color = confirmColor
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DialogTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    hint: String,
+    onDeleteClick: () -> Unit,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        textStyle = PorringTheme.typography.body,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = PorringTheme.colors.primaryContainer,
+            focusedContainerColor = PorringTheme.colors.primaryContainer,
+            unfocusedBorderColor = PorringTheme.colors.primaryContainer,
+            focusedBorderColor = PorringTheme.colors.primaryContainer,
+        ),
+        shape = RoundedCornerShape(8.dp),
+        placeholder = {
+            Text(
+                text = hint,
+                style = PorringTheme.typography.body,
+                color = PorringTheme.colors.tertiary
+            )
+        },
+        suffix = {
+            Icon(
+                imageVector = ImageVector.vectorResource(com.kolown.porring.feature.setting.R.drawable.ic_delete),
+                contentDescription = "delete text",
+                tint = Color.Unspecified,
+                modifier = Modifier.size(16.dp)
+                    .noRippleClickable(onDeleteClick),
+            )
+        }
+    )
 }
 
 private fun ZonedDateTime.formatText(): String {
@@ -353,7 +404,12 @@ private fun Preview2() {
             title = "이메일 변경",
             description = "중요 알림과 계정 정보를 수신할" +
                     "이메일 주소를 입력해 주세요.",
-            hint = ""
+            hint = "이메일 주소를 입력해주세요",
+            confirmText = "변경 하기",
+            textValue = "",
+            onValueChange = {},
+            onDismissRequest = {},
+            onConfirmClick = {}
         )
     }
 }
