@@ -1,7 +1,6 @@
 package com.kolown.porring.feature.follower
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,13 +32,14 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.model.FollowWithThumbnail
+import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.RestrictedLoginContent
+import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.feature.follower.component.PageItemFooter
 import kotlinx.coroutines.delay
 

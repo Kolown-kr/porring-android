@@ -29,7 +29,7 @@ import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.UploadFeedBack
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.network.AuthDataSource
-import com.kolown.porring.core.network.PorringDateTime.Companion.getNowDateTimeUTCString
+import com.kolown.porring.core.network.PorringDateTime.getNowDateTimeUTCString
 import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.TagDataSource
 import com.kolown.porring.core.network.UserDataSource

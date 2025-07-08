@@ -1,11 +1,9 @@
 package com.kolown.porring.feature.detail
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -29,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,7 +47,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
-import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
@@ -60,10 +56,10 @@ import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
 import com.kolown.porring.core.ui.component.toImage
+import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.detail.component.FullScreenEffect
 import kotlinx.coroutines.flow.filter
