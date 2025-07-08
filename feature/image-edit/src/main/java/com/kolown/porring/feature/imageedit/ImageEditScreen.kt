@@ -50,7 +50,10 @@ import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.R
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
-import com.kolown.porring.core.ui.R.drawable
+import com.kolown.porring.feature.imageEdit.R.drawable.ic_landscape_active
+import com.kolown.porring.feature.imageEdit.R.drawable.ic_landscape_default
+import com.kolown.porring.feature.imageEdit.R.drawable.ic_portrait_active
+import com.kolown.porring.feature.imageEdit.R.drawable.ic_portrait_default
 import com.kolown.porring.feature.imageedit.component.boundedTransformGestures
 import com.kolown.porring.feature.imageedit.model.CropRatio
 import kotlinx.coroutines.CoroutineScope
@@ -279,9 +282,9 @@ private fun ButtonGroup(
     updateCropRatio: (CropRatio) -> Unit
 ) {
     val portraitIconResId =
-        if (selectedRatio == CropRatio.PORTRAIT) drawable.ic_portrait_active else drawable.ic_portrait_default
+        if (selectedRatio == CropRatio.PORTRAIT) ic_portrait_active else ic_portrait_default
     val landscapeIconResId =
-        if (selectedRatio == CropRatio.LANDSCAPE) drawable.ic_landscape_active else drawable.ic_landscape_default
+        if (selectedRatio == CropRatio.LANDSCAPE) ic_landscape_active else ic_landscape_default
 
     Row(
         modifier = Modifier
