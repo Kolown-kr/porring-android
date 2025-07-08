@@ -24,8 +24,8 @@ data class PostUiModel(
             description = "",
             tags = emptyList(),
             isFollowing = true,
-            reactions = listOf(Reaction.LOVE, Reaction.SMILE),
-            myReaction = Reaction.LOVE
+            reactions = listOf(Reaction.HEART, Reaction.SMILE),
+            myReaction = Reaction.HEART
         )
     }
 }

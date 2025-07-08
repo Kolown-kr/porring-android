@@ -70,7 +70,4 @@ sealed interface MainMenuRoute : Route {
             DEFAULT, MY, FOLLOW, SEARCH
         }
     }
-
 }
-
-
