@@ -15,7 +15,7 @@ import androidx.core.view.WindowCompat
 
 @Composable
 fun PorringTheme(
-    currentRoute: String,
+    currentRoute: String = "",
     content: @Composable () -> Unit,
 ) {
     val isForcedDarkMode = currentRoute.shouldForceDarkMode()
@@ -25,21 +25,19 @@ fun PorringTheme(
     val isLightSystemBars = isDarkMode.not()
 
     val view = LocalView.current
-    val window = (view.context as Activity).window
-    val insetsController = WindowCompat.getInsetsController(window, view)
+    val window = (view.context as? Activity)?.window
+    val insetsController = window?.let { WindowCompat.getInsetsController(window, view) }
 
     SideEffect {
-        val activity = view.context as? Activity ?: return@SideEffect
-        val window = (view.context as Activity).window
-        val insetsController = WindowCompat.getInsetsController(window, view)
-
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.setSystemBarBackground()
+        window?.let {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            window.setSystemBarBackground()
+        }
     }
 
     LaunchedEffect(isLightSystemBars) {
-        insetsController.isAppearanceLightStatusBars = isLightSystemBars
-        insetsController.isAppearanceLightNavigationBars = isLightSystemBars
+        insetsController?.isAppearanceLightStatusBars = isLightSystemBars
+        insetsController?.isAppearanceLightNavigationBars = isLightSystemBars
     }
 
     CompositionLocalProvider(
