@@ -80,11 +80,12 @@ private fun ReactionButton(
 
 fun Reaction.toImage() =
     when (this) {
-        Reaction.LOVE -> R.drawable.ic_reaction_1
+        Reaction.HEART -> R.drawable.ic_reaction_1
         Reaction.SURPRISE -> R.drawable.ic_reaction_2
         Reaction.SMILE -> R.drawable.ic_reaction_3
-        Reaction.STAR -> R.drawable.ic_reaction_4
-        Reaction.THUMB -> R.drawable.ic_reaction_5
+        Reaction.COOL -> R.drawable.ic_reaction_4
+        Reaction.MOVE -> R.drawable.ic_reaction_5
+        Reaction.WINK -> R.drawable.ic_reaction_1
     }
 
 @Preview

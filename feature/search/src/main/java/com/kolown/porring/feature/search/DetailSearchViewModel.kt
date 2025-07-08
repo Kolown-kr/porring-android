@@ -87,5 +87,5 @@ class DetailSearchViewModel @Inject constructor(
 
 data class ReactionState(
     val prev: Reaction? = null,
-    val current: Reaction = Reaction.LOVE,
+    val current: Reaction = Reaction.HEART,
 )
