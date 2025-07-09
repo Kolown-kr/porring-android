@@ -61,8 +61,10 @@ class DetailSearchViewModel @Inject constructor(
     fun followUser(id: String, name: String) {
         viewModelScope.launch {
             followRepository.followUser(id, name)
-                .catch { Log.e("FollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
+                .onFailure {
+                    Log.e("FollowUpload", "viewModel: $it")
+                }
+
             _followSharedFlow.emit(Pair(id, true))
         }
     }
@@ -70,8 +72,7 @@ class DetailSearchViewModel @Inject constructor(
     fun unFollowUser(id: String) {
         viewModelScope.launch {
             followRepository.unFollowUser(id)
-                .catch { Log.e("UnFollowUpload", "viewModel: $it") }
-                .launchIn(viewModelScope)
+                .onFailure { Log.e("UnFollowUpload", "viewModel: $it") }
             _followSharedFlow.emit(Pair(id, false))
         }
     }

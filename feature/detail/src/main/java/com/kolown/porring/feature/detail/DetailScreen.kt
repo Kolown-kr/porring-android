@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -137,7 +136,7 @@ internal fun DetailRoute(
                 description = "팔로우를 취소하시겠습니까?",
                 dismissText = "취소",
                 confirmText = "확인",
-                onConfirm = { viewModel.cancelFollow(post.authorId) },
+                onConfirm = { viewModel.unFollowUser(post.authorId) },
                 onDismissRequest = { followPostUiModel = null }
             )
         } else {

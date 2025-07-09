@@ -14,6 +14,7 @@ import com.kolown.porring.core.network.PostDataSource
 import com.kolown.porring.core.network.UserDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -22,10 +23,11 @@ import javax.inject.Named
 
 interface FollowRepository {
     suspend fun getFollowerName(followerId: String): Flow<String?>
-    suspend fun unFollowUser(followerId: String): Flow<Boolean>
+    suspend fun updateFollowerName(id: String, newName: String): Result<Unit>
+    suspend fun unFollowUser(id: String): Result<Unit>
     suspend fun fetchFollows()
     suspend fun clearFollowCache()
-    fun followUser(followerId: String, followerName: String): Flow<Boolean>
+    suspend fun followUser(id: String, name: String): Result<Unit>
     suspend fun getFollowsWithPaging(): Flow<PagingData<FollowWithThumbnail>>
 }
 
@@ -40,45 +42,72 @@ class FollowRepositoryImpl @Inject constructor(
         return localUserCacheDataSource.getFollowName(followerId)
     }
 
-    override fun followUser(
-        id: String,
-        name: String,
-    ): Flow<Boolean> = flow {
+    override suspend fun updateFollowerName(id: String, newName: String): Result<Unit> {
         val currentUserId = googleAuthDataSource.getUserId()
 
-        localUserCacheDataSource.insertFollows(
-            listOf(
-                FollowData(
+        localUserCacheDataSource.updateFollowName(id, newName)
+
+        return userDataSource.uploadFollow(
+            userId = currentUserId,
+            follow = Follow(
+                id = id,
+                name = newName
+            )
+        )
+    }
+
+    override suspend fun followUser(
+        id: String,
+        name: String,
+    ): Result<Unit> = runCatching {
+            val currentUserId = googleAuthDataSource.getUserId()
+
+            localUserCacheDataSource.insertFollows(
+                listOf(
+                    FollowData(
+                        id = id,
+                        name = name
+                    )
+                )
+            )
+
+            userDataSource.uploadFollow(
+                userId = currentUserId,
+                follow = Follow(
                     id = id,
                     name = name
                 )
             )
+        }.fold(
+            onSuccess = {
+                it
+            },
+            onFailure = {
+                localUserCacheDataSource.deleteFollow(id)
+                throw it
+            }
         )
 
-        userDataSource.uploadFollow(
-            userId = currentUserId,
-            follow = Follow(
-                id = id,
-                name = name
-            )
-        ).collect { success ->
-            emit(success)
-        }
-    }
 
     override suspend fun unFollowUser(
         id: String,
-    ): Flow<Boolean> = flow {
-        val currentUserId = googleAuthDataSource.getUserId()
+    ): Result<Unit> = runCatching {
+            val currentUserId = googleAuthDataSource.getUserId()
 
-        localUserCacheDataSource.deleteFollow(id)
-        userDataSource.removeFollow(
-            userId = currentUserId,
-            followerId = id
-        ).collect { success ->
-            emit(success)
-        }
-    }
+            localUserCacheDataSource.deleteFollow(id)
+            userDataSource.removeFollow(
+                userId = currentUserId,
+                followerId = id
+            )
+        }.fold(
+            onSuccess = {
+                it
+            },
+            onFailure = {
+                throw it
+            }
+        )
+
 
     override suspend fun fetchFollows() = withContext(Dispatchers.IO) {
         val userId = googleAuthDataSource.getUserId()

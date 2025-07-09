@@ -42,6 +42,10 @@ class LocalUserCacheDataSourceImpl @Inject constructor(
         return followDao.getFollowName(id)
     }
 
+    override suspend fun updateFollowName(id: String, newName: String) {
+        followDao.updateName(id, newName)
+    }
+
     override suspend fun deleteFollow(id: String) {
         followDao.deleteFollow(id)
     }

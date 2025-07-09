@@ -32,7 +32,6 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -118,7 +117,7 @@ internal fun HomeRoute(
                 description = stringResource(R.string.string_unfollow_description),
                 dismissText = stringResource(R.string.string_cancel),
                 confirmText = stringResource(R.string.string_confirm),
-                onConfirm = { viewModel.cancelFollow(post.authorId) },
+                onConfirm = { viewModel.unFollowUser(post.authorId) },
                 onDismissRequest = { followPostUiModel = null }
             )
         } else {
