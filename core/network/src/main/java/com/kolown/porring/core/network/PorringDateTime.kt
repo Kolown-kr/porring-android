@@ -39,8 +39,8 @@ object PorringDateTime {
         val calendar = Calendar.getInstance(timeZone)
 
         val pattern: String = when (timeZone.id) {
-            UTC -> UTC_PATTERN26
-            else -> DEFAULT_PATTERN26
+            UTC -> UTC_PATTERN19
+            else -> DEFAULT_PATTERN19
         }
 
         return String.format(
@@ -57,6 +57,6 @@ object PorringDateTime {
 
     private const val UTC = "UTC"
     private const val DEFAULT_PATTERN = "yyyyMMddHHmmss"
-    private const val DEFAULT_PATTERN26 = "%04d%02d%02d%02d%02d%02d"
-    private const val UTC_PATTERN26 = "%04d-%02d-%02dT%02d:%02d:%02d"
+    private const val DEFAULT_PATTERN19 = "%04d%02d%02d%02d%02d%02d"
+    private const val UTC_PATTERN19 = "%04d-%02d-%02dT%02d:%02d:%02d"
 }
