@@ -1,6 +1,8 @@
 package com.kolown.porring.feature.main.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -28,23 +30,44 @@ import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.setting.navigation.navigateUserInfo
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.upload.navigation.navigateUpload
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 internal class MainNavigator(
     val navController: NavHostController,
 ) {
     val startDestination = MainMenu.HOME.route
+    private val currentTab = MutableStateFlow<MainMenu?>(MainMenu.HOME)
+
+    init {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val routeName = destination.route?.substringAfterLast(".") ?: ""
+
+            if (routeName.startsWith("Their")) return@addOnDestinationChangedListener
+
+            val menu = MainMenu.findByRouteName(routeName)
+
+            currentTab.update { menu }
+        }
+    }
+
     internal val currentDestination: NavDestination?
         @Composable get() = navController.currentBackStackEntryAsState().value?.destination
     val currentMenu: MainMenu?
-        @Composable get() = MainMenu.find { m ->
-            currentDestination?.hasRoute(m::class) == true
+        @Composable get() {
+            val last by currentTab.collectAsState()
+
+            return when {
+                currentDestination?.hasRoute(MainMenuRoute.Their::class) == true -> last
+                else -> MainMenu.find { m -> currentDestination?.hasRoute(m::class) == true }
+            }
         }
     private val singleTopOptions = navOptions {
         launchSingleTop = true
         restoreState = true
     }
 
-    fun navigate(menu: MainMenu) {
+    fun navigateMainMenu(menu: MainMenu) {
         val navOptions = navOptions {
             popUpTo(navController.graph.findStartDestination().id) {
                 inclusive = false
@@ -61,8 +84,9 @@ internal class MainNavigator(
         }
     }
 
-    fun navigateToTheir(authorId: String) =
+    fun navigateToTheir(authorId: String) {
         navController.navigateTheir(authorId = authorId, navOptions = singleTopOptions)
+    }
 
     fun navigateToImageEdit(imgUri: String) =
         navController.navigateImageEdit(imgUri = imgUri, navOptions = singleTopOptions)
@@ -84,9 +108,8 @@ internal class MainNavigator(
             navOptions = singleTopOptions
         )
 
-    fun navigateToDetailMy(pageIndex: Int) {
+    fun navigateToDetailMy(pageIndex: Int) =
         navController.navigateToDetailMy(pageIndex = pageIndex, navOptions = singleTopOptions)
-    }
 
     fun navigateToLogin() = navController.navigateLogin(navOptions = singleTopOptions)
 
@@ -106,7 +129,8 @@ internal class MainNavigator(
 
     fun navigateToPrivacy() = navController.navigatePrivacy(navOptions = singleTopOptions)
 
-    fun navigateToDeletedAccount() = navController.navigateDeletedAccount(navOptions = singleTopOptions)
+    fun navigateToDeletedAccount() =
+        navController.navigateDeletedAccount(navOptions = singleTopOptions)
 
     fun popBackStack() {
         navController.previousBackStackEntry?.let {
@@ -114,15 +138,12 @@ internal class MainNavigator(
         }
     }
 
-    fun popBackStack(destination: Route) {
-        navController.popBackStack(destination, false)
-    }
+    fun popBackStack(destination: Route) = navController.popBackStack(destination, false)
 
     @Composable
     fun isShowBottomBar() = MainMenu.contains {
-        currentDestination?.hasRoute(it::class) == true || currentDestination?.hasRoute(
-            MainMenuRoute.Their::class
-        ) ?: false
+        currentDestination?.hasRoute(it::class) == true ||
+                currentDestination?.hasRoute(MainMenuRoute.Their::class) ?: false
     }
 }
 

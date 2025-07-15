@@ -8,7 +8,8 @@ sealed interface Route {
     data class ImageEdit(val imgUri: String) : Route
 
     @Serializable
-    data class Upload(val imgUri: String, val imageRatio: Float, val uploadModel: UploadModel) : Route
+    data class Upload(val imgUri: String, val imageRatio: Float, val uploadModel: UploadModel) :
+        Route
 
     @Serializable
     data object Login : Route

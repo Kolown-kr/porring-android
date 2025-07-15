@@ -16,7 +16,7 @@ fun NavGraphBuilder.theirNavGraph(
     popBackStack: () -> Unit,
     navigateToDetail: (String, String) -> Unit,
 ) {
-    composable<MainMenuRoute.Their> { navBackStackEntry ->
+    composable<MainMenuRoute.Their> {
         TheirRoute(
             viewModel = hiltViewModel(),
             navigateToDetail = navigateToDetail,

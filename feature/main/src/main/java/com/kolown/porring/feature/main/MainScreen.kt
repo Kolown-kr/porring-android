@@ -34,9 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.SnackBarContainer
 import com.kolown.porring.core.model.SnackBarEvent
+import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.compositionlocal.showSnackBarWithData
@@ -73,7 +75,7 @@ internal fun MainRoute(
         )
 
         when {
-            isGranted && isLoggedIn -> navigator.navigate(MainMenu.CAMERA)
+            isGranted && isLoggedIn -> navigator.navigateMainMenu(MainMenu.CAMERA)
             isGranted -> snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
             shouldShowRationale -> showRationale = true
             else -> showSetting = true
@@ -102,7 +104,7 @@ internal fun MainRoute(
     LaunchedEffect(Unit) {
         mainViewModel.navigationRequest.collect { nav ->
             when (nav) {
-                SnackBarNavigation.ToGallery -> navigator.navigate(MainMenu.MY)
+                SnackBarNavigation.ToGallery -> navigator.navigateMainMenu(MainMenu.MY)
                 is SnackBarNavigation.ToUpload -> navigator.navigateToUpload(
                     "",
                     0f,
@@ -148,7 +150,7 @@ internal fun MainRoute(
         navigator = navigator,
         snackBarHostState = snackBarHostState,
         snackBarBridge = snackBarBridge,
-        onMenuSelected = navigator::navigate,
+        onMenuSelected = navigator::navigateMainMenu,
         onCameraSelected = {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         },
@@ -163,12 +165,12 @@ private fun MainScreen(
     onMenuSelected: (MainMenu) -> Unit = {},
     onCameraSelected: () -> Unit = {},
 ) {
+    val isTheirScreen = navigator.currentDestination?.hasRoute(MainMenuRoute.Their::class) == true
+    val currentMenu = navigator.currentMenu
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { CustomSnackBar(snackBarHostState) },
-        bottomBar = {
-
-        }
     ) { paddingValues ->
         val bottomBarHeight = 92.dp
         val newPaddingValues = PaddingValues(
@@ -194,7 +196,12 @@ private fun MainScreen(
                 visible = navigator.isShowBottomBar(),
                 menus = MainMenu.entries.toPersistentList(),
                 currentMenu = navigator.currentMenu,
-                onMenuSelected = onMenuSelected,
+                onMenuSelected = { menu ->
+                    when {
+                        isTheirScreen -> navigator.navigateMainMenu(menu)
+                        menu != currentMenu -> navigator.navigateMainMenu(menu)
+                    }
+                },
                 onCameraSelected = onCameraSelected,
             )
         }
