@@ -77,7 +77,7 @@ internal fun MainNavHost(
         )
 
         uploadNavGraph(
-            navigateToHome = { navigator.navigate(MainMenu.HOME) }
+            navigateToHome = { navigator.navigateMainMenu(MainMenu.HOME) }
         )
 
         loginNavGraph(
@@ -110,7 +110,7 @@ internal fun MainNavHost(
         )
 
         imageEditNavGraph(
-            navigateToHome = { navigator.navigate(MainMenu.HOME) },
+            navigateToHome = { navigator.navigateMainMenu(MainMenu.HOME) },
             navigateToUpload = { imgUri, imageRatio ->
                 navigator.navigateToUpload(
                     imgUri,

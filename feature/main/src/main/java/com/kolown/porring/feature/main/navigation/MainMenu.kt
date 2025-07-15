@@ -44,6 +44,10 @@ internal enum class MainMenu(
             return entries.find { predicate(it.route) }
         }
 
+        fun findByRouteName(routeName: String) =
+            entries.firstOrNull { it.route::class.simpleName == routeName }
+
+
         @Composable
         fun contains(predicate: @Composable (Route) -> Boolean): Boolean {
             return entries
