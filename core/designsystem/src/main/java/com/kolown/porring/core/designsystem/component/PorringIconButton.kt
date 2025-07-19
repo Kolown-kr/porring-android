@@ -10,15 +10,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.designsystem.ui.theme.Primary
+import com.kolown.porring.core.designsystem.icon.PorringIcons
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 
 @Composable
 fun PorringIconButton(
-    icon: ImageVector,
-    onClick: () -> Unit,
+    icon: ImageVector = PorringIcons.Default.Empty,
+    onClick: () -> Unit = {},
+    color: Color = Color.Unspecified,
     contentDescription: String? = null,
-    color: Color = Primary,
     modifier: Modifier = Modifier,
 ) {
     IconButton(
@@ -32,7 +34,7 @@ fun PorringIconButton(
             contentDescription = contentDescription,
             tint = color,
             modifier = Modifier
-                .size(24.dp)
+                .size(32.dp)
                 .background(Color.Transparent),
         )
     }
@@ -58,5 +60,13 @@ fun PorringIconButton(
                 .size(24.dp)
                 .background(Color.Transparent),
         )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewIconButton() {
+    PorringTheme {
+        PorringIconButton()
     }
 }

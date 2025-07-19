@@ -57,8 +57,8 @@ import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
-import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
+import com.kolown.porring.core.ui.component.ReactionSelector
 import com.kolown.porring.core.ui.component.toImage
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
@@ -313,7 +313,7 @@ private fun EventRow(
             shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
-            ReactionDialog(
+            ReactionSelector(
                 activatedReaction = activatedReaction,
                 selectedReaction = onReactionClick,
                 onDismiss = { isExpand = false }
