@@ -38,7 +38,7 @@ internal fun DeletedAccountRoute(
     padding: PaddingValues = LocalPaddingValues.current,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    
+
     LaunchedEffect(Unit) {
         viewModel.isDeleteAccount.collect {
             if (it) {

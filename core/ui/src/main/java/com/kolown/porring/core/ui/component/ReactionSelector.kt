@@ -21,7 +21,7 @@ import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.ui.R
 
 @Composable
-fun ReactionDialog(
+fun ReactionSelector(
     modifier: Modifier = Modifier,
     activatedReaction: Reaction? = null,
     selectedReaction: (Reaction) -> Unit = {},
@@ -91,5 +91,5 @@ fun Reaction.toImage() =
 @Preview
 @Composable
 private fun Preview() {
-    ReactionDialog { }
+    ReactionSelector { }
 }

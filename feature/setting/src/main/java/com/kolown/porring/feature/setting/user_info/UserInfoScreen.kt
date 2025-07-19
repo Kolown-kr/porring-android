@@ -408,7 +408,8 @@ private fun DialogTextField(
                     imageVector = ImageVector.vectorResource(com.kolown.porring.feature.setting.R.drawable.ic_delete),
                     contentDescription = "delete text",
                     tint = Color.Unspecified,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier
+                        .size(16.dp)
                         .noRippleClickable(onDeleteClick),
                 )
             }
