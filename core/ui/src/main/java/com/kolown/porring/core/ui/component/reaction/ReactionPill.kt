@@ -1,4 +1,4 @@
-package com.kolown.porring.core.ui.component
+package com.kolown.porring.core.ui.component.reaction
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable

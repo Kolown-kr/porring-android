@@ -68,6 +68,7 @@ import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.ui.R
+import com.kolown.porring.core.ui.component.reaction.ReactionGroup
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
 

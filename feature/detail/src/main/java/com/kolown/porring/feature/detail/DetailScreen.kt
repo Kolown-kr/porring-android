@@ -56,9 +56,9 @@ import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
-import com.kolown.porring.core.ui.component.ReactionGroup
-import com.kolown.porring.core.ui.component.ReactionSelector
-import com.kolown.porring.core.ui.component.toImage
+import com.kolown.porring.core.ui.component.reaction.ReactionGroup
+import com.kolown.porring.core.ui.component.reaction.ReactionSelector
+import com.kolown.porring.core.ui.component.reaction.toImage
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.detail.component.FullScreenEffect
