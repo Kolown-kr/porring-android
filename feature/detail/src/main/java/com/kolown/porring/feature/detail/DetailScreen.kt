@@ -57,8 +57,8 @@ import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
-import com.kolown.porring.core.ui.component.ReactionDialog
 import com.kolown.porring.core.ui.component.ReactionGroup
+import com.kolown.porring.core.ui.component.ReactionSelector
 import com.kolown.porring.core.ui.component.toImage
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
@@ -338,7 +338,7 @@ private fun EventRow(
             shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
-            ReactionDialog(
+            ReactionSelector(
                 activatedReaction = activatedReaction,
                 selectedReaction = onReactionClick,
                 onDismiss = { isExpand = false }
