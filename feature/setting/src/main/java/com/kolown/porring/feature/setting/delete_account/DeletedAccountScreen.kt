@@ -116,7 +116,7 @@ private fun DeletedAccountScreen(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-    PorringTheme("") {
+    PorringTheme {
         DeletedAccountScreen()
     }
 }

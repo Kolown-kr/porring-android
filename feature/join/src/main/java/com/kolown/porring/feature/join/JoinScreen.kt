@@ -55,7 +55,6 @@ import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.model.UiState
 import com.kolown.porring.core.navigation.OnBoardRoute
 import com.kolown.porring.core.navigation.Route
-import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 

@@ -22,13 +22,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,6 +68,7 @@ internal fun MainBottomBar(
     val navBarHeight = with(density) { insets.getBottom(this).toDp() }
 
     AnimatedVisibility(
+        modifier = Modifier.navigationBarsPadding(),
         visible = visible,
         enter = slideInVertically(
             animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
@@ -92,37 +92,31 @@ internal fun MainBottomBar(
                     Spacer(modifier = Modifier.height(30.dp))
                 }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .align(Alignment.BottomCenter)
-                    .shadow(
-                        color = Color(0xFF598AFF).copy(alpha = 0.1f),
-                        blur = 8.dp,
-                        offsetY = (-5).dp,
-                        shape = menuBarShape(isShadow = true),
-                    )
-                    .background(
-                        color = PorringTheme.colors.surface,
-                        shape = menuBarShape()
-                    ),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
-                BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
-                Spacer(modifier = Modifier.weight(1f))
-                BottomBarItem(menus[2], currentMenu == menus[2], onMenuSelected)
-                BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .align(Alignment.BottomCenter)
+                        .shadow(
+                            color = Color(0xFF598AFF).copy(alpha = 0.1f),
+                            blur = 8.dp,
+                            offsetY = (-5).dp,
+                            shape = menuBarShape(isShadow = true),
+                        )
+                        .background(
+                            color = PorringTheme.colors.surface,
+                            shape = menuBarShape()
+                        ),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
+                    BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
+                    Spacer(modifier = Modifier.weight(1f))
+                    BottomBarItem(menus[2], currentMenu == menus[2], onMenuSelected)
+                    BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
+                }
             }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(navBarHeight)
-                    .background(PorringTheme.colors.surface)
-            )
         }
     }
 }
