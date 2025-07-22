@@ -10,7 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.kolown.porring.core.model.UploadModel
-import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.navigation.CameraRoute
 import com.kolown.porring.feature.upload.UploadRoute
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -39,17 +39,17 @@ fun NavController.navigateUpload(
     uploadModel: UploadModel,
     navOptions: NavOptions? = null
 ) {
-    navigate(Route.Upload(imgUri, imageRatio, uploadModel), navOptions)
+    navigate(CameraRoute.Upload(imgUri, imageRatio, uploadModel), navOptions)
 }
 
 fun NavGraphBuilder.uploadNavGraph(
     navigateToHome: () -> Unit,
 ) {
-    composable<Route.Upload>(
+    composable<CameraRoute.Upload>(
         typeMap = mapOf(typeOf<UploadModel>() to UploadType)
     ) { navBackStackEntry ->
-        val imgUri = navBackStackEntry.toRoute<Route.Upload>().imgUri
-        val imageRatio = navBackStackEntry.toRoute<Route.Upload>().imageRatio
+        val imgUri = navBackStackEntry.toRoute<CameraRoute.Upload>().imgUri
+        val imageRatio = navBackStackEntry.toRoute<CameraRoute.Upload>().imageRatio
 
         UploadRoute(
             imgUri = imgUri,

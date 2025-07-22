@@ -5,17 +5,18 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.kolown.porring.feature.join.JoinRoute
+import com.kolown.porring.core.navigation.OnBoardRoute
 import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.feature.join.JoinRoute
 
 fun NavController.navigateToJoin(navOptions: NavOptions) {
-    navigate(Route.Join, navOptions = navOptions)
+    navigate(OnBoardRoute.Join, navOptions = navOptions)
 }
 
 fun NavGraphBuilder.joinNavGraph(
     popBackStack: (Route) -> Unit,
 ) {
-    composable<Route.Join> {
+    composable<OnBoardRoute.Join> {
         JoinRoute(
             popBackStack = popBackStack,
         )

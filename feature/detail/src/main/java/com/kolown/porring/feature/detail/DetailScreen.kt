@@ -52,7 +52,7 @@ import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
-import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
@@ -67,7 +67,7 @@ import kotlinx.coroutines.flow.first
 
 @Composable
 internal fun DetailRoute(
-    type: MainMenuRoute.Detail.Type,
+    type: Route.Detail.Type,
     order: Int,
     authorId: String,
     postId: String?,
@@ -158,8 +158,8 @@ internal fun DetailRoute(
         DetailScreen(
             posts = posts,
             pagerState = pagerState,
-            eventRowVisible = type != MainMenuRoute.Detail.Type.MY,
-            galleryVisible = type == MainMenuRoute.Detail.Type.DEFAULT,
+            eventRowVisible = type != Route.Detail.Type.MY,
+            galleryVisible = type == Route.Detail.Type.DEFAULT,
             onShowReelsMode = { reelsModePostUrl = it },
             onReactionClick = viewModel::onReactionClick,
             onGalleryClick = navigateToTheir,

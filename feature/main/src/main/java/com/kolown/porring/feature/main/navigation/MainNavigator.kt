@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -14,11 +14,14 @@ import androidx.navigation.navOptions
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.navigation.toRouteClassOrNull
 import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
 import com.kolown.porring.feature.detail_my.navigation.navigateToDetailMy
 import com.kolown.porring.feature.follower.navigation.navigateFollower
+import com.kolown.porring.feature.follower.navigation.navigateFollowerGallery
 import com.kolown.porring.feature.home.navigation.navigateHome
+import com.kolown.porring.feature.home.navigation.navigateHomeGallery
 import com.kolown.porring.feature.imageedit.navigation.navigateImageEdit
 import com.kolown.porring.feature.join.navigation.navigateToJoin
 import com.kolown.porring.feature.login.navigation.navigateLogin
@@ -37,30 +40,16 @@ internal class MainNavigator(
     val navController: NavHostController,
 ) {
     val startDestination = MainMenu.HOME.route
-    private val currentTab = MutableStateFlow<MainMenu?>(MainMenu.HOME)
-
-    init {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            val routeName = destination.route?.substringAfterLast(".") ?: ""
-
-            if (routeName.startsWith("Their")) return@addOnDestinationChangedListener
-
-            val menu = MainMenu.findByRouteName(routeName)
-
-            currentTab.update { menu }
-        }
-    }
-
     internal val currentDestination: NavDestination?
         @Composable get() = navController.currentBackStackEntryAsState().value?.destination
-    val currentMenu: MainMenu?
-        @Composable get() {
-            val last by currentTab.collectAsState()
 
-            return when {
-                currentDestination?.hasRoute(MainMenuRoute.Their::class) == true -> last
-                else -> MainMenu.find { m -> currentDestination?.hasRoute(m::class) == true }
-            }
+    val currentMenu: MainMenu?
+        @Composable get() = MainMenu.find { m ->
+            currentDestination
+                ?.hierarchy
+                ?.any { navDestination ->
+                    navDestination.route?.contains(m::class.qualifiedName.orEmpty()) == true
+                } == true
         }
     private val singleTopOptions = navOptions {
         launchSingleTop = true
@@ -78,15 +67,21 @@ internal class MainNavigator(
         when (menu) {
             MainMenu.HOME -> navController.navigateHome(navOptions)
             MainMenu.SEARCH -> navController.navigateSearch(navOptions)
-            MainMenu.CAMERA -> navController.navigateCamera(navOptions)
             MainMenu.FOLLOWER -> navController.navigateFollower(navOptions)
             MainMenu.MY -> navController.navigateMy(navOptions)
         }
     }
 
-    fun navigateToTheir(authorId: String) {
+    fun navigateToHomeGallery(authorId: String) =
+        navController.navigateHomeGallery(authorId = authorId, navOptions = singleTopOptions)
+
+    fun navigateToFollowerGallery(authorId: String) =
+        navController.navigateFollowerGallery(authorId = authorId, navOptions = singleTopOptions)
+
+    fun navigateToCamera() = navController.navigateCamera(navOptions = singleTopOptions)
+
+    fun navigateToTheir(authorId: String) =
         navController.navigateTheir(authorId = authorId, navOptions = singleTopOptions)
-    }
 
     fun navigateToImageEdit(imgUri: String) =
         navController.navigateImageEdit(imgUri = imgUri, navOptions = singleTopOptions)
@@ -95,7 +90,7 @@ internal class MainNavigator(
         navController.navigateUpload(imgUri, imageRatio, uploadModel)
 
     fun navigateToDetail(
-        type: MainMenuRoute.Detail.Type,
+        type: Route.Detail.Type,
         order: Int,
         authorId: String = "",
         postId: String? = null
@@ -118,7 +113,7 @@ internal class MainNavigator(
     fun navigateToJoin() = navController.navigateToJoin(navOptions = singleTopOptions)
 
     fun navigateToDetailSearch(tagId: String, postId: String) = navController.navigateToDetail(
-        MainMenuRoute.Detail.Type.SEARCH,
+        Route.Detail.Type.SEARCH,
         0,
         postId = postId,
         authorId = tagId,
@@ -141,10 +136,12 @@ internal class MainNavigator(
     fun popBackStack(destination: Route) = navController.popBackStack(destination, false)
 
     @Composable
-    fun isShowBottomBar() = MainMenu.contains {
-        currentDestination?.hasRoute(it::class) == true ||
-                currentDestination?.hasRoute(MainMenuRoute.Their::class) ?: false
-    }
+    fun isShowBottomBar() = navController.currentBackStackEntryAsState()
+        .value
+        ?.destination
+        ?.hierarchy
+        ?.mapNotNull { it.route?.toRouteClassOrNull() }
+        ?.firstOrNull { MainMenuRoute::class.java.isAssignableFrom(it.java) } != null
 }
 
 @Composable

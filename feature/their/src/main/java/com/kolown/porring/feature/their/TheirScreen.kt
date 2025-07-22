@@ -39,7 +39,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TheirRoute(
+fun TheirRoute(
     padding: PaddingValues = LocalPaddingValues.current,
     viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},

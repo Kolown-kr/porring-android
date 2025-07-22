@@ -13,4 +13,6 @@ dependencies {
 
     //lottie
     implementation(libs.lottie.compose)
+
+    implementation(projects.feature.their)
 }
