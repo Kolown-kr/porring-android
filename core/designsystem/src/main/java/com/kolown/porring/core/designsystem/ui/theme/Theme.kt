@@ -18,7 +18,7 @@ val LocalIsDarkTheme = staticCompositionLocalOf { false }
 
 @Composable
 fun PorringTheme(
-    isLightBars: Boolean,
+    isLightBars: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val isDark = LocalIsDarkTheme.current

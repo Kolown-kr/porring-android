@@ -176,7 +176,7 @@ private fun TextMenu(
 @Preview
 @Composable
 private fun Prev() {
-    PorringTheme("") {
+    PorringTheme {
         SettingScreen()
     }
 }

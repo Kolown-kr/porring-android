@@ -432,7 +432,7 @@ private fun ZonedDateTime.formatText(): String {
 @Preview
 @Composable
 private fun Preview() {
-    PorringTheme("") {
+    PorringTheme {
         UserInfoScreen()
     }
 }
@@ -440,7 +440,7 @@ private fun Preview() {
 @Preview
 @Composable
 private fun Preview2() {
-    PorringTheme("") {
+    PorringTheme {
         ChangeDialog(
             title = "이메일 변경",
             description = "중요 알림과 계정 정보를 수신할" +
