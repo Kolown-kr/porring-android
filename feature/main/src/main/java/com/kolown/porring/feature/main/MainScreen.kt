@@ -75,7 +75,7 @@ internal fun MainRoute(
         )
 
         when {
-            isGranted && isLoggedIn -> navigator.navigateMainMenu(MainMenu.CAMERA)
+            isGranted && isLoggedIn -> navigator.navigateToCamera()
             isGranted -> snackBarBridge.postSnackBarEvent(SnackBarEvent.LoginRequired())
             shouldShowRationale -> showRationale = true
             else -> showSetting = true
@@ -196,12 +196,7 @@ private fun MainScreen(
                 visible = navigator.isShowBottomBar(),
                 menus = MainMenu.entries.toPersistentList(),
                 currentMenu = navigator.currentMenu,
-                onMenuSelected = { menu ->
-                    when {
-                        isTheirScreen -> navigator.navigateMainMenu(menu)
-                        menu != currentMenu -> navigator.navigateMainMenu(menu)
-                    }
-                },
+                onMenuSelected = onMenuSelected,
                 onCameraSelected = onCameraSelected,
             )
         }

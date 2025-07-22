@@ -9,6 +9,9 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
+import com.kolown.porring.core.ui.component.SnackBarBridge
 import com.kolown.porring.feature.main.component.NotAvailableVersionScreen
 import com.kolown.porring.feature.main.navigation.MainNavigator
 import com.kolown.porring.feature.main.navigation.rememberMainNavigator

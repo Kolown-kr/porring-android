@@ -12,7 +12,7 @@ import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
-import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.mapper.toUiModel
 import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,12 +57,12 @@ internal class DetailViewModel @Inject constructor(
         )
 
     fun initViewModel(
-        type: MainMenuRoute.Detail.Type,
+        type: Route.Detail.Type,
         postId: String?,
         authorId: String,
     ) = viewModelScope.launch {
         when (type) {
-            MainMenuRoute.Detail.Type.DEFAULT -> {
+            Route.Detail.Type.DEFAULT -> {
                 postRepository.getPagingItemPosts(
                     postType = PostType.RANDOM_DETAIL,
                     pageState = pageState,
@@ -70,13 +70,13 @@ internal class DetailViewModel @Inject constructor(
                     .collectLatest(_posts::emit)
             }
 
-            MainMenuRoute.Detail.Type.SEARCH -> {
+            Route.Detail.Type.SEARCH -> {
                 postRepository.getPostBySearch(authorId)
                     .map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }
 
-            MainMenuRoute.Detail.Type.FOLLOW -> {
+            Route.Detail.Type.FOLLOW -> {
                 postRepository.getPagingItemPosts(
                     postType = PostType.USER_DETAIL,
                     pageState = pageState,
@@ -88,7 +88,7 @@ internal class DetailViewModel @Inject constructor(
             }
 
 
-            MainMenuRoute.Detail.Type.MY -> {
+            Route.Detail.Type.MY -> {
                 postRepository.getPagingItemPosts(
                     postType = PostType.USER_DETAIL,
                     pageState = pageState,

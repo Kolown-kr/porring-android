@@ -8,36 +8,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+val LocalIsDarkTheme = staticCompositionLocalOf { false }
+
 @Composable
 fun PorringTheme(
-    currentRoute: String = "",
+    isLightBars: Boolean,
     content: @Composable () -> Unit,
 ) {
-    val isForcedDarkMode = currentRoute.shouldForceDarkMode()
-    val isDarkMode = if (isForcedDarkMode) true else isSystemInDarkTheme()
-
-    val colors: PorringColor = if (isDarkMode) PorringDarkColor else PorringLightColor
-    val isLightSystemBars = isDarkMode.not()
+    val isDark = LocalIsDarkTheme.current
+    val colors: PorringColor = if (isDark) PorringDarkColor else PorringLightColor
 
     val view = LocalView.current
-    val window = (view.context as? Activity)?.window
-    val insetsController = window?.let { WindowCompat.getInsetsController(window, view) }
 
     SideEffect {
-        window?.let {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            window.setSystemBarBackground()
-        }
-    }
+        val window = (view.context as Activity).window
+        val insetsController = WindowCompat.getInsetsController(window, view)
 
-    LaunchedEffect(isLightSystemBars) {
-        insetsController?.isAppearanceLightStatusBars = isLightSystemBars
-        insetsController?.isAppearanceLightNavigationBars = isLightSystemBars
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        insetsController.isAppearanceLightStatusBars = isLightBars
+        insetsController.isAppearanceLightNavigationBars = isLightBars
+        window.statusBarColor = Color.Transparent.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
+//            if (isLightBars) Background.toArgb() else BackgroundDark.toArgb()
     }
 
     CompositionLocalProvider(
@@ -45,23 +43,6 @@ fun PorringTheme(
         LocalTypography provides PorringTypography,
         content = content
     )
-}
-
-private fun Window.setSystemBarBackground() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        this.isNavigationBarContrastEnforced = false
-    }
-
-    this.statusBarColor = Color.Transparent.toArgb()
-    this.navigationBarColor = Color.Transparent.toArgb()
-}
-
-private fun String.shouldForceDarkMode(): Boolean {
-    return when {
-        this.startsWith("Detail") -> true
-        this.startsWith("Camera") -> true
-        else -> false
-    }
 }
 
 object PorringTheme {

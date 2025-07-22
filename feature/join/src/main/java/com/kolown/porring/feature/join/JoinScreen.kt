@@ -31,6 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
+import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component3
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +53,9 @@ import com.kolown.porring.core.designsystem.ui.theme.Error
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryUnActive
 import com.kolown.porring.core.model.UiState
+import com.kolown.porring.core.navigation.OnBoardRoute
 import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.ui.component.LocalSnackBarBridge
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 
@@ -73,7 +78,7 @@ internal fun JoinRoute(
 
             is UiState.Success -> {
                 snackBarBridge.postSnackBarString(context.getString(R.string.string_complete_signup))
-                popBackStack(Route.Login)
+                popBackStack(OnBoardRoute.Login)
             }
 
             is UiState.Loading -> {
@@ -99,7 +104,7 @@ internal fun JoinRoute(
             }
         }
         if (joinState is UiState.Success) {
-            popBackStack(Route.Login)
+            popBackStack(OnBoardRoute.Login)
         }
     }
 
@@ -131,7 +136,7 @@ private fun JoinScreen(
             trailingIcon = {
                 PorringIconButton(
                     icon = Icons.Default.Close,
-                    onClick = { popBackStack(Route.Login) },
+                    onClick = { popBackStack(OnBoardRoute.Login) },
                     contentDescription = stringResource(R.string.string_go_back)
                 )
             }

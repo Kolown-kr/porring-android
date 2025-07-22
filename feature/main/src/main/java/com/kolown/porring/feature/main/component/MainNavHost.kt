@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.model.UploadModel
 import com.kolown.porring.core.navigation.MainMenuRoute
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.detail_my.navigation.detailMyNavGraph
@@ -36,13 +37,22 @@ internal fun MainNavHost(
         startDestination = navigator.startDestination,
     ) {
         homeNavGraph(
-            navigateToTheir = navigator::navigateToTheir,
+            navigateToTheir = navigator::navigateToHomeGallery,
             navigateToDetail = {
                 navigator.navigateToDetail(
-                    MainMenuRoute.Detail.Type.DEFAULT,
+                    Route.Detail.Type.DEFAULT,
                     0
                 )
             },
+            navigateToGalleryDetail = { authorId, postId ->
+                navigator.navigateToDetail(
+                    type = Route.Detail.Type.DEFAULT,
+                    order = 0,
+                    authorId = authorId,
+                    postId = postId
+                )
+            },
+            popBackStack = navigator::popBackStack
         )
 
         searchNavGraph(
@@ -58,7 +68,16 @@ internal fun MainNavHost(
 
         followerNavGraph(
             navigateToLogin = navigator::navigateToLogin,
-            navigateToTheir = navigator::navigateToTheir
+            navigateToTheir = navigator::navigateToFollowerGallery,
+            popBackStack = navigator::popBackStack,
+            navigateToDetail = { authorId, postId ->
+                navigator.navigateToDetail(
+                    type = Route.Detail.Type.FOLLOW,
+                    order = 0,
+                    authorId = authorId,
+                    postId = postId
+                )
+            },
         )
 
         myNavGraph(
@@ -67,12 +86,12 @@ internal fun MainNavHost(
             navigateToDetail = navigator::navigateToDetailMy,
         )
 
-        detailNavGraph(
-            navigateToTheir = navigator::navigateToTheir,
+        detailMyNavGraph(
             popBackStack = navigator::popBackStack
         )
 
-        detailMyNavGraph(
+        detailNavGraph(
+            navigateToTheir = navigator::navigateToTheir,
             popBackStack = navigator::popBackStack
         )
 
@@ -97,7 +116,7 @@ internal fun MainNavHost(
             popBackStack = navigator::popBackStack,
             navigateToDetail = { authorId, postId ->
                 navigator.navigateToDetail(
-                    type = MainMenuRoute.Detail.Type.FOLLOW,
+                    type = Route.Detail.Type.FOLLOW,
                     order = 0,
                     authorId = authorId,
                     postId = postId

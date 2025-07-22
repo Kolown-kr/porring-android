@@ -22,11 +22,6 @@ internal enum class MainMenu(
         contentDescription = "Search",
         route = MainMenuRoute.Search,
     ),
-    CAMERA(
-        iconResId = R.drawable.ic_add_circle_48dp,
-        contentDescription = "Camera",
-        route = MainMenuRoute.Camera,
-    ),
     FOLLOWER(
         iconResId = R.drawable.ic_follow,
         contentDescription = "Follow",
@@ -51,10 +46,7 @@ internal enum class MainMenu(
         @Composable
         fun contains(predicate: @Composable (Route) -> Boolean): Boolean {
             return entries
-                .mapNotNull {
-                    if (it.route == MainMenuRoute.Camera) null else it.route
-                }
-                .any { predicate(it) }
+                .any { predicate(it.route) }
         }
     }
 }

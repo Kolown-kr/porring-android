@@ -51,6 +51,7 @@ import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.ui.ext.shadow
+import com.kolown.porring.feature.main.R
 import com.kolown.porring.feature.main.navigation.MainMenu
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
@@ -85,37 +86,35 @@ internal fun MainBottomBar(
                         .align(Alignment.TopCenter)
                 ) {
                     GradientFloatingActionButton(
-                        item = menus[2],
                         onClick = onCameraSelected
                     )
 
                     Spacer(modifier = Modifier.height(30.dp))
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .align(Alignment.BottomCenter)
-                        .shadow(
-                            color = Color(0xFF598AFF).copy(alpha = 0.1f),
-                            blur = 8.dp,
-                            offsetY = (-5).dp,
-                            shape = menuBarShape(isShadow = true),
-                        )
-                        .background(
-                            color = PorringTheme.colors.surface,
-                            shape = menuBarShape()
-                        ),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
-                    BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
-                    Spacer(modifier = Modifier.weight(1f))
-                    BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
-                    BottomBarItem(menus[4], currentMenu == menus[4], onMenuSelected)
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .align(Alignment.BottomCenter)
+                    .shadow(
+                        color = Color(0xFF598AFF).copy(alpha = 0.1f),
+                        blur = 8.dp,
+                        offsetY = (-5).dp,
+                        shape = menuBarShape(isShadow = true),
+                    )
+                    .background(
+                        color = PorringTheme.colors.surface,
+                        shape = menuBarShape()
+                    ),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
+                BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
+                Spacer(modifier = Modifier.weight(1f))
+                BottomBarItem(menus[2], currentMenu == menus[2], onMenuSelected)
+                BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
             }
 
             Box(
@@ -157,7 +156,6 @@ private fun RowScope.BottomBarItem(
 
 @Composable
 private fun GradientFloatingActionButton(
-    item: MainMenu,
     onClick: () -> Unit = {},
 ) {
     Box(
@@ -171,8 +169,8 @@ private fun GradientFloatingActionButton(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Default.Add,//TODO 아이콘 추가 바람
-            contentDescription = item.contentDescription,
+            imageVector = ImageVector.vectorResource(R.drawable.ic_add_circle_48dp),
+            contentDescription = "Camera",
             tint = Color.White,
             modifier = Modifier.fillMaxSize()
         )
@@ -235,7 +233,6 @@ private fun Preview() {
 @Composable
 private fun FloatingPreview() {
     GradientFloatingActionButton(
-        item = MainMenu.CAMERA,
         onClick = {}
     )
 }

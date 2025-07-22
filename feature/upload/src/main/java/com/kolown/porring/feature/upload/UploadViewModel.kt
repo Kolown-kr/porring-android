@@ -10,7 +10,7 @@ import com.kolown.porring.core.common.retry
 import com.kolown.porring.core.data.repository.ImageRepository
 import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.model.UploadModel
-import com.kolown.porring.core.navigation.Route
+import com.kolown.porring.core.navigation.CameraRoute
 import com.kolown.porring.feature.upload.navigation.UploadType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -128,6 +128,6 @@ class UploadViewModel @Inject constructor(
     }
 
     private fun extractUploadModel(): UploadModel {
-        return savedStateHandle.toRoute<Route.Upload>(mapOf(typeOf<UploadModel>() to UploadType)).uploadModel
+        return savedStateHandle.toRoute< CameraRoute.Upload>(mapOf(typeOf<UploadModel>() to UploadType)).uploadModel
     }
 }
