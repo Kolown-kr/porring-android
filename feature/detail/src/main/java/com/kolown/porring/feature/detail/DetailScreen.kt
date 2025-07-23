@@ -47,6 +47,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.ui.theme.Background
+import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
@@ -144,28 +145,30 @@ internal fun DetailRoute(
         }
     }
 
-    if (reelsModePostUrl != null) {
-        val currentPost = posts[pagerState.currentPage]
+    DarkModeScreen {
+        if (reelsModePostUrl != null) {
+            val currentPost = posts[pagerState.currentPage]
 
-        FullScreenEffect()
-        BackHandler(onBack = { reelsModePostUrl = null })
-        FocusScreen(
-            postUrl = reelsModePostUrl ?: "",
-            imageRatio = currentPost?.imageRatio ?: (4f / 5f),
-            onDismiss = { reelsModePostUrl = null }
-        )
-    } else {
-        DetailScreen(
-            posts = posts,
-            pagerState = pagerState,
-            eventRowVisible = type != Route.Detail.Type.MY,
-            galleryVisible = type == Route.Detail.Type.DEFAULT,
-            onShowReelsMode = { reelsModePostUrl = it },
-            onReactionClick = viewModel::onReactionClick,
-            onGalleryClick = navigateToTheir,
-            onFollowClick = viewModel::onFollowClick,
-            popBackStack = popBackStack
-        )
+            FullScreenEffect()
+            BackHandler(onBack = { reelsModePostUrl = null })
+            FocusScreen(
+                postUrl = reelsModePostUrl ?: "",
+                imageRatio = currentPost?.imageRatio ?: (4f / 5f),
+                onDismiss = { reelsModePostUrl = null }
+            )
+        } else {
+            DetailScreen(
+                posts = posts,
+                pagerState = pagerState,
+                eventRowVisible = type != Route.Detail.Type.MY,
+                galleryVisible = type == Route.Detail.Type.DEFAULT,
+                onShowReelsMode = { reelsModePostUrl = it },
+                onReactionClick = viewModel::onReactionClick,
+                onGalleryClick = navigateToTheir,
+                onFollowClick = viewModel::onFollowClick,
+                popBackStack = popBackStack
+            )
+        }
     }
 }
 

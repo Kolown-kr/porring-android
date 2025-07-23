@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,8 +15,7 @@ import androidx.compose.ui.res.vectorResource
 import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
-import com.kolown.porring.core.designsystem.ui.theme.LocalIsDarkTheme
-import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.feature.camera.R
 
 
@@ -26,9 +24,7 @@ internal fun CameraRoute(
     navigateToImageEdit: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
-    CompositionLocalProvider(
-        LocalIsDarkTheme provides true
-    ) {
+    DarkModeScreen {
         CameraScreen(
             navigateToImageEdit = navigateToImageEdit,
             popBackStack = popBackStack,
