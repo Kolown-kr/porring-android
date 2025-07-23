@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -63,62 +64,67 @@ internal fun MainBottomBar(
     onMenuSelected: (MainMenu) -> Unit = {},
     onCameraSelected: () -> Unit = {},
 ) {
-    val density = LocalDensity.current
-    val insets = WindowInsets.systemBars
-    val navBarHeight = with(density) { insets.getBottom(this).toDp() }
-
-    AnimatedVisibility(
-        modifier = Modifier
-            .navigationBarsPadding(),
-        visible = visible,
-        enter = slideInVertically(
-            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-            initialOffsetY = { it }
-        ) + fadeIn(),
-        exit = slideOutVertically(
-            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
-            targetOffsetY = { it }
-        ) + fadeOut()
+    Column(
+        verticalArrangement = Arrangement.Bottom
     ) {
-        Column {
-            Box {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                ) {
-                    GradientFloatingActionButton(
-                        onClick = onCameraSelected
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .align(Alignment.BottomCenter)
-                        .shadow(
-                            color = Color(0xFF598AFF).copy(alpha = 0.1f),
-                            blur = 8.dp,
-                            offsetY = (-5).dp,
-                            shape = menuBarShape(isShadow = true),
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically(
+                animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                initialOffsetY = { it }
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+                targetOffsetY = { it }
+            ) + fadeOut()
+        ) {
+            Column {
+                Box {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                    ) {
+                        GradientFloatingActionButton(
+                            onClick = onCameraSelected
                         )
-                        .background(
-                            color = PorringTheme.colors.surface,
-                            shape = menuBarShape()
-                        ),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
-                    BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
-                    Spacer(modifier = Modifier.weight(1f))
-                    BottomBarItem(menus[2], currentMenu == menus[2], onMenuSelected)
-                    BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
+
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .align(Alignment.BottomCenter)
+                            .shadow(
+                                color = Color(0xFF598AFF).copy(alpha = 0.1f),
+                                blur = 8.dp,
+                                offsetY = (-5).dp,
+                                shape = menuBarShape(isShadow = true),
+                            )
+                            .background(
+                                color = PorringTheme.colors.surface,
+                                shape = menuBarShape()
+                            ),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BottomBarItem(menus[0], currentMenu == menus[0], onMenuSelected)
+                        BottomBarItem(menus[1], currentMenu == menus[1], onMenuSelected)
+                        Spacer(modifier = Modifier.weight(1f))
+                        BottomBarItem(menus[2], currentMenu == menus[2], onMenuSelected)
+                        BottomBarItem(menus[3], currentMenu == menus[3], onMenuSelected)
+                    }
                 }
             }
         }
+
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(WindowInsets.systemBars.asPaddingValues().calculateBottomPadding())
+                .background(PorringTheme.colors.surface)
+        )
     }
 }
 

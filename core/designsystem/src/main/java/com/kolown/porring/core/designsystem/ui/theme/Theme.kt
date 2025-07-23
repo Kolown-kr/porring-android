@@ -21,7 +21,6 @@ import androidx.core.view.WindowCompat
 fun PorringTheme(
     content: @Composable () -> Unit,
 ) {
-    DarkThemeController.setDark(isSystemInDarkTheme())
     val isDark = DarkThemeController.isDark
     val colors = remember(isDark) { if (isDark) PorringDarkColor else PorringLightColor }
     val isLightSystemBars = !isDark
