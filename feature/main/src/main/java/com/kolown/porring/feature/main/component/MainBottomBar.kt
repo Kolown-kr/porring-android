@@ -68,7 +68,8 @@ internal fun MainBottomBar(
     val navBarHeight = with(density) { insets.getBottom(this).toDp() }
 
     AnimatedVisibility(
-        modifier = Modifier.navigationBarsPadding(),
+        modifier = Modifier
+            .navigationBarsPadding(),
         visible = visible,
         enter = slideInVertically(
             animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),

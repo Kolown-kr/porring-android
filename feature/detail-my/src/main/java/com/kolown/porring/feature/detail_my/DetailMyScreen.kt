@@ -31,6 +31,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FullscreenImageViewer
@@ -47,19 +48,21 @@ internal fun DetailMyRoute(
         pageCount = { pagingItems.itemCount }
     )
 
-    if (uiState.isFocusMode) {
-        FullscreenImageViewer(
-            imageUrl = uiState.focusImageUrl,
-            imageRatio = uiState.focusImageRatio,
-            onDismiss = { viewModel.onAction(DetailMyIntent.ChangeToDefaultMode) }
-        )
-    } else {
-        DetailMyScreen(
-            pagerState = pagerState,
-            popBackStack = popBackStack,
-            pagingItems = pagingItems,
-            onAction = viewModel::onAction,
-        )
+    DarkModeScreen {
+        if (uiState.isFocusMode) {
+            FullscreenImageViewer(
+                imageUrl = uiState.focusImageUrl,
+                imageRatio = uiState.focusImageRatio,
+                onDismiss = { viewModel.onAction(DetailMyIntent.ChangeToDefaultMode) }
+            )
+        } else {
+            DetailMyScreen(
+                pagerState = pagerState,
+                popBackStack = popBackStack,
+                pagingItems = pagingItems,
+                onAction = viewModel::onAction,
+            )
+        }
     }
 }
 
