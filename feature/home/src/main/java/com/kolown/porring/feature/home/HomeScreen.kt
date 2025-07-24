@@ -18,7 +18,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -59,7 +58,7 @@ import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.reaction.ReactionGroup
 import com.kolown.porring.core.ui.component.reaction.ReactionSelector
-import com.kolown.porring.core.ui.component.reaction.toImage
+import com.kolown.porring.core.ui.component.reaction.getIcon
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
@@ -287,11 +286,8 @@ private fun EventRow(
             onClick = { isExpand = true }
         ) {
             Icon(
-                imageVector = if (activatedReaction != null) {
-                    ImageVector.vectorResource(activatedReaction.toImage())
-                } else {
-                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected)
-                },
+                imageVector = activatedReaction?.getIcon()
+                    ?: ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected),
                 tint = Primary,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier.size(32.dp)
@@ -307,15 +303,15 @@ private fun EventRow(
 
         DropdownMenu(
             modifier = Modifier
-                .width(352.dp),
+                .fillMaxWidth(),
             expanded = isExpand,
+            shadowElevation = 0.dp,
             containerColor = Color.Transparent,
-            shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
             ReactionSelector(
-                activatedReaction = activatedReaction,
-                selectedReaction = onReactionClick,
+                selectedReaction = activatedReaction,
+                onReactionClick = onReactionClick,
                 onDismiss = { isExpand = false }
             )
         }

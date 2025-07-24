@@ -43,8 +43,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.R
-import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
