@@ -1,4 +1,4 @@
-package com.kolown.porring.core.designsystem.component
+package com.kolown.porring.core.designsystem.component.button
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -14,6 +14,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
+
+@Composable
+fun PorringIconButton(
+    icon: ImageVector = PorringIcons.Default.Empty,
+    onClick: () -> Unit = {},
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        modifier = modifier
+            .size(48.dp)
+            .background(Color.Transparent),
+        onClick = onClick,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = PorringTheme.colors.onBackground,
+            modifier = Modifier.size(32.dp)
+        )
+    }
+}
 
 @Composable
 fun PorringIconButton(

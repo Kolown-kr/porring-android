@@ -49,7 +49,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog

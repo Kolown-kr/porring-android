@@ -23,8 +23,8 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
-import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.BackgroundDark
 import com.kolown.porring.core.ui.component.CoilImage
 

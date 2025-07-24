@@ -29,7 +29,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
-import com.kolown.porring.core.designsystem.component.PorringIconButton
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
