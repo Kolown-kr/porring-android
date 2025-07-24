@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.DropdownMenu
@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.designsystem.ui.theme.Primary
@@ -59,7 +59,7 @@ import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
 import com.kolown.porring.core.ui.component.reaction.ReactionGroup
 import com.kolown.porring.core.ui.component.reaction.ReactionSelector
-import com.kolown.porring.core.ui.component.reaction.toImage
+import com.kolown.porring.core.ui.component.reaction.getIcon
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.detail.component.FullScreenEffect
@@ -319,11 +319,8 @@ private fun EventRow(
     ) {
         IconButton(onClick = { isExpand = true }) {
             Icon(
-                imageVector = if (activatedReaction != null) {
-                    ImageVector.vectorResource(activatedReaction.toImage())
-                } else {
-                    ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected)
-                },
+                imageVector = activatedReaction?.getIcon()
+                    ?: ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected),
                 tint = if (activatedReaction != null) Primary else PrimaryDark,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier
@@ -332,15 +329,15 @@ private fun EventRow(
         }
         DropdownMenu(
             modifier = Modifier
-                .width(352.dp),
+                .wrapContentWidth(),
             expanded = isExpand,
+            shadowElevation = 0.dp,
             containerColor = Color.Transparent,
-            shape = CircleShape,
             onDismissRequest = { isExpand = false }
         ) {
             ReactionSelector(
-                activatedReaction = activatedReaction,
-                selectedReaction = onReactionClick,
+                selectedReaction = activatedReaction,
+                onReactionClick = onReactionClick,
                 onDismiss = { isExpand = false }
             )
         }

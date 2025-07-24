@@ -47,8 +47,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.kolown.porring.core.designsystem.R
-import com.kolown.porring.core.designsystem.component.PorringIconButton
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.feature.imageEdit.R.drawable.ic_landscape_active
 import com.kolown.porring.feature.imageEdit.R.drawable.ic_landscape_default
 import com.kolown.porring.feature.imageEdit.R.drawable.ic_portrait_active
