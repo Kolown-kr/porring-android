@@ -146,7 +146,6 @@ private fun FollowerScreen(
     updateFollowerThumbnail: (FollowWithThumbnail) -> Unit = {}
 ) {
     PullToRefreshColumn(
-        padding = padding,
         refreshState = refreshState,
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,

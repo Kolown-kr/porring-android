@@ -167,15 +167,6 @@ private fun MainScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { CustomSnackBar(snackBarHostState) },
-        bottomBar = {
-            MainBottomBar(
-                visible = navigator.isShowBottomBar(),
-                menus = MainMenu.entries.toPersistentList(),
-                currentMenu = navigator.currentMenu,
-                onMenuSelected = onMenuSelected,
-                onCameraSelected = onCameraSelected,
-            )
-        }
     ) { paddingValues ->
         val bottomBarHeight = 92.dp
         val newPaddingValues = PaddingValues(
@@ -196,6 +187,14 @@ private fun MainScreen(
                     navigator = navigator,
                 )
             }
+
+            MainBottomBar(
+                visible = navigator.isShowBottomBar(),
+                menus = MainMenu.entries.toPersistentList(),
+                currentMenu = navigator.currentMenu,
+                onMenuSelected = onMenuSelected,
+                onCameraSelected = onCameraSelected,
+            )
         }
     }
 }

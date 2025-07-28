@@ -156,7 +156,6 @@ private fun MyScreen(
     updateDeletingPostId: (String) -> Unit = {}
 ) {
     PullToRefreshColumn(
-        padding = padding,
         refreshState = refreshState,
         isRefreshing = isRefreshing,
         modifier = Modifier
