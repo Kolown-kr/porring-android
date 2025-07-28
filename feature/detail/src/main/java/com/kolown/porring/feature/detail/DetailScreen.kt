@@ -320,7 +320,7 @@ private fun EventRow(
         IconButton(onClick = { isExpand = true }) {
             Icon(
                 imageVector = activatedReaction?.getIcon()
-                    ?: ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected),
+                    ?: ImageVector.vectorResource(com.kolown.porring.core.designsystem.R.drawable.ic_reaction_none),
                 tint = if (activatedReaction != null) Primary else PrimaryDark,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier

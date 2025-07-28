@@ -20,10 +20,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.selection.selectable
@@ -41,17 +39,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.kolown.porring.core.designsystem.R.*
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.ui.ext.shadow
-import com.kolown.porring.feature.main.R
 import com.kolown.porring.feature.main.navigation.MainMenu
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
@@ -161,7 +158,7 @@ private fun GradientFloatingActionButton(
 ) {
     Box(
         modifier = Modifier
-            .size(62.dp)
+            .size(56.dp)
             .clip(CircleShape)
             .background(brush = Brush.verticalGradient(listOf(PrimaryDark, Primary)))
             .clickable(
@@ -170,10 +167,10 @@ private fun GradientFloatingActionButton(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.ic_add_circle_48dp),
+            imageVector = ImageVector.vectorResource(drawable.ic_add),
             contentDescription = "Camera",
             tint = Color.White,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.size(24.dp)
         )
     }
 }

@@ -145,7 +145,6 @@ internal fun HomeRoute(
         onFollowClick = viewModel::onFollowClick,
         onReactionClick = viewModel::onReactionClick
     )
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,7 +164,6 @@ private fun HomeScreen(
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> }
 ) {
     PullToRefreshColumn(
-        padding = padding,
         modifier = Modifier
             .fillMaxSize()
             .padding(padding),
@@ -287,7 +285,7 @@ private fun EventRow(
         ) {
             Icon(
                 imageVector = activatedReaction?.getIcon()
-                    ?: ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_reaction_unselected),
+                    ?: ImageVector.vectorResource(com.kolown.porring.core.designsystem.R.drawable.ic_reaction_none),
                 tint = Primary,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier.size(32.dp)
