@@ -20,9 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -30,6 +28,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBar
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.ui.component.ErrorScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
@@ -126,7 +125,7 @@ private fun TheirScreen(
                     title = title,
                     navigationIcon = {
                         PorringIconButton(
-                            icon = ImageVector.vectorResource(R.drawable.ic_arrow_back),
+                            icon = PorringIcons.Default.ArrowBack,
                             onClick = popBackStack,
                             contentDescription = stringResource(R.string.string_go_back)
                         )

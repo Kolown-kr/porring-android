@@ -44,10 +44,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.kolown.porring.core.designsystem.R.*
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
+import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.ui.ext.shadow
 import com.kolown.porring.feature.main.navigation.MainMenu
 import kotlinx.collections.immutable.PersistentList
@@ -145,7 +146,8 @@ private fun RowScope.BottomBarItem(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(item.iconResId),
+            imageVector = item.getIcon(),
+            modifier = Modifier.size(24.dp),
             contentDescription = item.contentDescription,
             tint = if (isSelected) PorringTheme.colors.primary else PorringTheme.colors.tertiary,
         )
@@ -167,7 +169,7 @@ private fun GradientFloatingActionButton(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = ImageVector.vectorResource(drawable.ic_add),
+            imageVector = PorringIcons.Default.Add,
             contentDescription = "Camera",
             tint = Color.White,
             modifier = Modifier.size(24.dp)
@@ -212,6 +214,16 @@ private fun menuBarShape(isShadow: Boolean = false) = GenericShape { size, _ ->
     }
 
     close()
+}
+
+@Composable
+internal fun MainMenu.getIcon(): ImageVector {
+    return when (this) {
+        MainMenu.HOME -> PorringIcons.Filled.Home
+        MainMenu.SEARCH -> PorringIcons.Filled.Search
+        MainMenu.FOLLOWER -> PorringIcons.Filled.Follow
+        MainMenu.MY -> PorringIcons.Filled.My
+    }
 }
 
 @Preview

@@ -46,6 +46,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.designsystem.ui.theme.Primary
@@ -192,7 +193,7 @@ private fun DetailScreen(
         PorringTopAppBar(
             navigationIcon = {
                 PorringIconButton(
-                    icon = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                    icon = PorringIcons.Default.ArrowBack,
                     onClick = popBackStack,
                     contentDescription = stringResource(R.string.string_go_back),
                     color = Color.White

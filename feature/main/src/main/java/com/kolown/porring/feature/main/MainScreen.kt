@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.designsystem.ui.theme.SnackBarContainer
 import com.kolown.porring.core.model.SnackBarEvent
@@ -116,7 +117,7 @@ internal fun MainRoute(
         PorringAlertDialog(
             title = stringResource(R.string.string_camera_permission_guide),
             description = stringResource(R.string.string_camera_rationale_script),
-            iconResId = R.drawable.ic_camera_24dp,
+            icon = PorringIcons.Default.Camera,
             dismissText = stringResource(R.string.string_close),
             confirmText = stringResource(R.string.string_confirm),
             onDismissRequest = { showRationale = false },
@@ -128,7 +129,7 @@ internal fun MainRoute(
         PorringAlertDialog(
             title = stringResource(R.string.string_camera_permission_guide),
             description = stringResource(R.string.string_camera_permission_guide_script),
-            iconResId = R.drawable.ic_camera_24dp,
+            icon = PorringIcons.Default.Camera,
             dismissText = stringResource(R.string.string_close),
             confirmText = stringResource(R.string.string_go_to_setting),
             onDismissRequest = { showSetting = false },

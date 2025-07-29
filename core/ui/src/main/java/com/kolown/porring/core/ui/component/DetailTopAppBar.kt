@@ -14,10 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.ui.R
 
 @Composable
@@ -43,7 +42,7 @@ fun DetailTopAppBar(
                 onClick = { popBackStack() }, modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_back),
+                    imageVector = PorringIcons.Default.ArrowBack,
                     contentDescription = stringResource(R.string.string_go_back_button),
                     tint = Color.White,
                     modifier = Modifier.size(24.dp)
