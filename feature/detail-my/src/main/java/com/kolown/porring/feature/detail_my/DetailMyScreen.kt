@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +29,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.model.MyPost
 import com.kolown.porring.core.ui.component.CoilImage
@@ -81,7 +80,7 @@ private fun DetailMyScreen(
         PorringTopAppBar(
             navigationIcon = {
                 PorringIconButton(
-                    icon = Icons.AutoMirrored.Default.KeyboardArrowLeft,
+                    icon = PorringIcons.Default.ArrowBack,
                     onClick = popBackStack,
                     contentDescription = null,
                     color = Color.White

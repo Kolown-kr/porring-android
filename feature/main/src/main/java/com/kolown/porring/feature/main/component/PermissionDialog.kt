@@ -1,6 +1,5 @@
 package com.kolown.porring.feature.main.component
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -37,7 +35,7 @@ import com.kolown.porring.core.designsystem.ui.theme.Primary
 internal fun PorringAlertDialog(
     title: String = "",
     description: String = "",
-    @DrawableRes iconResId: Int? = null,
+    icon:  ImageVector? = null,
     dismissText: String = "",
     confirmText: String = "",
     onDismissRequest: () -> Unit = {},
@@ -61,9 +59,9 @@ internal fun PorringAlertDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
             ) {
-                iconResId?.let {
+                icon?.let {
                     Icon(
-                        imageVector = ImageVector.vectorResource(iconResId),
+                        imageVector = icon,
                         contentDescription = null,
                         tint = Primary,
                         modifier = Modifier.size(24.dp)

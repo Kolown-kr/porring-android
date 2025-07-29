@@ -14,5 +14,16 @@ object PorringIcons {
         val ReactionSurprise @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_surprise)
         val ReactionWink @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_wink)
         val ReactionHeart @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_heart)
+
+        val ArrowBack @Composable get() = ImageVector.vectorResource(R.drawable.ic_arrow_back)
+        val Add @Composable get() = ImageVector.vectorResource(R.drawable.ic_add)
+        val Camera @Composable get() = ImageVector.vectorResource(R.drawable.ic_camera)
+    }
+
+    object Filled {
+        val Home @Composable get() = ImageVector.vectorResource(R.drawable.ic_home_filled)
+        val Search @Composable get() = ImageVector.vectorResource(R.drawable.ic_search_filled)
+        val Follow @Composable get() = ImageVector.vectorResource(R.drawable.ic_follow_filled)
+        val My @Composable get() = ImageVector.vectorResource(R.drawable.ic_my_filled)
     }
 }

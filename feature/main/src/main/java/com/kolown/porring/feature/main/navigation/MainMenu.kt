@@ -1,34 +1,26 @@
 package com.kolown.porring.feature.main.navigation
 
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import com.kolown.porring.core.navigation.MainMenuRoute
 import com.kolown.porring.core.navigation.Route
-import com.kolown.porring.feature.main.R
 
 internal enum class MainMenu(
-    @DrawableRes
-    val iconResId: Int,
     val contentDescription: String,
     val route: MainMenuRoute,
 ) {
     HOME(
-        iconResId = R.drawable.ic_home,
         contentDescription = "Home",
         route = MainMenuRoute.Home,
     ),
     SEARCH(
-        iconResId = R.drawable.ic_search,
         contentDescription = "Search",
         route = MainMenuRoute.Search,
     ),
     FOLLOWER(
-        iconResId = R.drawable.ic_follow,
         contentDescription = "Follow",
         route = MainMenuRoute.Follower,
     ),
     MY(
-        iconResId = R.drawable.ic_my,
         contentDescription = "My",
         route = MainMenuRoute.My,
     );
