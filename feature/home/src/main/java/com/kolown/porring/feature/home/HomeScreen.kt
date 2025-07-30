@@ -62,6 +62,7 @@ import com.kolown.porring.core.ui.component.reaction.getIcon
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
+import com.kolown.porring.feature.home.component.LottieFireWorkAnimation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

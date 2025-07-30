@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,48 +65,42 @@ import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.detail.component.FullScreenEffect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 @Composable
 internal fun DetailRoute(
-    type: Route.Detail.Type,
-    order: Int,
-    authorId: String,
-    postId: String?,
     viewModel: DetailViewModel = hiltViewModel(),
     navigateToTheir: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
     val posts = viewModel.posts.collectAsLazyPagingItems()
-    val pagerState = rememberPagerState { posts.itemCount }
+    val initialPost by viewModel.initialPost.collectAsState()
 
     var followPostUiModel by remember { mutableStateOf<PostUiModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
-    LaunchedEffect(Unit) {
-        viewModel.initViewModel(
-            type = type,
-            postId = postId,
-            authorId = authorId
-        )
-    }
+    val pagerState = rememberPagerState { posts.itemCount }
 
-    LaunchedEffect(Unit) {
-        viewModel.initViewModel(
-            type = type,
-            postId = postId,
-            authorId = authorId
-        )
-    }
+//    LaunchedEffect(Unit) {
+//        snapshotFlow { posts.loadState.refresh }
+//            .filter { it is LoadState.NotLoading }
+//            .first() // ✅ 처음으로 NotLoading 상태가 되면 한 번만 반응
+//            .let {
+//                Log.i("detailScreenTest", "✅ 초기 로딩 완료됨")
+//            }
+//    }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { posts.itemSnapshotList.items }
-            .filter { it.isNotEmpty() }
-            .first()
-            .let { items ->
-                val index = items.indexOfFirst { it.postId == postId }
-                pagerState.scrollToPage(if (index >= 0) index else order)
-            }
+    LaunchedEffect(initialPost) {
+        initialPost?.let { post ->
+            snapshotFlow { posts.itemSnapshotList.items }
+                .map { items -> items.indexOfFirst { it.postId == post.postId } }
+                .filter { it >= 0 }
+                .first()
+                .let { index ->
+                    pagerState.scrollToPage(index)
+                }
+        }
     }
 
     LaunchedEffect(pagerState.currentPage) {
@@ -161,7 +154,6 @@ internal fun DetailRoute(
             DetailScreen(
                 posts = posts,
                 pagerState = pagerState,
-                eventRowVisible = type != Route.Detail.Type.MY,
                 galleryVisible = type == Route.Detail.Type.DEFAULT,
                 onShowReelsMode = { reelsModePostUrl = it },
                 onReactionClick = viewModel::onReactionClick,
@@ -177,7 +169,6 @@ internal fun DetailRoute(
 private fun DetailScreen(
     posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
-    eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
@@ -205,8 +196,7 @@ private fun DetailScreen(
             modifier = Modifier.fillMaxSize(),
             state = pagerState,
             key = { index ->
-                val item = posts[index]
-                "${item?.postId}"
+                posts[index]?.postId ?: "placeholder_$index"
             },
             beyondViewportPageCount = 3,
         ) { page: Int ->
@@ -214,7 +204,6 @@ private fun DetailScreen(
 
             DetailContent(
                 postUiModel = post,
-                eventRowVisible = eventRowVisible,
                 galleryVisible = galleryVisible,
                 onShowReelsMode = onShowReelsMode,
                 onReactionClick = onReactionClick,
@@ -228,7 +217,6 @@ private fun DetailScreen(
 @Composable
 private fun DetailContent(
     postUiModel: PostUiModel = PostUiModel.EMPTY,
-    eventRowVisible: Boolean = true,
     galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
@@ -287,16 +275,14 @@ private fun DetailContent(
             )
         }
 
-        if (eventRowVisible) {
-            EventRow(
-                isFollowed = postUiModel.isFollowing,
-                galleryVisible = galleryVisible,
-                activatedReaction = postUiModel.myReaction,
-                onReactionClick = { onReactionClick(postUiModel.postId, it) },
-                onGalleryClick = { onGalleryClick(postUiModel.authorId) },
-                onFollowClick = { onFollowClick(postUiModel) }
-            )
-        }
+        EventRow(
+            isFollowed = postUiModel.isFollowing,
+            galleryVisible = galleryVisible,
+            activatedReaction = postUiModel.myReaction,
+            onReactionClick = { onReactionClick(postUiModel.postId, it) },
+            onGalleryClick = { onGalleryClick(postUiModel.authorId) },
+            onFollowClick = { onFollowClick(postUiModel) }
+        )
 
         Spacer(Modifier.weight(1f))
     }

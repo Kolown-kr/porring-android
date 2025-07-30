@@ -30,7 +30,7 @@ sealed interface Route {
     ) : Route {
         @Serializable
         enum class Type {
-            DEFAULT, MY, FOLLOW, SEARCH
+            DEFAULT, FOLLOW, SEARCH
         }
     }
 

@@ -65,9 +65,17 @@ fun TheirRoute(
     LaunchedEffect(pagingItems.loadState) {
         isRefreshing = false
     }
+
+    LaunchedEffect(pagingItems.itemCount) {
+        if (pagingItems.itemCount > 0) {
+            listState.scrollToItem(0)
+        }
+    }
+
     LaunchedEffect(pagingItems.loadState.refresh) {
         listState.scrollToItem(0)
     }
+    
     LaunchedEffect(pagingItems.loadState.refresh) {
         if (pagingItems.loadState.refresh == LoadState.Loading) {
             delay(7000)
