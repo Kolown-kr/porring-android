@@ -46,7 +46,7 @@ internal fun MainNavHost(
             },
             navigateToGalleryDetail = { authorId, postId ->
                 navigator.navigateToDetail(
-                    type = Route.Detail.Type.DEFAULT,
+                    type = Route.Detail.Type.FOLLOW,
                     order = 0,
                     authorId = authorId,
                     postId = postId

@@ -1,8 +1,10 @@
 package com.kolown.porring.feature.detail
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
@@ -32,10 +34,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class DetailViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     authRepository: AuthRepository,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
 ) : ViewModel() {
+    private val _initialPost = MutableStateFlow<PostUiModel?>(null)
+    val initialPost = _initialPost.asStateFlow()
 
     private val _posts = MutableStateFlow<PagingData<PostUiModel>>(PagingData.empty())
     val posts = _posts.asStateFlow().cachedIn(viewModelScope)
@@ -56,7 +61,24 @@ internal class DetailViewModel @Inject constructor(
             initialValue = false
         )
 
-    fun initViewModel(
+    init {
+        val route = savedStateHandle.toRoute<Route.Detail>()
+
+        initViewModel(
+            type = route.type,
+            postId = route.postId,
+            authorId = route.authorId
+        )
+
+        viewModelScope.launch {
+            postRepository.getPostById(route.postId ?: "")
+                .onSuccess { post ->
+                    _initialPost.update { post.toUiModel() }
+                }
+        }
+    }
+
+    private fun initViewModel(
         type: Route.Detail.Type,
         postId: String?,
         authorId: String,
@@ -77,18 +99,6 @@ internal class DetailViewModel @Inject constructor(
             }
 
             Route.Detail.Type.FOLLOW -> {
-                postRepository.getPagingItemPosts(
-                    postType = PostType.USER_DETAIL,
-                    pageState = pageState,
-                    authorId = authorId,
-                    postId = postId
-                )
-                    .map { pagingData -> pagingData.map { it.toUiModel() } }
-                    .collectLatest(_posts::emit)
-            }
-
-
-            Route.Detail.Type.MY -> {
                 postRepository.getPagingItemPosts(
                     postType = PostType.USER_DETAIL,
                     pageState = pageState,

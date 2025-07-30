@@ -58,6 +58,7 @@ interface PostRepository {
 
     suspend fun insertPagingItem(item: PostModel)
     suspend fun clearPagingItems()
+    suspend fun getPostById(postId: String): Result<PostModel>
     fun getPagingItemPosts(
         postType: PostType,
         pageState: StateFlow<PageState>?,
@@ -225,6 +226,10 @@ class PostRepositoryImpl @Inject constructor(
                 data.toModel()
             }
         }
+    }
+
+    override suspend fun getPostById(postId: String): Result<PostModel> {
+        return kotlin.runCatching { localPostDataSource.getItemById(postId)?.toModel() ?: throw IllegalArgumentException() }
     }
 
     override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
