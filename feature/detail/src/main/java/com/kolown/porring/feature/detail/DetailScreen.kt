@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
@@ -65,7 +66,6 @@ import com.kolown.porring.core.ui.model.PostUiModel
 import com.kolown.porring.feature.detail.component.FullScreenEffect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 
 @Composable
 internal fun DetailRoute(
@@ -73,8 +73,11 @@ internal fun DetailRoute(
     navigateToTheir: (String) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
+    val currentGalleryType by viewModel.currentGalleryType.collectAsState()
+
     val posts = viewModel.posts.collectAsLazyPagingItems()
     val initialPost by viewModel.initialPost.collectAsState()
+    var isPagingItemLoading by remember { mutableStateOf(false) }
 
     var followPostUiModel by remember { mutableStateOf<PostUiModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
@@ -82,26 +85,22 @@ internal fun DetailRoute(
 
     val pagerState = rememberPagerState { posts.itemCount }
 
-//    LaunchedEffect(Unit) {
-//        snapshotFlow { posts.loadState.refresh }
-//            .filter { it is LoadState.NotLoading }
-//            .first() // ✅ 처음으로 NotLoading 상태가 되면 한 번만 반응
-//            .let {
-//                Log.i("detailScreenTest", "✅ 초기 로딩 완료됨")
-//            }
-//    }
+    LaunchedEffect(Unit) {
+        snapshotFlow { posts.loadState.refresh }
+            .filter { it is LoadState.NotLoading }
+            .first()
+            .let { isPagingItemLoading = true }
+    }
 
     LaunchedEffect(initialPost) {
-        initialPost?.let { post ->
-            snapshotFlow { posts.itemSnapshotList.items }
-                .map { items -> items.indexOfFirst { it.postId == post.postId } }
-                .filter { it >= 0 }
-                .first()
-                .let { index ->
-                    pagerState.scrollToPage(index)
-                }
-        }
+        if (initialPost == null) return@LaunchedEffect
+
+        snapshotFlow { posts.itemSnapshotList.items.indexOfFirst { it.postId == initialPost!!.postId } }
+            .filter { it >= 0 }
+            .first()
+            .let { pagerState.scrollToPage(it) }
     }
+
 
     LaunchedEffect(pagerState.currentPage) {
         val state = PageState(pagerState.currentPage, pagerState.pageCount)
@@ -152,9 +151,11 @@ internal fun DetailRoute(
             )
         } else {
             DetailScreen(
+                isItemsLoading = isPagingItemLoading,
+                initialPost = initialPost ?: PostUiModel.EMPTY,
                 posts = posts,
                 pagerState = pagerState,
-                galleryVisible = type == Route.Detail.Type.DEFAULT,
+                galleryVisible = currentGalleryType == Route.Detail.Type.DEFAULT,
                 onShowReelsMode = { reelsModePostUrl = it },
                 onReactionClick = viewModel::onReactionClick,
                 onGalleryClick = navigateToTheir,
@@ -167,6 +168,8 @@ internal fun DetailRoute(
 
 @Composable
 private fun DetailScreen(
+    isItemsLoading: Boolean = false,
+    initialPost: PostUiModel = PostUiModel.EMPTY,
     posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
     galleryVisible: Boolean = true,
@@ -200,7 +203,7 @@ private fun DetailScreen(
             },
             beyondViewportPageCount = 3,
         ) { page: Int ->
-            val post = posts[page] ?: return@HorizontalPager
+            val post = if (isItemsLoading) posts[page] ?: return@HorizontalPager else initialPost
 
             DetailContent(
                 postUiModel = post,
