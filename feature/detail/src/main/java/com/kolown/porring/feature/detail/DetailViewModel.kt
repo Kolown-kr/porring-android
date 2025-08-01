@@ -39,7 +39,7 @@ internal class DetailViewModel @Inject constructor(
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
 ) : ViewModel() {
-    private val _currentGalleryType = MutableStateFlow<Route.Detail.Type>(Route.Detail.Type.DEFAULT)
+    private val _currentGalleryType = MutableStateFlow(Route.Detail.Type.DEFAULT)
     val currentGalleryType = _currentGalleryType.asStateFlow()
 
     private val _initialPost = MutableStateFlow<PostUiModel?>(null)

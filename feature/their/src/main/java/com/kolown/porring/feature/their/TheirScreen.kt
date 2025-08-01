@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,15 +35,14 @@ import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.model.PostUiModel
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TheirRoute(
-    padding: PaddingValues = LocalPaddingValues.current,
-    viewModel: TheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
     navigateToDetail: (String, String) -> Unit = { _, _ -> },
+    padding: PaddingValues = LocalPaddingValues.current,
+    viewModel: TheirViewModel = hiltViewModel(),
 ) {
     val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
 
@@ -51,6 +51,7 @@ fun TheirRoute(
     var showErrorScreen by remember { mutableStateOf(false) }
     val listState = rememberLazyStaggeredGridState()
     val refreshState = rememberPullToRefreshState()
+    var isFirstEnter by rememberSaveable { mutableStateOf(true) }
 
     val onRefresh: () -> Unit = {
         isRefreshing = true
@@ -66,22 +67,12 @@ fun TheirRoute(
         isRefreshing = false
     }
 
-    LaunchedEffect(pagingItems.itemCount) {
-        if (pagingItems.itemCount > 0) {
-            listState.scrollToItem(0)
-        }
-    }
+    LaunchedEffect(pagingItems.loadState.refresh, pagingItems.itemCount) {
+        val isPagingItemLoaded = pagingItems.loadState.refresh is LoadState.NotLoading
 
-    LaunchedEffect(pagingItems.loadState.refresh) {
-        listState.scrollToItem(0)
-    }
-    
-    LaunchedEffect(pagingItems.loadState.refresh) {
-        if (pagingItems.loadState.refresh == LoadState.Loading) {
-            delay(7000)
-            showErrorScreen = true
-        } else {
-            showErrorScreen = false
+        if (isFirstEnter && isPagingItemLoaded && pagingItems.itemCount > 0) {
+            listState.scrollToItem(0)
+            isFirstEnter = false
         }
     }
 
@@ -143,6 +134,7 @@ private fun TheirScreen(
         ) {
             when {
                 showErrorScreen -> {
+                    updateShowErrorScreen(false)
                     ErrorScreen()
                 }
 
