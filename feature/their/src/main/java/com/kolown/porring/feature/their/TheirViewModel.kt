@@ -37,10 +37,16 @@ class TheirViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TheirUiState())
     val uiState = _uiState.asStateFlow()
 
-    init {
-        val authorId = savedStateHandle.get<String>("authorId") ?: ""
+    private val authorId = savedStateHandle.get<String>("authorId") ?: ""
+    private val pageState = MutableStateFlow(PageState())
 
+
+    init {
         setFollowerName(authorId)
+        getPosts(authorId)
+    }
+
+    fun refresh() {
         getPosts(authorId)
     }
 
@@ -51,7 +57,7 @@ class TheirViewModel @Inject constructor(
                 postType = PostType.USER_GALLERY,
                 postId = null,
                 authorId = authorId,
-                pageState = MutableStateFlow(PageState())
+                pageState = pageState
             ).map { pagingData -> pagingData.map { it.toUiModel() } }
                 .collectLatest(_pagingItems::emit)
 

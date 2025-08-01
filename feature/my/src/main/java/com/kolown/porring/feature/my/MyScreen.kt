@@ -65,11 +65,11 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MyRoute(
-    viewModel: MyViewModel = hiltViewModel(),
-    padding: PaddingValues = LocalPaddingValues.current,
     navigateToLogin: () -> Unit = {},
     navigateToSetting: () -> Unit = {},
     navigateToDetail: (Int) -> Unit = { _ -> },
+    padding: PaddingValues = LocalPaddingValues.current,
+    viewModel: MyViewModel = hiltViewModel(),
 ) {
     val pagingItems = viewModel.pagingItems.collectAsLazyPagingItems()
 
