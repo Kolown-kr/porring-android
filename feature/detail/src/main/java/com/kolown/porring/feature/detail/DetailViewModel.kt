@@ -11,7 +11,6 @@ import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.data.repository.PostType
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.navigation.Route
@@ -89,8 +88,7 @@ internal class DetailViewModel @Inject constructor(
     ) = viewModelScope.launch {
         when (type) {
             Route.Detail.Type.DEFAULT -> {
-                postRepository.getPagingItemPosts(
-                    postType = PostType.RANDOM_DETAIL,
+                postRepository.getRandomPosts(
                     pageState = pageState,
                 ).map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
@@ -98,17 +96,6 @@ internal class DetailViewModel @Inject constructor(
 
             Route.Detail.Type.SEARCH -> {
                 postRepository.getPostBySearch(authorId)
-                    .map { pagingData -> pagingData.map { it.toUiModel() } }
-                    .collectLatest(_posts::emit)
-            }
-
-            Route.Detail.Type.FOLLOW -> {
-                postRepository.getPagingItemPosts(
-                    postType = PostType.USER_DETAIL,
-                    pageState = pageState,
-                    authorId = authorId,
-                    postId = postId
-                )
                     .map { pagingData -> pagingData.map { it.toUiModel() } }
                     .collectLatest(_posts::emit)
             }

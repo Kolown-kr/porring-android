@@ -1,14 +1,20 @@
-package com.kolown.porring.feature.home
+package com.kolown.porring.feature.detail_their
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.kolown.porring.core.data.repository.AuthRepository
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
+import com.kolown.porring.core.data.repository.PostUsage
+import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
-import com.kolown.porring.core.model.UiState
-import com.kolown.porring.core.ui.mapper.toModel
+import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.mapper.toUiModel
 import com.kolown.porring.core.ui.model.PostUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,9 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -28,13 +33,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+internal class DetailTheirViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    authRepository: AuthRepository,
     private val postRepository: PostRepository,
     private val followRepository: FollowRepository,
-    authRepository: AuthRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState<List<PostUiModel>>>(UiState.Loading)
-    val uiState = _uiState.asStateFlow()
+    private val _initialPost = MutableStateFlow<PostUiModel?>(null)
+    val initialPost = _initialPost.asStateFlow()
+
+    private val _posts = MutableStateFlow<PagingData<PostUiModel>>(PagingData.empty())
+    val posts = _posts.asStateFlow().cachedIn(viewModelScope)
+
+    private val _pageState = MutableStateFlow(PageState())
+    private val pageState = _pageState.asStateFlow()
 
     private val _followEvent = MutableSharedFlow<PostUiModel>()
     val followEvent = _followEvent.asSharedFlow()
@@ -50,20 +62,37 @@ class HomeViewModel @Inject constructor(
         )
 
     init {
+        val route = savedStateHandle.toRoute<Route.DetailTheir>()
+
+        initViewModel(
+            postId = route.postId,
+            authorId = route.authorId
+        )
+
         viewModelScope.launch {
-            postRepository.fetchHomeItemPosts()
-            postRepository.getHomePosts()
-                .onStart { _uiState.update { UiState.Loading } }
-                .catch { e -> _uiState.update { UiState.Failure(e) } }
-                .collectLatest { posts -> _uiState.update { UiState.Success(posts.map { it.toUiModel() }) } }
+            postRepository.getPostById(route.postId ?: "")
+                .onSuccess { post ->
+                    _initialPost.update { post.toUiModel() }
+                }
         }
     }
 
-    fun refreshItems() {
-        _uiState.update { UiState.Loading }
-        viewModelScope.launch {
-            postRepository.fetchHomeItemPosts()
-        }
+    private fun initViewModel(
+        postId: String?,
+        authorId: String,
+    ) = viewModelScope.launch {
+        postRepository.getUserPosts(
+            postUsage = PostUsage.USER_DETAIL,
+            pageState = pageState,
+            authorId = authorId,
+            postId = postId
+        )
+            .map { pagingData -> pagingData.map { it.toUiModel() } }
+            .collectLatest(_posts::emit)
+    }
+
+    fun updatePage(pageState: PageState) {
+        _pageState.update { pageState }
     }
 
     private fun checkedLogIn(): Boolean {
@@ -72,6 +101,11 @@ class HomeViewModel @Inject constructor(
             return false
         }
         return true
+    }
+
+
+    fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
+        postRepository.updatePostReaction(postId, reaction)
     }
 
     fun onFollowClick(postUiModel: PostUiModel) = viewModelScope.launch {
@@ -92,23 +126,5 @@ class HomeViewModel @Inject constructor(
             .onFailure {
                 Log.e("Follow", "registerFollow: $it")
             }
-    }
-
-    fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
-        if (checkedLogIn().not()) return@launch
-
-        reactPost(postId, reaction)
-    }
-
-    private fun reactPost(postId: String, reaction: Reaction) =
-        viewModelScope.launch {
-            postRepository.updatePostReaction(postId, reaction)
-        }
-
-    fun onClickItem(post: PostUiModel) {
-        viewModelScope.launch {
-            postRepository.clearRandomPosts()
-            postRepository.insertPagingItem(post.toModel())
-        }
     }
 }

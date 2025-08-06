@@ -11,6 +11,7 @@ dependencies {
 
     implementation(projects.feature.camera)
     implementation(projects.feature.detail)
+    implementation(projects.feature.detailTheir)
     implementation(projects.feature.detailMy)
     implementation(projects.feature.home)
     implementation(projects.feature.follower)

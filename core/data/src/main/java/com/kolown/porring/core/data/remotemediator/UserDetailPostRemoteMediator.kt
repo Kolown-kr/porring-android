@@ -112,12 +112,12 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result.map { it.toOtherData() },
-            PostsUsageType.PAGING
+            PostsUsageType.GALLERY
         )
     }
 
     private suspend fun onPrepend(pageSize: Long) {
-        val firstItem = localPostDataSource.getFirstPageItem()
+        val firstItem = localPostDataSource.getFirstRandomItem()
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
@@ -131,12 +131,12 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result.map { it.toOtherData() },
-            PostsUsageType.PAGING
+            PostsUsageType.GALLERY
         )
     }
 
     private suspend fun onAppend(pageSize: Long) {
-        val lastItem = localPostDataSource.getLastPageItem()
+        val lastItem = localPostDataSource.getLastRandomItem()
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
@@ -150,7 +150,7 @@ class UserDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result.map { it.toOtherData() },
-            PostsUsageType.PAGING
+            PostsUsageType.GALLERY
         )
     }
 }

@@ -8,7 +8,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.kolown.porring.core.data.repository.FollowRepository
 import com.kolown.porring.core.data.repository.PostRepository
-import com.kolown.porring.core.data.repository.PostType
+import com.kolown.porring.core.data.repository.PostUsage
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.ui.mapper.toUiModel
 import com.kolown.porring.core.ui.model.PostUiModel
@@ -52,9 +52,9 @@ class TheirViewModel @Inject constructor(
 
     private fun getPosts(authorId: String) {
         viewModelScope.launch {
-            postRepository.clearPagingItems()
-            postRepository.getPagingItemPosts(
-                postType = PostType.USER_GALLERY,
+            postRepository.clearGalleryPosts()
+            postRepository.getUserPosts(
+                postUsage = PostUsage.USER_GALLERY,
                 postId = null,
                 authorId = authorId,
                 pageState = pageState

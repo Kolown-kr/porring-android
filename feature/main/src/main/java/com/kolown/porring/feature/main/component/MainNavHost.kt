@@ -12,6 +12,7 @@ import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.feature.camera.navigation.cameraNavGraph
 import com.kolown.porring.feature.detail.navigation.detailNavGraph
 import com.kolown.porring.feature.detail_my.navigation.detailMyNavGraph
+import com.kolown.porring.feature.detail_their.navigation.detailTheirNavGraph
 import com.kolown.porring.feature.follower.navigation.followerNavGraph
 import com.kolown.porring.feature.home.navigation.homeNavGraph
 import com.kolown.porring.feature.imageedit.navigation.imageEditNavGraph
@@ -45,8 +46,7 @@ internal fun MainNavHost(
                 )
             },
             navigateToGalleryDetail = { authorId, postId ->
-                navigator.navigateToDetail(
-                    type = Route.Detail.Type.FOLLOW,
+                navigator.navigateToDetailTheir(
                     order = 0,
                     authorId = authorId,
                     postId = postId
@@ -71,8 +71,7 @@ internal fun MainNavHost(
             navigateToTheir = navigator::navigateToFollowerGallery,
             popBackStack = navigator::popBackStack,
             navigateToDetail = { authorId, postId ->
-                navigator.navigateToDetail(
-                    type = Route.Detail.Type.FOLLOW,
+                navigator.navigateToDetailTheir(
                     order = 0,
                     authorId = authorId,
                     postId = postId
@@ -86,12 +85,16 @@ internal fun MainNavHost(
             navigateToDetail = navigator::navigateToDetailMy,
         )
 
-        detailMyNavGraph(
+        detailNavGraph(
+            navigateToTheir = navigator::navigateToTheir,
             popBackStack = navigator::popBackStack
         )
 
-        detailNavGraph(
-            navigateToTheir = navigator::navigateToTheir,
+        detailTheirNavGraph(
+            popBackStack = navigator::popBackStack,
+        )
+
+        detailMyNavGraph(
             popBackStack = navigator::popBackStack
         )
 
@@ -115,8 +118,7 @@ internal fun MainNavHost(
         theirNavGraph(
             popBackStack = navigator::popBackStack,
             navigateToDetail = { authorId, postId ->
-                navigator.navigateToDetail(
-                    type = Route.Detail.Type.FOLLOW,
+                navigator.navigateToDetailTheir(
                     order = 0,
                     authorId = authorId,
                     postId = postId

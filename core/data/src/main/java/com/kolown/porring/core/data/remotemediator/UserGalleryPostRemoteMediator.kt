@@ -37,7 +37,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
                 }
             }
         } catch (e: Exception) {
-            Log.e("GallryPostRemoteMediator: fatal", "error: $e")
+            Log.e("GalleryPostRemoteMediator: fatal", "error: $e")
             MediatorResult.Error(e)
         }
 
@@ -55,14 +55,14 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             posts.map { it.toOtherData() },
-            com.kolown.porring.core.data.model.PostsUsageType.PAGING
+            com.kolown.porring.core.data.model.PostsUsageType.GALLERY
         )
 
         return MediatorResult.Success(endOfPaginationReached = posts.isEmpty())
     }
 
     private suspend fun onAppend(pageSize: Long): MediatorResult {
-        val lastItem = localPostDataSource.getLastPageItem()
+        val lastItem = localPostDataSource.getLastRandomItem()
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)
@@ -76,7 +76,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             result.map { it.toOtherData() },
-            com.kolown.porring.core.data.model.PostsUsageType.PAGING
+            com.kolown.porring.core.data.model.PostsUsageType.GALLERY
         )
 
         return MediatorResult.Success(endOfPaginationReached = result.isEmpty())

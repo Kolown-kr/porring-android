@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.detail
+package com.kolown.porring.feature.detail_their
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,9 +38,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
@@ -47,12 +48,12 @@ import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
-import com.kolown.porring.core.navigation.Route
 import com.kolown.porring.core.ui.component.BetaPorringAlertDialog
 import com.kolown.porring.core.ui.component.CoilImage
 import com.kolown.porring.core.ui.component.FollowDialog
@@ -61,22 +62,42 @@ import com.kolown.porring.core.ui.component.reaction.ReactionSelector
 import com.kolown.porring.core.ui.component.reaction.getIcon
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
-import com.kolown.porring.feature.detail.component.FullScreenEffect
+import com.kolown.porring.feature.detail_their.component.FullScreenEffect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 
 @Composable
-internal fun DetailRoute(
-    viewModel: DetailViewModel = hiltViewModel(),
-    navigateToTheir: (String) -> Unit = {},
+internal fun DetailTheirRoute(
+    viewModel: DetailTheirViewModel = hiltViewModel(),
     popBackStack: () -> Unit = {},
 ) {
-    val currentGalleryType by viewModel.currentGalleryType.collectAsState()
     val posts = viewModel.posts.collectAsLazyPagingItems()
+
+    val initialPost by viewModel.initialPost.collectAsState()
+    var isPagingItemLoading by remember { mutableStateOf(false) }
 
     var followPostUiModel by remember { mutableStateOf<PostUiModel?>(null) }
     var reelsModePostUrl by remember { mutableStateOf<String?>(null) }
     val snackBarBridge = LocalSnackBarBridge.current
 
     val pagerState = rememberPagerState { posts.itemCount }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { posts.loadState.refresh }
+            .filter { it is LoadState.NotLoading }
+            .first()
+            .let { isPagingItemLoading = true }
+    }
+
+    LaunchedEffect(initialPost) {
+        if (initialPost == null) return@LaunchedEffect
+
+        snapshotFlow { posts.itemSnapshotList.items.indexOfFirst { it.postId == initialPost!!.postId } }
+            .filter { it >= 0 }
+            .first()
+            .let { pagerState.scrollToPage(it) }
+    }
+
 
     LaunchedEffect(pagerState.currentPage) {
         val state = PageState(pagerState.currentPage, pagerState.pageCount)
@@ -126,13 +147,13 @@ internal fun DetailRoute(
                 onDismiss = { reelsModePostUrl = null }
             )
         } else {
-            DetailScreen(
+            DetailTheirScreen(
+                isItemsLoading = isPagingItemLoading,
+                initialPost = initialPost ?: PostUiModel.EMPTY,
                 posts = posts,
                 pagerState = pagerState,
-                galleryVisible = currentGalleryType == Route.Detail.Type.DEFAULT,
                 onShowReelsMode = { reelsModePostUrl = it },
                 onReactionClick = viewModel::onReactionClick,
-                onGalleryClick = navigateToTheir,
                 onFollowClick = viewModel::onFollowClick,
                 popBackStack = popBackStack
             )
@@ -141,13 +162,13 @@ internal fun DetailRoute(
 }
 
 @Composable
-private fun DetailScreen(
+private fun DetailTheirScreen(
+    isItemsLoading: Boolean = false,
+    initialPost: PostUiModel = PostUiModel.EMPTY,
     posts: LazyPagingItems<PostUiModel>,
     pagerState: PagerState = rememberPagerState(initialPage = 0) { posts.itemCount },
-    galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
-    onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostUiModel) -> Unit = {},
     popBackStack: () -> Unit = {},
 ) {
@@ -161,8 +182,8 @@ private fun DetailScreen(
                 PorringIconButton(
                     icon = PorringIcons.Default.ArrowBack,
                     onClick = popBackStack,
-                    contentDescription = stringResource(R.string.string_go_back),
-                    color = Color.White
+                    contentDescription = null,
+                    color = PorringTheme.colors.onBackground
                 )
             },
         )
@@ -175,14 +196,12 @@ private fun DetailScreen(
             },
             beyondViewportPageCount = 3,
         ) { page: Int ->
-            val post = posts[page] ?: return@HorizontalPager
+            val post = if (isItemsLoading) posts[page] ?: initialPost else initialPost
 
-            DetailContent(
+            DetailTheirContent(
                 postUiModel = post,
-                galleryVisible = galleryVisible,
                 onShowReelsMode = onShowReelsMode,
                 onReactionClick = onReactionClick,
-                onGalleryClick = onGalleryClick,
                 onFollowClick = onFollowClick
             )
         }
@@ -190,12 +209,10 @@ private fun DetailScreen(
 }
 
 @Composable
-private fun DetailContent(
+private fun DetailTheirContent(
     postUiModel: PostUiModel = PostUiModel.EMPTY,
-    galleryVisible: Boolean = true,
     onShowReelsMode: (String) -> Unit = {},
     onReactionClick: (String, Reaction) -> Unit = { _, _ -> },
-    onGalleryClick: (String) -> Unit = {},
     onFollowClick: (PostUiModel) -> Unit = {}
 ) {
     Column(
@@ -252,10 +269,8 @@ private fun DetailContent(
 
         EventRow(
             isFollowed = postUiModel.isFollowing,
-            galleryVisible = galleryVisible,
             activatedReaction = postUiModel.myReaction,
             onReactionClick = { onReactionClick(postUiModel.postId, it) },
-            onGalleryClick = { onGalleryClick(postUiModel.authorId) },
             onFollowClick = { onFollowClick(postUiModel) }
         )
 
@@ -266,10 +281,8 @@ private fun DetailContent(
 @Composable
 private fun EventRow(
     isFollowed: Boolean = false,
-    galleryVisible: Boolean = true,
     activatedReaction: Reaction? = null,
     onReactionClick: (Reaction) -> Unit = {},
-    onGalleryClick: () -> Unit = {},
     onFollowClick: () -> Unit = {}
 ) {
     var isExpand by remember { mutableStateOf(false) }
@@ -306,18 +319,6 @@ private fun EventRow(
 
         Spacer(Modifier.weight(1f))
 
-        if (galleryVisible) {
-            IconButton(
-                onClick = onGalleryClick
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_gallery),
-                    contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_gallery),
-                    tint = PrimaryDark
-                )
-            }
-        }
 
         Spacer(Modifier.width(12.dp))
 
@@ -339,10 +340,4 @@ private fun EventRow(
             )
         }
     }
-}
-
-@Preview(showBackground = true, backgroundColor = 0x000000)
-@Composable
-private fun DetailScreenPreview() {
-    DetailContent()
 }
