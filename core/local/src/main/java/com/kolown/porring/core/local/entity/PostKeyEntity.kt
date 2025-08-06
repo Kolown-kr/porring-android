@@ -10,9 +10,15 @@ data class HomePostKeyEntity(
     @ColumnInfo("post_id") val postId: String,
 )
 
-@Entity(tableName = "paging_post_keys")
-data class PagingPostKeyEntity(
+@Entity(tableName = "random_post_keys")
+data class RandomPostKeyEntity(
     @PrimaryKey
     @ColumnInfo("post_id") val postId: String,
     @ColumnInfo("sort_order") val sortOrder: Int,
+)
+
+@Entity(tableName = "gallery_post_keys")
+data class GalleryPostKeyEntity(
+    @PrimaryKey
+    @ColumnInfo("post_id") val postId: String,
 )

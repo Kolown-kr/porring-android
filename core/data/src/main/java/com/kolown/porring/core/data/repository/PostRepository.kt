@@ -14,7 +14,7 @@ import com.kolown.porring.core.data.mapper.toModel
 import com.kolown.porring.core.data.mapper.toMyData
 import com.kolown.porring.core.data.mapper.toOtherData
 import com.kolown.porring.core.data.model.PostsUsageType.HOME
-import com.kolown.porring.core.data.model.PostsUsageType.PAGING
+import com.kolown.porring.core.data.model.PostsUsageType.RANDOM
 import com.kolown.porring.core.data.remotemediator.RandomPostRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserDetailRemoteMediatorFactory
 import com.kolown.porring.core.data.remotemediator.UserGalleryPostRemoteMediatorFactory
@@ -53,18 +53,21 @@ interface PostRepository {
 
     fun getPostBySearch(tagName: String): Flow<PagingData<PostModel>>
 
-    suspend fun getHomeItemPosts(): Flow<List<PostModel>>
+    suspend fun getHomePosts(): Flow<List<PostModel>>
     suspend fun fetchHomeItemPosts()
 
     suspend fun insertPagingItem(item: PostModel)
-    suspend fun clearPagingItems()
     suspend fun getPostById(postId: String): Result<PostModel>
-    fun getPagingItemPosts(
-        postType: PostType,
+    fun getRandomPosts(pageState: StateFlow<PageState>): Flow<PagingData<PostModel>>
+    fun getUserPosts(
+        postUsage: PostUsage,
         pageState: StateFlow<PageState>?,
-        authorId: String? = null,
-        postId: String? = null
+        authorId: String?,
+        postId: String?
     ): Flow<PagingData<PostModel>>
+
+    suspend fun clearRandomPosts()
+    suspend fun clearGalleryPosts()
 
     suspend fun updatePostReaction(postId: String, reaction: Reaction)
 
@@ -124,55 +127,30 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getHomeItemPosts(): Flow<List<PostModel>> =
+    override suspend fun getHomePosts(): Flow<List<PostModel>> =
         withContext(Dispatchers.IO) {
-            localPostDataSource.getItems().map { data -> data.map { it.toModel() } }
+            localPostDataSource.getHomePosts().map { data -> data.map { it.toModel() } }
         }
 
-    override suspend fun clearPagingItems() = withContext(Dispatchers.IO) {
-        localPostDataSource.clearPagingItems()
+    override suspend fun clearRandomPosts() = withContext(Dispatchers.IO) {
+        localPostDataSource.clearRandomPosts()
     }
 
-    override fun getPagingItemPosts(
-        postType: PostType,
-        pageState: StateFlow<PageState>?,
-        authorId: String?,
-        postId: String?
-    ): Flow<PagingData<PostModel>> {
-        return when (postType) {
-            PostType.RANDOM_DETAIL -> getRandomPagingItem(
-                postType.pageSize,
-                pageState,
-            )
-
-            PostType.USER_DETAIL -> getUserDetailPagingItem(
-                postType.pageSize,
-                pageState,
-                authorId,
-                postId
-            )
-
-            PostType.USER_GALLERY -> getUserGalleryPagingItem(
-                postType.pageSize,
-                authorId,
-            )
-        }
+    override suspend fun clearGalleryPosts() = withContext(Dispatchers.IO) {
+        localPostDataSource.clearGalleryPosts()
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    private fun getRandomPagingItem(
-        pageSize: Int,
-        pageState: StateFlow<PageState>?
+    override fun getRandomPosts(
+        pageState: StateFlow<PageState>,
     ): Flow<PagingData<PostModel>> {
-        if (pageState == null) throw IllegalArgumentException("Page State가 없습니다.")
-
         return Pager(
             config = PagingConfig(
-                pageSize = pageSize,
+                pageSize = DETAIL_PER_PAGE,
                 enablePlaceholders = true,
             ),
             remoteMediator = randomPostRemoteMediatorFactory.create(pageState),
-            pagingSourceFactory = { localPostDataSource.getPagingItems() }
+            pagingSourceFactory = { localPostDataSource.getRandomPosts() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toModel()
@@ -180,8 +158,29 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getUserPosts(
+        postUsage: PostUsage,
+        pageState: StateFlow<PageState>?,
+        authorId: String?,
+        postId: String?
+    ): Flow<PagingData<PostModel>> {
+        return when (postUsage) {
+            PostUsage.USER_DETAIL -> getUserDetailPosts(
+                postUsage.pageSize,
+                pageState,
+                authorId,
+                postId
+            )
+
+            PostUsage.USER_GALLERY -> getUserGalleryPosts(
+                postUsage.pageSize,
+                authorId,
+            )
+        }
+    }
+
     @OptIn(ExperimentalPagingApi::class)
-    private fun getUserDetailPagingItem(
+    private fun getUserDetailPosts(
         pageSize: Int,
         pageState: StateFlow<PageState>?,
         authorId: String?,
@@ -200,7 +199,7 @@ class PostRepositoryImpl @Inject constructor(
                 postId = postId,
                 pageState = pageState
             ),
-            pagingSourceFactory = { localPostDataSource.getPagingItems() }
+            pagingSourceFactory = { localPostDataSource.getGalleryPosts() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toModel()
@@ -209,10 +208,11 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     @OptIn(ExperimentalPagingApi::class)
-    private fun getUserGalleryPagingItem(
+    private fun getUserGalleryPosts(
         pageSize: Int,
         authorId: String?,
     ): Flow<PagingData<PostModel>> {
+        Log.w("userPostsTest", authorId ?: "")
         if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
 
         return Pager(
@@ -220,7 +220,7 @@ class PostRepositoryImpl @Inject constructor(
                 pageSize = pageSize,
             ),
             remoteMediator = userGalleryRemoteMediatorFactory.create(authorId = authorId),
-            pagingSourceFactory = { localPostDataSource.getPagingItems() }
+            pagingSourceFactory = { localPostDataSource.getGalleryPosts() }
         ).flow.map { pagingData ->
             pagingData.map { data ->
                 data.toModel()
@@ -229,7 +229,10 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPostById(postId: String): Result<PostModel> {
-        return kotlin.runCatching { localPostDataSource.getItemById(postId)?.toModel() ?: throw IllegalArgumentException() }
+        return kotlin.runCatching {
+            localPostDataSource.getItemById(postId)?.toModel()
+                ?: throw IllegalArgumentException()
+        }
     }
 
     override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
@@ -243,7 +246,7 @@ class PostRepositoryImpl @Inject constructor(
             throw IOException("게시물 불러오기 실패")
         }
 
-        localPostDataSource.clearHomeItems()
+        localPostDataSource.clearHomePosts()
         delay(100)
         localPostDataSource.insertItems(
             posts.map { it.toOtherData() },
@@ -342,7 +345,7 @@ class PostRepositoryImpl @Inject constructor(
     override suspend fun insertPagingItem(item: PostModel) {
         localPostDataSource.insertItems(
             listOf(item.toOtherData()),
-            PAGING
+            RANDOM
         )
     }
 
@@ -379,8 +382,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 }
 
-enum class PostType(val pageSize: Int) {
-    RANDOM_DETAIL(DETAIL_PER_PAGE),
+enum class PostUsage(val pageSize: Int) {
     USER_DETAIL(DETAIL_PER_PAGE),
     USER_GALLERY(GALLERY_PAGE_SIZE),
 }

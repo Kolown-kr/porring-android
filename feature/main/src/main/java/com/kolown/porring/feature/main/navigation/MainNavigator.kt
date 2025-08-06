@@ -1,8 +1,6 @@
 package com.kolown.porring.feature.main.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -18,6 +16,7 @@ import com.kolown.porring.core.navigation.toRouteClassOrNull
 import com.kolown.porring.feature.camera.navigation.navigateCamera
 import com.kolown.porring.feature.detail.navigation.navigateToDetail
 import com.kolown.porring.feature.detail_my.navigation.navigateToDetailMy
+import com.kolown.porring.feature.detail_their.navigation.navigateToDetailTheir
 import com.kolown.porring.feature.follower.navigation.navigateFollower
 import com.kolown.porring.feature.follower.navigation.navigateFollowerGallery
 import com.kolown.porring.feature.home.navigation.navigateHome
@@ -33,8 +32,6 @@ import com.kolown.porring.feature.setting.navigation.navigateSetting
 import com.kolown.porring.feature.setting.navigation.navigateUserInfo
 import com.kolown.porring.feature.their.navigation.navigateTheir
 import com.kolown.porring.feature.upload.navigation.navigateUpload
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 internal class MainNavigator(
     val navController: NavHostController,
@@ -102,6 +99,19 @@ internal class MainNavigator(
             postId = postId,
             navOptions = singleTopOptions
         )
+
+    fun navigateToDetailTheir(
+        order: Int,
+        authorId: String = "",
+        postId: String? = null
+    ) =
+        navController.navigateToDetailTheir(
+            order = order,
+            authorId = authorId,
+            postId = postId,
+            navOptions = singleTopOptions
+        )
+
 
     fun navigateToDetailMy(pageIndex: Int) =
         navController.navigateToDetailMy(pageIndex = pageIndex, navOptions = singleTopOptions)

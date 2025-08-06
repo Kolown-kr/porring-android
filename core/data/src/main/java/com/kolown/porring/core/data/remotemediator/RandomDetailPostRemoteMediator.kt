@@ -82,7 +82,7 @@ class RandomDetailPostRemoteMediator @AssistedInject constructor(
 
         localPostDataSource.insertItems(
             posts.map { it.toOtherData() },
-            com.kolown.porring.core.data.model.PostsUsageType.PAGING
+            com.kolown.porring.core.data.model.PostsUsageType.RANDOM
         )
 
         val currentLastKey = posts.lastOrNull()?.random ?: nextKey

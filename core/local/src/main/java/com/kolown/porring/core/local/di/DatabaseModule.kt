@@ -28,6 +28,18 @@ class DatabaseModule {
     fun providePostDao(database: AppDatabase) = database.postDao()
 
     @Provides
+    fun provideHomePostDao(database: AppDatabase) = database.homePostDao()
+
+    @Provides
+    fun provideRandomPostDao(database: AppDatabase) = database.randomPostDao()
+
+    @Provides
+    fun provideGalleryPostDao(database: AppDatabase) = database.galleryPostDao()
+
+    @Provides
+    fun provideMyPostDao(database: AppDatabase) = database.myPostDao()
+
+    @Provides
     fun provideFollowerDao(database: AppDatabase) = database.followerDao()
 
     @Provides

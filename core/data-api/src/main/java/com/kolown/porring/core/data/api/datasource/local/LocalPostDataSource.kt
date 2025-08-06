@@ -8,13 +8,19 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalPostDataSource {
     suspend fun insertItems(items: List<OtherPostData>, itemType: PostsUsageType)
-    fun getItems(): Flow<List<OtherPostData>>
-    fun getPagingItems(): PagingSource<Int, OtherPostData>
+
+    fun getHomePosts(): Flow<List<OtherPostData>>
+    fun getRandomPosts(): PagingSource<Int, OtherPostData>
+    fun getGalleryPosts(): PagingSource<Int, OtherPostData>
+
     suspend fun getItemById(postId: String): OtherPostData?
-    suspend fun clearHomeItems()
-    suspend fun clearPagingItems()
-    suspend fun getFirstPageItem(): OtherPostData
-    suspend fun getLastPageItem(): OtherPostData
+
+    suspend fun clearHomePosts()
+    suspend fun clearRandomPosts()
+    suspend fun clearGalleryPosts()
+
+    suspend fun getFirstRandomItem(): OtherPostData
+    suspend fun getLastRandomItem(): OtherPostData
 
     suspend fun insertMyPost(posts: List<MyPostData>)
     fun getMyPosts(): PagingSource<Int, MyPostData>

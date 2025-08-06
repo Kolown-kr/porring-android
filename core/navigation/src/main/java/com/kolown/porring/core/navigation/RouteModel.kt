@@ -30,9 +30,16 @@ sealed interface Route {
     ) : Route {
         @Serializable
         enum class Type {
-            DEFAULT, FOLLOW, SEARCH
+            DEFAULT, SEARCH
         }
     }
+
+    @Serializable
+    data class DetailTheir(
+        val order: Int,
+        val authorId: String,
+        val postId: String? = null,
+    ) : Route
 
     @Serializable
     data class DetailMy(val pageIndex: Int) : Route
