@@ -18,6 +18,8 @@ object PorringIcons {
         val ArrowBack @Composable get() = ImageVector.vectorResource(R.drawable.ic_arrow_back)
         val Add @Composable get() = ImageVector.vectorResource(R.drawable.ic_add)
         val Camera @Composable get() = ImageVector.vectorResource(R.drawable.ic_camera)
+
+        val Gallery @Composable get() = ImageVector.vectorResource(R.drawable.ic_gallery)
     }
 
     object Filled {
@@ -25,5 +27,11 @@ object PorringIcons {
         val Search @Composable get() = ImageVector.vectorResource(R.drawable.ic_search_filled)
         val Follow @Composable get() = ImageVector.vectorResource(R.drawable.ic_follow_filled)
         val My @Composable get() = ImageVector.vectorResource(R.drawable.ic_my_filled)
+
+        val AddFollow @Composable get() = ImageVector.vectorResource(R.drawable.ic_add_follow_filled)
+    }
+
+    object Lined {
+        val AddFollow @Composable get() = ImageVector.vectorResource(R.drawable.ic_add_follow_line)
     }
 }

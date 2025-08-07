@@ -45,12 +45,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
+import com.kolown.porring.core.designsystem.component.button.PorringSelectableIconButton
 import com.kolown.porring.core.designsystem.icon.PorringIcons
-import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.designsystem.ui.theme.Primary
-import com.kolown.porring.core.designsystem.ui.theme.PrimaryDark
 import com.kolown.porring.core.model.PageState
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
@@ -296,12 +294,13 @@ private fun EventRow(
             Icon(
                 imageVector = activatedReaction?.getIcon()
                     ?: ImageVector.vectorResource(com.kolown.porring.core.designsystem.R.drawable.ic_reaction_none),
-                tint = if (activatedReaction != null) Primary else PrimaryDark,
+                tint = if (activatedReaction != null) PorringTheme.colors.primary else PorringTheme.colors.onBackground,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier
                     .size(30.dp)
             )
         }
+
         DropdownMenu(
             modifier = Modifier
                 .wrapContentWidth(),
@@ -322,22 +321,11 @@ private fun EventRow(
 
         Spacer(Modifier.width(12.dp))
 
-        IconButton(
+        PorringSelectableIconButton(
             onClick = onFollowClick,
-        ) {
-            if (isFollowed) {
-                Icon(
-                    modifier = Modifier.size(40.dp),
-                    imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_follow_bg),
-                    contentDescription = null,
-                )
-            }
-            Icon(
-                modifier = Modifier.size(24.dp),
-                imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_follow),
-                contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_follow),
-                tint = if (isFollowed) Background else PrimaryDark,
-            )
-        }
+            defaultIcon = PorringIcons.Lined.AddFollow,
+            selectedIcon = PorringIcons.Filled.AddFollow,
+            selected = isFollowed,
+        )
     }
 }
