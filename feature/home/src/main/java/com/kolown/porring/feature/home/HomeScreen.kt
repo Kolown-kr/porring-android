@@ -45,7 +45,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kolown.porring.core.designsystem.component.button.PorringIconButton
+import com.kolown.porring.core.designsystem.component.button.PorringSelectableIconButton
+import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.designsystem.ui.theme.Background
+import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
@@ -287,7 +291,7 @@ private fun EventRow(
             Icon(
                 imageVector = activatedReaction?.getIcon()
                     ?: ImageVector.vectorResource(com.kolown.porring.core.designsystem.R.drawable.ic_reaction_none),
-                tint = Primary,
+                tint = if(activatedReaction == null) PorringTheme.colors.onBackground else PorringTheme.colors.primary,
                 contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
                 modifier = Modifier.size(32.dp)
             )
@@ -317,43 +321,18 @@ private fun EventRow(
 
         Spacer(Modifier.weight(1f))
 
-        HomeButton(
+        PorringIconButton(
             onClick = { onGalleryClick(postUiModel.authorId) },
-            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_gallary),
+            icon = PorringIcons.Default.Gallery
         )
 
         Spacer(Modifier.width(12.dp))
 
-        HomeButton(
+        PorringSelectableIconButton(
             onClick = { onFollowClick(postUiModel) },
-            imageVector = ImageVector.vectorResource(com.kolown.porring.core.ui.R.drawable.ic_detail_follow),
-            contentColor = if (isFollowed) Background else Primary,
-            backgroundColor = if (isFollowed) Primary else Background
-        )
-    }
-}
-
-@Composable
-private fun HomeButton(
-    imageVector: ImageVector,
-    contentColor: Color = Primary,
-    backgroundColor: Color = Background,
-    onClick: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .background(backgroundColor)
-            .clickable(onClick = onClick)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = null,
-            tint = contentColor,
-            modifier = Modifier.size(24.dp)
+            defaultIcon = PorringIcons.Lined.AddFollow,
+            selectedIcon = PorringIcons.Filled.AddFollow,
+            selected = isFollowed
         )
     }
 }
