@@ -8,6 +8,8 @@ import com.kolown.porring.core.designsystem.R
 object PorringIcons {
     object Default {
         val Empty @Composable get() = ImageVector.vectorResource(R.drawable.ic_empty)
+
+        val ReactionNone @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_none)
         val ReactionSmile @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_smile)
         val ReactionCool @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_cool)
         val ReactionMove @Composable get() = ImageVector.vectorResource(R.drawable.ic_reaction_move)
