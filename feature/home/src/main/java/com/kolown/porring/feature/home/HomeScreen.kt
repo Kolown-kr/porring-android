@@ -1,8 +1,6 @@
 package com.kolown.porring.feature.home
 
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +16,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,11 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,9 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.component.button.PorringSelectableIconButton
 import com.kolown.porring.core.designsystem.icon.PorringIcons
-import com.kolown.porring.core.designsystem.ui.theme.Background
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
-import com.kolown.porring.core.designsystem.ui.theme.Primary
 import com.kolown.porring.core.model.Reaction
 import com.kolown.porring.core.model.SnackBarEvent
 import com.kolown.porring.core.model.UiState
@@ -66,7 +58,6 @@ import com.kolown.porring.core.ui.component.reaction.getIcon
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.core.ui.compositionlocal.LocalSnackBarBridge
 import com.kolown.porring.core.ui.model.PostUiModel
-import com.kolown.porring.feature.home.component.LottieFireWorkAnimation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,18 +275,11 @@ private fun EventRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            modifier = Modifier.size(40.dp),
-            onClick = { isExpand = true }
-        ) {
-            Icon(
-                imageVector = activatedReaction?.getIcon()
-                    ?: ImageVector.vectorResource(com.kolown.porring.core.designsystem.R.drawable.ic_reaction_none),
-                tint = if(activatedReaction == null) PorringTheme.colors.onBackground else PorringTheme.colors.primary,
-                contentDescription = stringResource(com.kolown.porring.core.ui.R.string.string_reaction_button),
-                modifier = Modifier.size(32.dp)
-            )
-        }
+        PorringSelectableIconButton(
+            onClick = { isExpand = true },
+            defaultIcon = activatedReaction.getIcon(),
+            selected = activatedReaction != null,
+        )
 
         Spacer(Modifier.width(12.dp))
 

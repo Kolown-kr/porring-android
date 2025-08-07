@@ -6,7 +6,7 @@ import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.model.Reaction
 
 @Composable
-fun Reaction.getIcon(): ImageVector {
+fun Reaction?.getIcon(): ImageVector {
     return when (this) {
         Reaction.HEART -> PorringIcons.Default.ReactionHeart
         Reaction.SURPRISE -> PorringIcons.Default.ReactionSurprise
@@ -14,5 +14,6 @@ fun Reaction.getIcon(): ImageVector {
         Reaction.COOL -> PorringIcons.Default.ReactionCool
         Reaction.MOVE -> PorringIcons.Default.ReactionMove
         Reaction.WINK -> PorringIcons.Default.ReactionWink
+        null -> PorringIcons.Default.ReactionNone
     }
 }
