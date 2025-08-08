@@ -32,7 +32,7 @@ fun PorringSelectableIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = if (selected) PorringTheme.colors.primary else PorringTheme.colors.onBackground,
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }

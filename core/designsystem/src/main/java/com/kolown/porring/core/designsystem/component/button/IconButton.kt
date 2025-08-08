@@ -32,7 +32,7 @@ fun PorringIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = PorringTheme.colors.onBackground,
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }
@@ -56,7 +56,7 @@ fun PorringIconButton(
             contentDescription = contentDescription,
             tint = color,
             modifier = Modifier
-                .size(32.dp)
+                .size(24.dp)
                 .background(Color.Transparent),
         )
     }
