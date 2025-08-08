@@ -146,7 +146,7 @@ private fun RowScope.BottomBarItem(
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = item.getIcon(),
+            imageVector = item.getIcon(isSelected),
             modifier = Modifier.size(24.dp),
             contentDescription = item.contentDescription,
             tint = if (isSelected) PorringTheme.colors.primary else PorringTheme.colors.tertiary,
@@ -217,12 +217,21 @@ private fun menuBarShape(isShadow: Boolean = false) = GenericShape { size, _ ->
 }
 
 @Composable
-internal fun MainMenu.getIcon(): ImageVector {
-    return when (this) {
-        MainMenu.HOME -> PorringIcons.Filled.Home
-        MainMenu.SEARCH -> PorringIcons.Filled.Search
-        MainMenu.FOLLOWER -> PorringIcons.Filled.Follow
-        MainMenu.MY -> PorringIcons.Filled.My
+internal fun MainMenu.getIcon(isSelected: Boolean): ImageVector {
+    return if(isSelected) {
+        when (this) {
+            MainMenu.HOME -> PorringIcons.Filled.Home
+            MainMenu.SEARCH -> PorringIcons.Filled.Search
+            MainMenu.FOLLOWER -> PorringIcons.Filled.Follow
+            MainMenu.MY -> PorringIcons.Filled.My
+        }
+    } else {
+        when (this) {
+            MainMenu.HOME -> PorringIcons.Lined.Home
+            MainMenu.SEARCH -> PorringIcons.Lined.Search
+            MainMenu.FOLLOWER -> PorringIcons.Lined.Follow
+            MainMenu.MY -> PorringIcons.Lined.My
+        }
     }
 }
 

@@ -34,6 +34,11 @@ object PorringIcons {
     }
 
     object Lined {
+        val Home @Composable get() = ImageVector.vectorResource(R.drawable.ic_home_lined)
+        val Search @Composable get() = ImageVector.vectorResource(R.drawable.ic_search_lined)
+        val Follow @Composable get() = ImageVector.vectorResource(R.drawable.ic_follow_lined)
+        val My @Composable get() = ImageVector.vectorResource(R.drawable.ic_my_lined)
+
         val AddFollow @Composable get() = ImageVector.vectorResource(R.drawable.ic_add_follow_line)
     }
 }
