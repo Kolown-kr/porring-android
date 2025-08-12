@@ -105,6 +105,8 @@ internal class DetailTheirViewModel @Inject constructor(
 
 
     fun onReactionClick(postId: String, reaction: Reaction) = viewModelScope.launch {
+        if (checkedLogIn().not()) return@launch
+
         postRepository.updatePostReaction(postId, reaction)
     }
 
