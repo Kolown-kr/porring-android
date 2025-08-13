@@ -26,17 +26,6 @@ internal fun Project.configureKotlinAndroid() {
             isCoreLibraryDesugaringEnabled = true
         }
 
-        buildTypes {
-            getByName("debug") {
-                isMinifyEnabled = false
-                buildConfigField("boolean", "IS_DEBUG", "true")
-            }
-            getByName("release") {
-                isMinifyEnabled = true
-                buildConfigField("boolean", "IS_DEBUG", "false")
-            }
-        }
-
         buildFeatures {
             buildConfig = true
         }
