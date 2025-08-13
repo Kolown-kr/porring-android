@@ -235,23 +235,27 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchHomeItemPosts() = withContext(Dispatchers.IO) {
-        val currentUserId = googleAuthDataSource.getUserId()
+    override suspend fun fetchHomeItemPosts() {
+        withContext(Dispatchers.IO) {
+            val currentUserId = googleAuthDataSource.getUserId()
 
-        val posts = postDataSource.fetchRandomPost(
-            currentUserId,
-            HOME_ITEM_SIZE,
-            RANDOM_SEED.random().toString()
-        ).getOrElse {
-            throw IOException("게시물 불러오기 실패")
+            val result = postDataSource.fetchRandomPost(
+                currentUserId,
+                HOME_ITEM_SIZE,
+                RANDOM_SEED.random().toString()
+            )
+
+            result.onSuccess { list ->
+                localPostDataSource.clearHomePosts()
+                delay(100)
+                localPostDataSource.insertItems(
+                    list.map { it.toOtherData() },
+                    HOME
+                )
+            }.onFailure {
+                Log.e("fetchHomeItemPosts", it.message.toString())
+            }
         }
-
-        localPostDataSource.clearHomePosts()
-        delay(100)
-        localPostDataSource.insertItems(
-            posts.map { it.toOtherData() },
-            HOME
-        )
     }
 
     // TODO: domain생성후 useCase로 reactedPost를 유저 컬렉션에 등록하는 로직 이동해야함.
