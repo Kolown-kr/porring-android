@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera
+package com.kolown.porring.feature.camera.util
 
 import android.net.Uri
 import android.os.Build
@@ -13,24 +13,24 @@ import androidx.compose.runtime.Composable
 @Composable
 fun getImagePickerLauncher(): ImagePickerLauncher {
 
-    val launcher =  ImagePickerLauncher()
+    val launcher = ImagePickerLauncher()
     launcher.ProvideLauncher(
         imagePickerProvider = { onSucceed ->
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent(),
-            onResult = {
-                onSucceed(it)
-            }
-        )
-    }, photoPickerProvider = {  onSucceed ->
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia(),
-            onResult = {
-                Log.d("이미지:result",it.toString())
-                onSucceed(it)
-            }
-        )
-    }
+            rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.GetContent(),
+                onResult = {
+                    onSucceed(it)
+                }
+            )
+        }, photoPickerProvider = { onSucceed ->
+            rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia(),
+                onResult = {
+                    Log.d("이미지:result", it.toString())
+                    onSucceed(it)
+                }
+            )
+        }
     )
 
     return launcher
