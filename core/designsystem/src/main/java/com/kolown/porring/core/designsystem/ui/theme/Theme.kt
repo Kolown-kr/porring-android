@@ -3,15 +3,13 @@ package com.kolown.porring.core.designsystem.ui.theme
 import android.app.Activity
 import android.os.Build
 import android.view.Window
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -53,23 +51,20 @@ fun PorringTheme(
 fun DarkModeScreen(
     content: @Composable () -> Unit
 ) {
-    val previous = remember { DarkThemeController.isDark }
-
     DisposableEffect(Unit) {
-        DarkThemeController.setDark(true)
-        onDispose { DarkThemeController.setDark(previous) }
+        DarkThemeController.push()
+        onDispose { DarkThemeController.pop() }
     }
 
     content()
 }
 
 private object DarkThemeController {
-    private val _isDark = mutableStateOf(false)
-    val isDark: Boolean get() = _isDark.value
+    private val _depth = mutableIntStateOf(0)
+    val isDark: Boolean get() = _depth.intValue > 0
 
-    fun setDark(dark: Boolean) {
-        _isDark.value = dark
-    }
+    fun push() { _depth.intValue++ }
+    fun pop() { _depth.intValue = (_depth.intValue - 1).coerceAtLeast(0) }
 }
 
 private fun Window.setSystemBarBackground() {
