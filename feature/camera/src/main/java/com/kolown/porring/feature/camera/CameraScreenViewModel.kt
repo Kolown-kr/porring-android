@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera.screen
+package com.kolown.porring.feature.camera
 
 import android.graphics.Bitmap
 import android.net.Uri

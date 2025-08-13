@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera.screen.component
+package com.kolown.porring.feature.camera.component
 
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView

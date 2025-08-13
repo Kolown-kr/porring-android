@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera.screen.component
+package com.kolown.porring.feature.camera.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize

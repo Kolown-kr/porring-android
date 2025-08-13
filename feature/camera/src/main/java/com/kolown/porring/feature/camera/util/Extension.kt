@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera
+package com.kolown.porring.feature.camera.util
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,15 +14,16 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun <T>ListenableFuture<T>.getSuspendedResult(context: Context):T= suspendCoroutine{ continuation ->
-    this.addListener({
-        try {
-            continuation.resume(get())
-        } catch (e: Exception) {
-            continuation.resumeWithException(e)
-        }
-    },ContextCompat.getMainExecutor(context))
-}
+suspend fun <T> ListenableFuture<T>.getSuspendedResult(context: Context): T =
+    suspendCoroutine { continuation ->
+        this.addListener({
+            try {
+                continuation.resume(get())
+            } catch (e: Exception) {
+                continuation.resumeWithException(e)
+            }
+        }, ContextCompat.getMainExecutor(context))
+    }
 
 fun CameraController.takePhoto(
     context: Context,

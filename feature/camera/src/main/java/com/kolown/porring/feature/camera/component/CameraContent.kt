@@ -1,5 +1,6 @@
-package com.kolown.porring.feature.camera.screen
+package com.kolown.porring.feature.camera.component
 
+import android.graphics.Bitmap
 import android.media.MediaActionSound
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -46,11 +47,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
 import com.kolown.porring.feature.camera.R
-import com.kolown.porring.feature.camera.getImagePickerLauncher
-import com.kolown.porring.feature.camera.getSuspendedResult
-import com.kolown.porring.feature.camera.screen.component.CaptureButton
-import com.kolown.porring.feature.camera.screen.component.PreviewViewCompose
-import com.kolown.porring.feature.camera.takePhoto
+import com.kolown.porring.feature.camera.util.getImagePickerLauncher
+import com.kolown.porring.feature.camera.util.getSuspendedResult
+import com.kolown.porring.feature.camera.CameraScreenViewModel
+import com.kolown.porring.feature.camera.util.takePhoto
 import kotlinx.coroutines.launch
 
 @Composable
@@ -66,7 +66,7 @@ internal fun CameraContent(
 
     val imageUri by viewModel.uri.collectAsStateWithLifecycle()
     var isCaptured by remember { mutableStateOf(false) }
-    var capturedImage: android.graphics.Bitmap? by remember { mutableStateOf(null) }
+    var capturedImage: Bitmap? by remember { mutableStateOf(null) }
 
     LaunchedEffect(imageUri) {
         imageUri?.let { navigateToImageEdit(it.toString()) }

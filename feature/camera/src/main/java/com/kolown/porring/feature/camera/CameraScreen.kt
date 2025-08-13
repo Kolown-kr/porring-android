@@ -1,4 +1,4 @@
-package com.kolown.porring.feature.camera.screen
+package com.kolown.porring.feature.camera
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +16,7 @@ import com.kolown.porring.core.designsystem.R.drawable
 import com.kolown.porring.core.designsystem.component.PorringTopAppBar
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.ui.theme.DarkModeScreen
-import com.kolown.porring.feature.camera.R
+import com.kolown.porring.feature.camera.component.CameraContent
 
 
 @Composable
