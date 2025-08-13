@@ -20,6 +20,16 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Keep Firestore & public 0-arg ctor & field
+-keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+-keepclassmembers class com.kolown.porring.core.network.model.** {
+    public <init>();
+    <fields>;
+    public *** get*();
+    public void set*(***);
+}
+-keepclassmembers class com.kolown.porring.core.network.model.** { public <init>(); }
+
 # Keep Dependency Injection Framework related classes and methods
 -keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }

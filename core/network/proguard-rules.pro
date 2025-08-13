@@ -21,7 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class com.kolown.porring.core.network.di.** { *; }
--keep class com.kolown.porring.core.network.model.** { *; }
 -keep class com.kolown.porring.core.network.adapter.** { *; }
 
 -if class androidx.credentials.CredentialManager
@@ -29,8 +28,15 @@
   *;
 }
 
-# 제네릭 타입 보존 (DB/Firestore 모델 변환 시 안전)
--keepattributes Signature
+# Keep Firestore & public 0-arg ctor & field
+-keepattributes Signature,RuntimeVisibleAnnotations,AnnotationDefault
+-keepclassmembers class com.kolown.porring.core.network.model.** {
+    public <init>();
+    <fields>;
+    public *** get*();
+    public void set*(***);
+}
+-keepclassmembers class com.kolown.porring.core.network.model.** { public <init>(); }
 
 # Keep Dependency Injection Framework related classes and methods
 -keep class dagger.hilt.** { *; }
