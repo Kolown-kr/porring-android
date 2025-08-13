@@ -60,7 +60,6 @@ class TheirViewModel @Inject constructor(
                 pageState = pageState
             ).map { pagingData -> pagingData.map { it.toUiModel() } }
                 .collectLatest(_pagingItems::emit)
-
         }
     }
 

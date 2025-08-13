@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridS
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -42,19 +40,17 @@ fun StateLazyGrid(
         verticalItemSpacing = 8.dp
     ) {
         items(pagingItems.itemCount) { index ->
-            val pagingItem = pagingItems[index]
+            val pagingItem = pagingItems[index] ?: return@items
 
-            if (pagingItem != null) {
-                GalleryItem(
-                    postUiModel = pagingItem,
-                    longClickEnabled = longClickEnabled,
-                    onLongClickImage = { onLongClick(pagingItem.postId) },
-                    onClickImage = {
-                        navigateToDetail(pagingItem)
-                        setPage(index)
-                    }
-                )
-            }
+            GalleryItem(
+                postUiModel = pagingItem,
+                longClickEnabled = longClickEnabled,
+                onLongClickImage = { onLongClick(pagingItem.postId) },
+                onClickImage = {
+                    navigateToDetail(pagingItem)
+                    setPage(index)
+                }
+            )
         }
 
         if (pagingItems.loadState.append !is LoadState.NotLoading) {
@@ -69,7 +65,9 @@ fun StateLazyGrid(
             }
         }
 
-        item { Spacer(modifier = Modifier.height(padding.calculateBottomPadding())) }
+        item(span = StaggeredGridItemSpan.FullLine) {
+            Spacer(modifier = Modifier.height(padding.calculateBottomPadding()))
+        }
     }
 }
 

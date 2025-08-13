@@ -216,7 +216,6 @@ class PostRepositoryImpl @Inject constructor(
         pageSize: Int,
         authorId: String?,
     ): Flow<PagingData<PostModel>> {
-        Log.w("userPostsTest", authorId ?: "")
         if (authorId == null) throw IllegalArgumentException("Author Id가 없습니다.")
 
         return Pager(

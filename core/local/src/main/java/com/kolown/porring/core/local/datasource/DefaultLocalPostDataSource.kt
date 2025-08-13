@@ -1,6 +1,5 @@
 package com.kolown.porring.core.local.datasource
 
-import android.util.Log
 import androidx.paging.PagingSource
 import com.kolown.porring.core.data.api.datasource.local.LocalPostDataSource
 import com.kolown.porring.core.data.model.MyPostData
@@ -38,6 +37,8 @@ class DefaultLocalPostDataSource @Inject constructor(
 
     override suspend fun getLastRandomItem() = randomPostDao.getLastRandomItem()
 
+    override suspend fun getLastGalleryItem() = galleryPostDao.getLastGalleryItem()
+
     override fun getHomePosts(): Flow<List<OtherPostData>> {
         return homePostDao.getHomePosts()
     }
@@ -52,7 +53,6 @@ class DefaultLocalPostDataSource @Inject constructor(
     }
 
     override suspend fun clearHomePosts() {
-        Log.d("userPostsTest", "clearHomePosts")
         homePostDao.clearHomeItems()
     }
 

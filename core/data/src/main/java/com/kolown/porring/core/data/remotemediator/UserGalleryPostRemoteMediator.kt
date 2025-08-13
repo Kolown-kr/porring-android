@@ -62,7 +62,7 @@ class UserGalleryPostRemoteMediator @AssistedInject constructor(
     }
 
     private suspend fun onAppend(pageSize: Long): MediatorResult {
-        val lastItem = localPostDataSource.getLastRandomItem()
+        val lastItem = localPostDataSource.getLastGalleryItem()
 
         val result = Firebase.firestore.collection("post")
             .whereEqualTo("authorId", authorId)

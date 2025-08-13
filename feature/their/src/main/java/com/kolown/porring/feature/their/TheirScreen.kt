@@ -31,6 +31,7 @@ import com.kolown.porring.core.designsystem.component.PorringCenterAlignTopAppBa
 import com.kolown.porring.core.designsystem.component.button.PorringIconButton
 import com.kolown.porring.core.designsystem.icon.PorringIcons
 import com.kolown.porring.core.ui.component.ErrorScreen
+import com.kolown.porring.core.ui.component.LoadingScreen
 import com.kolown.porring.core.ui.component.PullToRefreshColumn
 import com.kolown.porring.core.ui.component.StateLazyGrid
 import com.kolown.porring.core.ui.compositionlocal.LocalPaddingValues
@@ -144,18 +145,7 @@ private fun TheirScreen(
                 }
 
                 pagingItems.loadState.refresh is LoadState.Loading -> {
-                    CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
-                    ) {
-                        StateLazyGrid(
-                            padding = padding,
-                            listState = listState,
-                            longClickEnabled = false,
-                            pagingItems = pagingItems,
-                            navigateToDetail = navigateToDetail,
-                            setPage = setPage
-                        )
-                    }
+                    LoadingScreen()
                 }
 
                 pagingItems.loadState.refresh is LoadState.NotLoading -> {

@@ -22,6 +22,8 @@ interface LocalPostDataSource {
     suspend fun getFirstRandomItem(): OtherPostData
     suspend fun getLastRandomItem(): OtherPostData
 
+    suspend fun getLastGalleryItem(): OtherPostData
+
     suspend fun insertMyPost(posts: List<MyPostData>)
     fun getMyPosts(): PagingSource<Int, MyPostData>
     suspend fun deleteMyPost(postId: String)
