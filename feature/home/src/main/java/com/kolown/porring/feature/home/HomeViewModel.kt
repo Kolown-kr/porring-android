@@ -51,7 +51,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            postRepository.fetchHomeItemPosts()
             postRepository.getHomePosts()
                 .onStart { _uiState.update { UiState.Loading } }
                 .catch { e -> _uiState.update { UiState.Failure(e) } }
@@ -62,7 +61,7 @@ class HomeViewModel @Inject constructor(
     fun refreshItems() {
         _uiState.update { UiState.Loading }
         viewModelScope.launch {
-            postRepository.fetchHomeItemPosts()
+            postRepository.fetchHomePosts()
         }
     }
 

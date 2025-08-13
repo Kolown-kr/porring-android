@@ -43,7 +43,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -54,7 +53,8 @@ interface PostRepository {
     fun getPostBySearch(tagName: String): Flow<PagingData<PostModel>>
 
     suspend fun getHomePosts(): Flow<List<PostModel>>
-    suspend fun fetchHomeItemPosts()
+    suspend fun fetchHomePosts()
+    suspend fun clearHomePosts()
 
     suspend fun insertPagingItem(item: PostModel)
     suspend fun getPostById(postId: String): Result<PostModel>
@@ -131,6 +131,10 @@ class PostRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             localPostDataSource.getHomePosts().map { data -> data.map { it.toModel() } }
         }
+
+    override suspend fun clearHomePosts() {
+        localPostDataSource.clearHomePosts()
+    }
 
     override suspend fun clearRandomPosts() = withContext(Dispatchers.IO) {
         localPostDataSource.clearRandomPosts()
@@ -235,7 +239,7 @@ class PostRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun fetchHomeItemPosts() {
+    override suspend fun fetchHomePosts() {
         withContext(Dispatchers.IO) {
             val currentUserId = googleAuthDataSource.getUserId()
 

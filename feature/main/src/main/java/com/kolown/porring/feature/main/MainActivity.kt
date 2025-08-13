@@ -20,6 +20,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mainViewModel.clearHomePosts()
         enableEdgeToEdge()
         setContent {
             val navigator: MainNavigator = rememberMainNavigator()
@@ -43,5 +44,10 @@ class MainActivity : ComponentActivity() {
         if (!BuildConfig.DEBUG) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mainViewModel.clearHomePosts()
     }
 }

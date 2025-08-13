@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    postRepository: PostRepository,
+    private val postRepository: PostRepository,
     authRepository: AuthRepository,
     userRepository: UserRepository,
     followRepository: FollowRepository,
@@ -31,11 +31,13 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             loginState.collect {
+                postRepository.fetchHomePosts()
+
                 if (it) {
                     // TODO: UseCase생성 후 통합처리 하도록 이전해야 함
-                    userRepository.fetchUserReactedPost()
-                    postRepository.fetchMyPosts()
                     followRepository.fetchFollows()
+                    postRepository.fetchMyPosts()
+                    userRepository.fetchUserReactedPost()
                 }
             }
         }
@@ -103,10 +105,15 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun clearHomePosts() {
+        viewModelScope.launch {
+            postRepository.clearHomePosts()
+        }
+    }
+
     fun postSnackBarData(data: SnackBarEvent) {
         viewModelScope.launch {
             _snackBarFlow.emit(data)
         }
     }
-
 }

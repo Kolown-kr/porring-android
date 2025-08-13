@@ -26,7 +26,6 @@ class DefaultLocalPostDataSource @Inject constructor(
         items: List<OtherPostData>,
         itemType: PostsUsageType
     ) {
-        Log.d("userPostsTest", items.toString())
         when (itemType) {
             PostsUsageType.HOME -> homePostDao.insertHomePosts(items)
             PostsUsageType.RANDOM -> randomPostDao.insertRandomPosts(items)
@@ -53,6 +52,7 @@ class DefaultLocalPostDataSource @Inject constructor(
     }
 
     override suspend fun clearHomePosts() {
+        Log.d("userPostsTest", "clearHomePosts")
         homePostDao.clearHomeItems()
     }
 

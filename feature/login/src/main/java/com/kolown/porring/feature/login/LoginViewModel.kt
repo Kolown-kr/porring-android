@@ -5,8 +5,6 @@ import androidx.credentials.Credential
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kolown.porring.core.data.repository.AuthRepository
-import com.kolown.porring.core.data.repository.FollowRepository
-import com.kolown.porring.core.data.repository.PostRepository
 import com.kolown.porring.core.data.repository.UserRepository
 import com.kolown.porring.core.model.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +21,6 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val followRepository: FollowRepository,
-    private val postRepository: PostRepository
 ) : ViewModel() {
     private var _loginState: MutableStateFlow<UiState<String>> = MutableStateFlow(UiState.Idle)
     val loginState = _loginState.asStateFlow()
@@ -32,8 +28,8 @@ class LoginViewModel @Inject constructor(
     private var _isEmailLogin = MutableStateFlow(false)
     val isEmailLogin = _isEmailLogin.asStateFlow()
 
-    private var _latestEamil = MutableStateFlow("")
-    val latestEmail = _latestEamil.asStateFlow()
+    private var _latestEmail = MutableStateFlow("")
+    val latestEmail = _latestEmail.asStateFlow()
 
     fun handleSignIn(credential: Credential) {
         viewModelScope.launch {
@@ -42,11 +38,7 @@ class LoginViewModel @Inject constructor(
             authRepository.signInWithCredential(credential)
                 .onSuccess {
                     _loginState.update { UiState.Success("로그인 완료") }
-                    // TODO: UseCase생성 후 통합처리 하도록 이전해야 함
                     userRepository.createUserData()
-                    followRepository.fetchFollows()
-                    postRepository.fetchMyPosts()
-                    userRepository.fetchUserReactedPost()
                 }
                 .onFailure { e -> _loginState.update { UiState.Failure(e) } }
         }
@@ -64,9 +56,6 @@ class LoginViewModel @Inject constructor(
                 .onSuccess {
                     _loginState.update { UiState.Success("로그인 완료") }
                     userRepository.createUserData()
-                    followRepository.fetchFollows()
-                    postRepository.fetchMyPosts()
-                    userRepository.fetchUserReactedPost()
                 }
                 .onFailure { e -> _loginState.update { UiState.Failure(e) } }
         }
@@ -76,7 +65,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             userRepository.getLatestUserEmail()
                 .onEach { email ->
-                    _latestEamil.update { email }
+                    _latestEmail.update { email }
                 }
                 .catch { e -> Log.e("porring_test_tag", "error: ${e}") }
                 .launchIn(viewModelScope)
