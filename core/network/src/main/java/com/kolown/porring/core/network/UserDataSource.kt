@@ -1,13 +1,10 @@
 package com.kolown.porring.core.network
 
-import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.kolown.porring.core.data.dto.ReactedPostDto
 import com.kolown.porring.core.model.Follow
 import com.kolown.porring.core.model.ReactedPost
 import com.kolown.porring.core.model.User
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -92,7 +89,7 @@ class UserDataSourceImpl @Inject constructor(
 
             val docResult = followerDoc.get().await()
 
-            if(!docResult.exists()) {
+            if (!docResult.exists()) {
                 throw IllegalStateException("팔로워 문서가 존재하지 않음")
             }
 
@@ -101,6 +98,8 @@ class UserDataSourceImpl @Inject constructor(
     }
 
     override suspend fun fetchFollows(userId: String): List<Follow> {
+        if (userId.isBlank()) return emptyList()
+
         val followers = userCollection
             .document(userId)
             .collection("followers")
@@ -122,9 +121,10 @@ class UserDataSourceImpl @Inject constructor(
     override suspend fun getUserEmail(userId: String): String =
         userCollection.document(userId).get().await().getString(EMAIL).orEmpty()
 
-    override suspend fun changeReceiverEmail(userId: String, email: String): Result<Unit> = kotlin.runCatching {
-        userCollection.document(userId).update(RECEIVER_EMAIL, email).await()
-    }
+    override suspend fun changeReceiverEmail(userId: String, email: String): Result<Unit> =
+        kotlin.runCatching {
+            userCollection.document(userId).update(RECEIVER_EMAIL, email).await()
+        }
 
     companion object {
         private const val USER = "user"

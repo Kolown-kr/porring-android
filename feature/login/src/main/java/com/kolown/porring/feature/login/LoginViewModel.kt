@@ -64,6 +64,9 @@ class LoginViewModel @Inject constructor(
                 .onSuccess {
                     _loginState.update { UiState.Success("로그인 완료") }
                     userRepository.createUserData()
+                    followRepository.fetchFollows()
+                    postRepository.fetchMyPosts()
+                    userRepository.fetchUserReactedPost()
                 }
                 .onFailure { e -> _loginState.update { UiState.Failure(e) } }
         }
