@@ -13,14 +13,12 @@ properties.load(FileInputStream("local.properties"))
 
 
 android {
-    buildTypes {
-        debug {
-            buildConfigField(
-                "String",
-                "GOOGLE_CLIENT_ID",
-                properties.getProperty("google_cient_id")
-            )
-        }
+    defaultConfig {
+        buildConfigField(
+            "String",
+            "GOOGLE_CLIENT_ID",
+            properties.getProperty("google_cient_id")
+        )
     }
 }
 
