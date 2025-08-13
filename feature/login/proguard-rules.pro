@@ -24,3 +24,5 @@
 -keep class androidx.credentials.playservices.** {
   *;
 }
+
+-keepnames @dagger.hilt.android.lifecycle.HiltViewModel class * extends androidx.lifecycle.ViewModel

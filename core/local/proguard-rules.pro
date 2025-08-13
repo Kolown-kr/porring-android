@@ -20,17 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.kolown.porring.core.network.di.** { *; }
--keep class com.kolown.porring.core.network.model.** { *; }
--keep class com.kolown.porring.core.network.adapter.** { *; }
-
--if class androidx.credentials.CredentialManager
--keep class androidx.credentials.playservices.** {
-  *;
-}
-
-# 제네릭 타입 보존 (DB/Firestore 모델 변환 시 안전)
--keepattributes Signature
+# Keep RoomDatabase
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
 
 # Keep Dependency Injection Framework related classes and methods
 -keep class dagger.hilt.** { *; }
@@ -41,16 +32,3 @@
 -keep class * implements javax.inject.Provider { *; }
 -keep class * extends dagger.hilt.internal.GeneratedComponent { *; }
 -dontwarn javax.lang.model.**
-
-# https://github.com/square/okhttp/pull/6792
--dontwarn org.bouncycastle.jsse.**
--dontwarn org.conscrypt.*
--dontwarn org.openjsse.**
-
-# refrofit2 (with r8 full mode)
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface <1>
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
--if interface * { @retrofit2.http.* public *** *(...); }
--keep,allowoptimization,allowshrinking,allowobfuscation class <3>
--keep,allowobfuscation,allowshrinking class retrofit2.Response

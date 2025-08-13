@@ -1,8 +1,3 @@
-import com.kolown.porring.setNamespace
-
 plugins {
-    alias(libs.plugins.porring.android.library)
-    alias(libs.plugins.porring.android.compose)
+    alias(libs.plugins.porring.kotlin.library)
 }
-
-setNamespace("core.common")
