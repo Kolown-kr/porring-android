@@ -45,11 +45,6 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# Keystore files
-# Uncomment the following lines if you do not want to check your keystore files in.
-#*.jks
-#*.keystore
-
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
@@ -118,6 +113,7 @@ output.json
 # Keystore files
 *.jks
 *.keystore
+upload_certificate.pem
 
 # Google Services (e.g. APIs or Firebase)
 # google-services.json

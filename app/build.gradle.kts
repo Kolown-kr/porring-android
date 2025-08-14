@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.kolown.porring"
         versionCode = 7
-        versionName = "1.1.0-rc.1"
+        versionName = "1.0.0-rc.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -22,6 +22,7 @@ android {
             storePassword = getProperty("KEYSTORE_PASSWORD")
             keyAlias = getProperty("KEY_ALIAS")
             keyPassword = getProperty("KEY_PASSWORD")
+            storeType = "pkcs12"
         }
     }
 
@@ -30,7 +31,6 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
-            isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
