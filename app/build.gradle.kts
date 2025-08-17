@@ -12,8 +12,8 @@ android {
     defaultConfig {
         targetSdk = 35
         applicationId = "com.kolown.porring"
-        versionCode = 7
-        versionName = "1.0.0-rc.1"
+        versionCode = 8
+        versionName = "1.0.0-rc.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,6 +40,18 @@ android {
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
+        }
+
+        create("minifiedDebug") {
+            initWith(getByName("debug"))
+            isMinifyEnabled = true           // 난독화/축소 활성화
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // 디버깅 가능 유지
+            isDebuggable = true
+            matchingFallbacks += listOf("debug")
         }
     }
 }

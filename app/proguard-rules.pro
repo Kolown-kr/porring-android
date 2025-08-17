@@ -39,3 +39,10 @@
 -keep class * implements javax.inject.Provider { *; }
 -keep class * extends dagger.hilt.internal.GeneratedComponent { *; }
 -dontwarn javax.lang.model.**
+
+# kotlinx.serialization & Nav-args
+-keepattributes *Annotation*
+-keep class kotlinx.serialization.** { *; }
+-keep class **Serializer { *; }
+-keepnames class com.kolown.porring.core.navigation.** { *; }
+-keepnames class com.kolown.porring.core.navigation.Route$** { *; }
