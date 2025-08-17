@@ -10,6 +10,7 @@ android {
     namespace = "com.kolown.porring"
 
     defaultConfig {
+        targetSdk = 35
         applicationId = "com.kolown.porring"
         versionCode = 7
         versionName = "1.0.0-rc.1"
@@ -22,7 +23,6 @@ android {
             storePassword = getProperty("KEYSTORE_PASSWORD")
             keyAlias = getProperty("KEY_ALIAS")
             keyPassword = getProperty("KEY_PASSWORD")
-            storeType = "pkcs12"
         }
     }
 
