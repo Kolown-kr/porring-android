@@ -48,7 +48,11 @@ internal fun TagSearchBar(
 
     TextField(
         value = text,
-        onValueChange = onValueChange,
+        onValueChange = {
+            if (it.length <= 10) {
+                onValueChange(it.filter { char -> char.isLetterOrDigit() })
+            }
+        },
         modifier = modifier
             .focusRequester(focusRequester)
             .fillMaxWidth()
