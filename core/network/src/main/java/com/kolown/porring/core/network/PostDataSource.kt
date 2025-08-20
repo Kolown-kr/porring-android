@@ -1,5 +1,6 @@
 package com.kolown.porring.core.network
 
+import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -157,17 +158,18 @@ class PostDataSourceImpl @Inject constructor(
             // chunk를 나눠서 호출(느려질 수는 있으나 안전)
             postIds.chunked(chunkSize).forEach { chunk ->
                 val snapshot = postCollection
-                    .whereNotEqualTo("authorId", currentUserId)
                     .whereIn("postId", chunk)
                     .get()
                     .await()
 
                 val posts = snapshot.mapNotNull {
                     it.toObject(PostDto::class.java).toPostModel(randomType)
-                }
+                }.filter { it.authorId != currentUserId }
 
                 allPosts.addAll(posts)
             }
+
+            Log.i("getPostBySearch", "allPosts: $allPosts+")
 
             val sorted = allPosts.sortedBy { it.registerAt }
 
