@@ -157,6 +157,7 @@ class PostDataSourceImpl @Inject constructor(
             // chunk를 나눠서 호출(느려질 수는 있으나 안전)
             postIds.chunked(chunkSize).forEach { chunk ->
                 val snapshot = postCollection
+                    .whereNotEqualTo("authorId", currentUserId)
                     .whereIn("postId", chunk)
                     .get()
                     .await()
@@ -168,7 +169,7 @@ class PostDataSourceImpl @Inject constructor(
                 allPosts.addAll(posts)
             }
 
-            val sorted = allPosts.sortedBy { it.postId }
+            val sorted = allPosts.sortedBy { it.registerAt }
 
             val paginated = if (key == null) {
                 sorted.take(perPage.toInt())
