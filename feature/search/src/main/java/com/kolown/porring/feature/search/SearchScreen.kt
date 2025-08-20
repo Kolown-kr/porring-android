@@ -1,7 +1,6 @@
 package com.kolown.porring.feature.search
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.kolown.porring.core.designsystem.ui.theme.Gray
 import com.kolown.porring.core.designsystem.ui.theme.PorringTheme
 import com.kolown.porring.core.designsystem.ui.theme.Surface2
 import com.kolown.porring.core.model.Tag
@@ -198,6 +197,20 @@ private fun SearchImages(
     images: LazyPagingItems<PostUiModel>,
     onImageClicked: (String) -> Unit = {},
 ) {
+    if (images.itemCount == 0 && images.loadState.refresh !is LoadState.Loading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "검색 결과가 없습니다.",
+                style = PorringTheme.typography.body,
+                color = PorringTheme.colors.error,
+            )
+        }
+    }
+
     LazyVerticalGrid(
         modifier = Modifier.padding(horizontal = 16.dp),
         columns = GridCells.Fixed(3),
