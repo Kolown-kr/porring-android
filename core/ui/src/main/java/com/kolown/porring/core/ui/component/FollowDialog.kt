@@ -92,7 +92,7 @@ fun FollowDialog(
                 OutlinedTextField(
                     value = textValue.value,
                     onValueChange = {
-                        textValue.value = it.take(10)
+                        textValue.value = it.trim().take(10)
                         if (it.isNotEmpty()) isFollowerNameEmpty.value = false
                     },
                     colors = TextFieldDefaults.colors(
